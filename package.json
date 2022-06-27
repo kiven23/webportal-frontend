@@ -1,0 +1,70 @@
+{
+  "name": "webportal-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "core-js": "^3.8.3",
+    "css-loader": "^3.6.0",
+    "js-file-download": "^0.4.12",
+    "material-design-icons-iconfont": "^5.0.1",
+    "nprogress": "^0.2.0",
+    "vue": "^2.6.12",
+    "vue-html-to-paper": "^1.4.4",
+    "vue-json-excel": "^0.2.99",
+    "vue-moment": "^4.1.0",
+    "vue-money-format": "^1.2.4",
+    "vue-router": "^3.4.9",
+    "vuelidate": "^0.7.6",
+    "vuesax": "^4.0.1-alpha.25",
+    "vuetify": "^2.4.3",
+    "vuetify-confirm": "^2.0.6",
+    "vuetify-dialog": "^2.0.13",
+    "vuex": "^3.6.0"
+  },
+  "devDependencies": {
+    "@mdi/font": "^4.9.95",
+    "@vue/cli-plugin-babel": "~4.2.0",
+    "@vue/cli-plugin-eslint": "~4.2.0",
+    "@vue/cli-plugin-router": "~4.2.0",
+    "@vue/cli-plugin-vuex": "~4.2.0",
+    "@vue/cli-service": "~4.2.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^6.2.2",
+    "prettier": "^1.19.1",
+    "sass": "^1.32.5",
+    "sass-loader": "^8.0.0",
+    "vue-cli-plugin-vuetify": "^2.0.9",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.6.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/prettier"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {
+      "no-unused-vars": "off"
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
