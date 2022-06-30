@@ -32,7 +32,7 @@
               <span>Export</span>
             </v-tooltip>  -->
 
-            <v-autocomplete
+            <!-- <v-autocomplete
               v-model="branch"
               :loading="loadingStatus"
               :items="branches"
@@ -46,12 +46,12 @@
               hide-selected
               solo
               @change="get()"
-            ></v-autocomplete>
-            <v-spacer></v-spacer>
+            ></v-autocomplete> -->
+            <!-- <v-spacer></v-spacer> -->
             <v-text-field
               v-model="search"
               append-icon="search"
-              label="Search"
+              label="Customer Name / Invoice"
               single-line
               hide-details
             ></v-text-field>
@@ -263,7 +263,8 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("digitized/fetchbranches");
+     this.$store.dispatch("incomingpayment/fetchIncoming");
+     this.$store.dispatch("digitized/fetchbranches");
   },
 
   methods: {

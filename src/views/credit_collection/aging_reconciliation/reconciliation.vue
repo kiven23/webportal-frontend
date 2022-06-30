@@ -11,7 +11,7 @@
       >
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>Customer Installment Ledger </v-toolbar-title>
+            <v-toolbar-title>Customer Installment Ledger</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
 
             <!-- <v-tooltip bottom>
@@ -31,8 +31,8 @@
               </template>
               <span>Export</span>
             </v-tooltip>  -->
-
-            <v-autocomplete
+ 
+            <!-- <v-autocomplete
               v-model="branch"
               :loading="loadingStatus"
               :items="branches"
@@ -46,16 +46,18 @@
               hide-selected
               solo
               @change="get()"
-            ></v-autocomplete>
-            <v-spacer></v-spacer>
+            ></v-autocomplete> -->
+           
             <v-text-field
               v-model="search"
               append-icon="search"
-              label="Search"
+              label="Customer Name / Invoice"
               single-line
               hide-details
-            ></v-text-field>
-
+            ></v-text-field> 
+            <v-spacer></v-spacer>
+              <p class="text-center"><br><strong >GRADE: {{grade.grade}}</strong><br><small> as of  {{ new Date().toDateString() }}</small></p> 
+             
             <v-dialog
               scrollable
               :value="dialog"
@@ -412,6 +414,7 @@ export default {
       branches: "digitized/getBranches",
       incoming: "recon/getIncoming",
       installment: "recon/getInstallment",
+      grade: "recon/getbranchgrade"
     }),
     // deleteAll() {
     //   return this.permissions.includes("Delete Agencies File");
@@ -443,9 +446,10 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("digitized/fetchbranches");
+     this.$store.dispatch("recon/fetchIncoming");
+     this.$store.dispatch("recon/ComputeBranchGrade");
+     this.$store.dispatch("digitized/fetchbranches");
   },
-
   methods: {
     refreshData() {
       //   this.$store.dispatch("agencies/fetchAgencies");

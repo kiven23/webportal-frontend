@@ -9,9 +9,11 @@ import { initialize } from "./helpers/general";
 import Vuesax from 'vuesax'
 import VueHtmlToPaper from 'vue-html-to-paper';
 import 'vuesax/dist/vuesax.css' //Vuesax styles
+import AxiosPlugin from 'vue-axios-cors';
 Vue.use(Vuesax, {
   // options here
 })
+Vue.use(AxiosPlugin)
 Vue.use(VueHtmlToPaper);
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;

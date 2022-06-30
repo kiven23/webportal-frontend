@@ -6,6 +6,7 @@ const indexUrl = rootUrl + "/api/public/installment/index";
 //get installment
 const installmentUrl = rootUrl + "/api/public/installment/create";
 const updateManual = rootUrl + "/api/public/installment/updatemanual";
+const GetBranchGrade = rootUrl + "/api/public/calculate/grade";
 const actions = {
   fetchIncoming(context, data){
     context.commit("LOADING_STATUS", true,{ root: true });
@@ -49,6 +50,18 @@ const actions = {
       context.commit("LOADING_STATUS", false, { root: true }); // stop loading
     });
   },
+ 
+  ComputeBranchGrade(context, data){
+    axios
+    .get(GetBranchGrade,  data )
+    .then(response => {
+      context.commit("GET_GRADE", response.data);
+     })
+     .catch(error => {
+      context.commit("LOADING_STATUS", false, { root: true }); // stop loading
+    });
+  },
+  
 };
 
 export default actions;
