@@ -9,16 +9,16 @@ const updateManual = rootUrl + "/api/public/installment/updatemanual";
 const GetBranchGrade = rootUrl + "/api/public/calculate/grade";
 const actions = {
   fetchIncoming(context, data){
-    context.commit("LOADING_STATUS", true,{ root: true });
+    context.commit("LOADING_STATUS2", true,{ root: true });
     axios
     .post(indexUrl,  data )
     .then(response => {
-      context.commit("LOADING_STATUS", false,{ root: true });
+      context.commit("LOADING_STATUS2", false,{ root: true });
       context.commit("GET_INCOMING", response.data);
      })
      .catch(error => {
       context.commit("INSTALLMENT_ERROR", error.response.data); // get error from backend
-      context.commit("LOADING_STATUS", false, { root: true }); // stop loading
+      context.commit("LOADING_STATUS2", false, { root: true }); // stop loading
     });
   },
   fetchInstallment(context, data){

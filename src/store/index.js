@@ -104,6 +104,7 @@ export default new Vuex.Store({
     },
     drawer: true,
     loading: true,
+    loading2: true,
     dialog: false,
     dialog2: false,
     snackbar: false,
@@ -149,6 +150,9 @@ export default new Vuex.Store({
     },
     LOADING_STATUS(state, loading) {
       state.loading = loading;
+    },
+    LOADING_STATUS2(state, loading) {
+      state.loading2 = loading;
     },
     DIALOG_STATUS(state, dialog) {
       state.dialog = dialog;

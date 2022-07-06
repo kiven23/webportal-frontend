@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       form: {
-        email: "",
+        email: "guimba_branch@webportal.test",
         password: "",
       },
     };

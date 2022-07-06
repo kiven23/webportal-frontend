@@ -11,7 +11,7 @@
         max-height="40"
         style="margin: 5px"
         ></v-img>
-      <v-toolbar-title> <strong>Webportal SAP B1 Pro </strong></v-toolbar-title>
+      <v-toolbar-title> <strong>Addessa Portal SapB1</strong></v-toolbar-title>
 
       <v-spacer></v-spacer>
 

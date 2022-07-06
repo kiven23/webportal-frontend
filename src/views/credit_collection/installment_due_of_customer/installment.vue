@@ -1,12 +1,13 @@
 <template>
   <div>
+    
     <v-container grid-list-md text-xs-center>
       <v-data-table
         v-model="selected"
         :headers="headers"
         :items="incoming"
         :search="search"
-        :loading="loadingStatus"
+        :loading="loadingStatus2"
         class="elevation-1"
       >
         <template v-slot:top>
@@ -46,8 +47,9 @@
               hide-selected
               solo
               @change="get()"
-            ></v-autocomplete> -->
-            <!-- <v-spacer></v-spacer> -->
+            ></v-autocomplete> 
+          <v-spacer></v-spacer> -->
+ 
             <v-text-field
               v-model="search"
               append-icon="search"
@@ -55,7 +57,6 @@
               single-line
               hide-details
             ></v-text-field>
-
             <v-dialog
               scrollable
               :value="dialog"
@@ -83,7 +84,7 @@
                     <v-toolbar-title
                       style="
                         text-transform: uppercase;
-                        font-size: 12px;
+                        font-size: 12px; 
                         font-weight: bold;
                       "
                       >{{ reportID }}</v-toolbar-title
@@ -99,6 +100,7 @@
                         :items="installment"
                         :items-per-page="13"
                         class="elevation-1"
+                        :loading="loadingStatus"
                       >
                         <template v-slot:item.Date="{ item }">
                           {{ item.Date == ''? '' : new Date(item.Date).toDateString()}}
@@ -224,6 +226,7 @@ export default {
       viewMode: false,
       viewOnly: 0,
       reportID: "",
+      
     };
   },
 
@@ -255,6 +258,10 @@ export default {
     loadingStatus() {
       return this.$store.state.loading;
     },
+    loadingStatus2() {
+      return this.$store.state.loading2;
+    },
+ 
   },
 
   watch: {
@@ -265,6 +272,8 @@ export default {
   created() {
      this.$store.dispatch("incomingpayment/fetchIncoming");
      this.$store.dispatch("digitized/fetchbranches");
+   
+
   },
 
   methods: {
@@ -281,6 +290,7 @@ export default {
     getfile() {},
 
     view(data) {
+ 
       let prilist, pricePercent;
       if(data.PriceList == '0% SPL' ||  data.PriceList == '0% REG'){
         prilist = 0.05;
