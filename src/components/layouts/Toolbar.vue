@@ -1,20 +1,22 @@
 <template>
   <nav>
-    <v-app-bar app clipped-left isDark >
+    <v-app-bar app clipped-left isDark>
       <!-- <v-app-bar-nav-icon @click.stop="drawer"></v-app-bar-nav-icon> -->
       <v-btn icon @click.stop="drawer">
         <v-icon>{{ toggleDrawer ? "mdi-menu" : "mdi-menu-open" }}</v-icon>
       </v-btn>
-        <v-img
+      <v-img
         src="/addessa_logo.png"
         max-width="40"
         max-height="40"
         style="margin: 5px"
-        ></v-img>
+      ></v-img>
       <v-toolbar-title> <strong>Addessa Portal</strong></v-toolbar-title>
 
       <v-spacer></v-spacer>
-
+      <v-tooltip-title class="flex text-end">
+        <strong style="text-align: center">Addessa {{currentUser.branch.name}}</strong>
+      </v-tooltip-title>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="goDark">
