@@ -1,5 +1,6 @@
 <template>
   <div>
+   
     <v-container grid-list-md text-xs-center>
       <v-data-table
         v-model="selected"
@@ -32,7 +33,8 @@
               <span>Export</span>
             </v-tooltip>  -->
 
-            <!-- <v-autocomplete
+            <v-autocomplete
+              v-if="searchAll"
               v-model="branch"
               :loading="loadingStatus"
               :items="branches"
@@ -46,8 +48,8 @@
               hide-selected
               solo
               @change="get()"
-            ></v-autocomplete> -->
-
+            ></v-autocomplete>
+            <v-spacer  v-if="searchAll"></v-spacer>
             <v-text-field
               v-model="search"
               append-icon="search"
@@ -426,10 +428,11 @@ export default {
       incoming: "recon/getIncoming",
       installment: "recon/getInstallment",
       grade: "recon/getbranchgrade",
+      permissions: "userPermissions/getPermission",
     }),
-    // deleteAll() {
-    //   return this.permissions.includes("Delete Agencies File");
-    // },
+    searchAll() {
+      return this.permissions.includes("Admin Access");
+    },
     // userCanCreate_role() {
     //   return this.permissions.includes("Create Agencies File");
     // },
@@ -463,6 +466,7 @@ export default {
     this.$store.dispatch("recon/fetchIncoming");
     this.$store.dispatch("recon/ComputeBranchGrade");
     this.$store.dispatch("digitized/fetchbranches");
+    this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {
     refreshData() {

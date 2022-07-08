@@ -33,7 +33,8 @@
               <span>Export</span>
             </v-tooltip>  -->
 
-            <!-- <v-autocomplete
+            <v-autocomplete
+             v-if="searchAll"
               v-model="branch"
               :loading="loadingStatus"
               :items="branches"
@@ -48,7 +49,7 @@
               solo
               @change="get()"
             ></v-autocomplete> 
-          <v-spacer></v-spacer> -->
+          <v-spacer v-if="searchAll"></v-spacer>
  
             <v-text-field
               v-model="search"
@@ -235,10 +236,11 @@ export default {
       branches: "digitized/getBranches",
       incoming: "incomingpayment/getIncoming",
       installment: "incomingpayment/getInstallment",
+      permissions: "userPermissions/getPermission",
     }),
-    // deleteAll() {
-    //   return this.permissions.includes("Delete Agencies File");
-    // },
+      searchAll() {
+      return this.permissions.includes("Admin Access");
+    },
     // userCanCreate_role() {
     //   return this.permissions.includes("Create Agencies File");
     // },
@@ -272,7 +274,7 @@ export default {
   created() {
      this.$store.dispatch("incomingpayment/fetchIncoming");
      this.$store.dispatch("digitized/fetchbranches");
-   
+     this.$store.dispatch("userPermissions/fetchPermission");
 
   },
 
