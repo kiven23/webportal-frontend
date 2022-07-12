@@ -56,6 +56,9 @@ import CreditStanding from "./modules/ccs_portal/creditportal/index";
 import IncomingPayment from "./modules/ccs_portal/installment/index";
 // Reconciliation
 import AgingRecon from "./modules/ccs_portal/aging_recon/index";
+
+import DunningLetters from "./modules/ccs_portal/dunning_letters/index";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -93,7 +96,9 @@ export default new Vuex.Store({
     //Incoming Payment
      incomingpayment: IncomingPayment,
     //Aging Reconciliation
-     recon: AgingRecon
+     recon: AgingRecon,
+     //Dunning Letters
+     dunning: DunningLetters,
       
   },
   state: {

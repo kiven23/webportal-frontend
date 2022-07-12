@@ -13,8 +13,10 @@ const actions = {
     axios
     .post(indexUrl,  data )
     .then(response => {
+       
       context.commit("LOADING_STATUS2", false,{ root: true });
-      context.commit("GET_INCOMING", response.data);
+      context.commit("GET_INCOMING", response.data.data);
+      context.commit("GET_GRADE", response.data.grade.original);
      })
      .catch(error => {
       context.commit("INSTALLMENT_ERROR", error.response.data); // get error from backend
@@ -28,6 +30,7 @@ const actions = {
     axios
     .post(installmentUrl,  data )
     .then(response => {
+    
       context.commit("LOADING_STATUS", false,{ root: true });
       context.commit("GET_INSTALLMENT", response.data);
      })
