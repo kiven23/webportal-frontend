@@ -40,6 +40,7 @@ import black_listed from "../views/credit_collection/black_listed/blacklisted.vu
 import customer_digitized from "../views/credit_collection/customer_digitized/digitized.vue"
 import installment_due from "../views/credit_collection/installment_due_of_customer/installment.vue" 
 import aging_reconciliation from "../views/credit_collection/aging_reconciliation/reconciliation.vue" 
+import dunning_letters from "../views/credit_collection/dunning_letters/dunning.vue";
  
 const viewRoutes = [
   {
@@ -268,7 +269,14 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
-  
+  {
+    path: "/ccs/dunning-letters",
+    component: dunning_letters,
+    name: "dunning",
+    meta: {
+      requiresAuth: true
+    }
+  },
  
 ];
 export default viewRoutes;

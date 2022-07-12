@@ -1,3 +1,3 @@
-const rootUrl = "http://192.168.1.19:7771";
+const rootUrl = "http://2.tcp.ngrok.io:15908";
 
 export default rootUrl;
