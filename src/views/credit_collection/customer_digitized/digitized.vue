@@ -919,7 +919,7 @@ export default {
         if (value.id == data.id) {
           this.downloadData.data[dataType].splice(index, 1);
           this.$store.dispatch("digitized/trashCDR", data);
-          this.refreshData();
+          
         }
       });
     },
