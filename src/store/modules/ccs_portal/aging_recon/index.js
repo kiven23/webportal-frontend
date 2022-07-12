@@ -3,7 +3,8 @@ import actions from "./actions";
 const state = {
   incoming_data: [],
   installment_data: [],
-  errors: []
+  errors: [],
+  branchgrade: []
  
 };
 const getters = {
@@ -15,6 +16,9 @@ const getters = {
   },
   getInstallmentErr(state) {
     return state.errors
+  },
+  getbranchgrade(state) {
+    return state.branchgrade
   },
  
 };
@@ -28,6 +32,9 @@ const mutations = {
   },
   INSTALLMENT_ERROR(state, errors) {
     state.errors = errors;
+  },
+  GET_GRADE(state, payload){
+    state.branchgrade = payload;
   }
   
 };

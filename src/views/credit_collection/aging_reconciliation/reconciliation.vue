@@ -1,17 +1,18 @@
 <template>
   <div>
+   
     <v-container grid-list-md text-xs-center>
       <v-data-table
         v-model="selected"
         :headers="headers"
         :items="incoming"
         :search="search"
-        :loading="loadingStatus"
+        :loading="loadingStatus2"
         class="elevation-1"
       >
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>Customer Installment Ledger </v-toolbar-title>
+            <v-toolbar-title>Customer Installment Ledger</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
 
             <!-- <v-tooltip bottom>
@@ -33,6 +34,7 @@
             </v-tooltip>  -->
 
             <v-autocomplete
+              v-if="searchAll"
               v-model="branch"
               :loading="loadingStatus"
               :items="branches"
@@ -47,14 +49,25 @@
               solo
               @change="get()"
             ></v-autocomplete>
-            <v-spacer></v-spacer>
+            <v-spacer  v-if="searchAll"></v-spacer>
             <v-text-field
               v-model="search"
               append-icon="search"
-              label="Search"
+              label="Customer Name / Invoice"
               single-line
               hide-details
             ></v-text-field>
+            <v-spacer></v-spacer>
+            <p class="text-center">
+              <br /><strong
+                >GRADE: {{ grade.grade }}
+                <v-progress-circular
+                  v-if="!grade.grade"
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular></strong
+              ><br /><small> as of {{ new Date().toDateString() }}</small>
+            </p>
 
             <v-dialog
               scrollable
@@ -72,7 +85,7 @@
                     </v-btn>
 
                     <v-toolbar-title>
-                        {{ name }}
+                      {{ name }}
                       <p style="font-size: 10px">
                         {{ address }}
                       </p>
@@ -87,20 +100,20 @@
                       >{{ reportID }}</v-toolbar-title
                     >
                     <v-chip class="ma-5" color="green"
-                      >DOCUMENT TYPE :<strong > {{ installment_type }}</strong>
+                      >DOCUMENT TYPE :<strong> {{ installment_type }}</strong>
                     </v-chip>
                     <v-chip class="ma-1" color="green"
-                      >DOWNPAYMENT :  <strong>
-                      <money-format
-                        :value="
-                          downpayment != 0.0
-                            ? parseInt(downpayment)
-                            : 0
-                        "
-                        locale="en"
-                        currency-code="PHP"
-                      >
-                      </money-format></strong>
+                      >DOWNPAYMENT :
+                      <strong>
+                        <money-format
+                          :value="
+                            downpayment != 0.0 ? parseInt(downpayment) : 0
+                          "
+                          locale="en"
+                          currency-code="PHP"
+                        >
+                        </money-format
+                      ></strong>
                     </v-chip>
 
                     <v-spacer></v-spacer>
@@ -113,6 +126,7 @@
                         :headers="headers2"
                         :items="installment"
                         :items-per-page="12"
+                        :loading="loadingStatus"
                         class="elevation-1"
                       >
                         <template v-slot:item.Date="{ item }">
@@ -204,6 +218,7 @@
                         :headers="headers3"
                         :items="installment"
                         :items-per-page="12"
+                        :loading="loadingStatus"
                         class="elevation-1"
                       >
                         <template v-slot:item.Date="{ item }">
@@ -412,10 +427,12 @@ export default {
       branches: "digitized/getBranches",
       incoming: "recon/getIncoming",
       installment: "recon/getInstallment",
+      grade: "recon/getbranchgrade",
+      permissions: "userPermissions/getPermission",
     }),
-    // deleteAll() {
-    //   return this.permissions.includes("Delete Agencies File");
-    // },
+    searchAll() {
+      return this.permissions.includes("Admin Access");
+    },
     // userCanCreate_role() {
     //   return this.permissions.includes("Create Agencies File");
     // },
@@ -435,6 +452,9 @@ export default {
     loadingStatus() {
       return this.$store.state.loading;
     },
+    loadingStatus2() {
+      return this.$store.state.loading2;
+    },
   },
 
   watch: {
@@ -443,9 +463,11 @@ export default {
     },
   },
   created() {
+    this.$store.dispatch("recon/fetchIncoming");
+    this.$store.dispatch("recon/ComputeBranchGrade");
     this.$store.dispatch("digitized/fetchbranches");
+    this.$store.dispatch("userPermissions/fetchPermission");
   },
-
   methods: {
     refreshData() {
       //   this.$store.dispatch("agencies/fetchAgencies");

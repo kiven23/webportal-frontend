@@ -16,7 +16,6 @@ const getters = {
   getAttachment(state) {
     return state.attachment_data
   },
- 
 };
  
 const mutations = {
