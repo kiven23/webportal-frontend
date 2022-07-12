@@ -11,7 +11,7 @@
         max-height="40"
         style="margin: 5px"
       ></v-img>
-      <v-toolbar-title> <strong>Addessa Portal</strong></v-toolbar-title>
+      <v-toolbar-title> <strong>Addessa Portal Staging</strong></v-toolbar-title>
 
       <v-spacer></v-spacer>
       <v-tooltip-title class="flex text-end">
@@ -41,6 +41,7 @@
 </template>
 
 <script>
+ 
 export default {
   methods: {
     drawer() {
@@ -53,6 +54,7 @@ export default {
     },
 
     goDark() {
+ 
       this.$store.state.goDark = !this.$store.state.goDark;
     },
   },

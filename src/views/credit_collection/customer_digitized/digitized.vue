@@ -123,8 +123,9 @@
                       <v-col
                         cols="6"
                         v-if="editedIndex === -1 || viewOnly == 0"
+                        
                       >
-                        <v-card>
+                        <v-card  class="pa-6">
                           <v-card-text>
                             <div>CUSTOMER INFO</div>
                           </v-card-text>
@@ -919,7 +920,7 @@ export default {
         if (value.id == data.id) {
           this.downloadData.data[dataType].splice(index, 1);
           this.$store.dispatch("digitized/trashCDR", data);
-          this.refreshData();
+         
         }
       });
     },
@@ -938,6 +939,7 @@ export default {
         this.refreshData();
       }
       this.refreshData();
+      console.log(this.uploadData)
     },
   },
 };
