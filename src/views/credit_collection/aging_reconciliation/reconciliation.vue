@@ -59,14 +59,14 @@
             ></v-text-field>
             <v-spacer></v-spacer>
             <p class="text-center">
-              <br /><strong
-                >GRADE: {{ grade.grade }}
+              <br /><strong v-if="grade "
+                >GRADE: {{ grade }}
                 <v-progress-circular
-                  v-if="!grade.grade"
+                  v-if="!grade "
                   indeterminate
                   color="primary"
                 ></v-progress-circular></strong
-              ><br /><small> as of {{ new Date().toDateString() }}</small>
+              ><br /><small v-if="grade "> as of {{ new Date().toDateString() }}</small>
             </p>
 
             <v-dialog
@@ -464,7 +464,7 @@ export default {
   },
   created() {
     this.$store.dispatch("recon/fetchIncoming");
-    this.$store.dispatch("recon/ComputeBranchGrade");
+    //this.$store.dispatch("recon/ComputeBranchGrade");
     this.$store.dispatch("digitized/fetchbranches");
     this.$store.dispatch("userPermissions/fetchPermission");
   },
