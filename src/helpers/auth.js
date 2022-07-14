@@ -5,7 +5,7 @@ export function login(credentials) {
   return new Promise((res, rej) => {
     axios
       .post(
-        "http://7.tcp.eu.ngrok.io:14283/api/auth/login",
+        "http://192.168.1.19:7771/api/auth/login",
         credentials
       )
       .then(response => {
