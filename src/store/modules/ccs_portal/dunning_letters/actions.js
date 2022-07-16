@@ -30,10 +30,7 @@ const actions = {
       // link.href = window.URL.createObjectURL(blob)
       // link.download = 
       // link.click()
-      fileDownload(response.data, response.headers['content-disposition'].split("filename=")[1])
-      
-      downloadStatPayload.value = false
-      context.commit("DOWNLOADING_STATUS",  downloadStatPayload);
+      fileDownload(response.data, response.headers['content-disposition'].split("filename=")[1].replace(/"/g, ''))
       
       context.commit("SNACKBAR_STATUS", [
         {
@@ -43,6 +40,13 @@ const actions = {
         }
       ], { root: true }); // show snackbar
 
+    })
+    .catch(error => {
+      console.log(error.response.data)
+    })
+    .finally(() => {
+      downloadStatPayload.value = false
+      context.commit("DOWNLOADING_STATUS",  downloadStatPayload);
     })
 
   },
