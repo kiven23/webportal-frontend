@@ -41,6 +41,8 @@ import customer_digitized from "../views/credit_collection/customer_digitized/di
 import installment_due from "../views/credit_collection/installment_due_of_customer/installment.vue" 
 import aging_reconciliation from "../views/credit_collection/aging_reconciliation/reconciliation.vue" 
 import dunning_letters from "../views/credit_collection/dunning_letters/dunning.vue";
+
+import raffle from "../components/standalone/raffle.vue";
  
 const viewRoutes = [
   {
@@ -275,6 +277,14 @@ const viewRoutes = [
     name: "dunning",
     meta: {
       requiresAuth: true
+    }
+  },
+  {
+    path: "/raffle",
+    component: raffle,
+    name: "raffle",
+    meta: {
+      requiresAuth: false
     }
   },
  

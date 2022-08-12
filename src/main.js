@@ -9,7 +9,24 @@ import { initialize } from "./helpers/general";
 import Vuesax from 'vuesax'
 import VueHtmlToPaper from 'vue-html-to-paper';
 import 'vuesax/dist/vuesax.css' //Vuesax styles
- 
+import VueSocketIO from 'vue-socket.io'
+import SocketIO from 'socket.io-client'
+
+
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
+AOS.init();
+/* Establish Connection */
+const socketConnection = SocketIO('http://10.10.10.38:3008');
+Vue.use(new VueSocketIO({
+    debug: false,
+    connection:socketConnection 
+  })
+);
+var vueAwesomeCountdown = require('vue-awesome-countdown').default;
+
+Vue.use(vueAwesomeCountdown);
+
 Vue.use(Vuesax, {
   // options here
 })

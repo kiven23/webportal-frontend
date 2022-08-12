@@ -59,6 +59,8 @@ import AgingRecon from "./modules/ccs_portal/aging_recon/index";
 
 import DunningLetters from "./modules/ccs_portal/dunning_letters/index";
 
+import RaffleDraw from "./modules/raffle/index";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -99,6 +101,8 @@ export default new Vuex.Store({
      recon: AgingRecon,
      //Dunning Letters
      dunning: DunningLetters,
+     //Raffle Draw
+     raffledraw: RaffleDraw
       
   },
   state: {
