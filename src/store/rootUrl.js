@@ -1,3 +1,3 @@
-const rootUrl = "http://192.168.1.19:7771";
+const rootUrl = "http://127.0.0.1:8000";
 
 export default rootUrl;

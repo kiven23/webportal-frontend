@@ -41,9 +41,12 @@ import customer_digitized from "../views/credit_collection/customer_digitized/di
 import installment_due from "../views/credit_collection/installment_due_of_customer/installment.vue" 
 import aging_reconciliation from "../views/credit_collection/aging_reconciliation/reconciliation.vue" 
 import dunning_letters from "../views/credit_collection/dunning_letters/dunning.vue";
-
+//Raffle Draw
 import raffle from "../components/standalone/raffle.vue";
- 
+//SmS Gift Code
+import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
+
+
 const viewRoutes = [
   {
     path: "/",
@@ -283,6 +286,15 @@ const viewRoutes = [
     path: "/raffle",
     component: raffle,
     name: "raffle",
+    meta: {
+      requiresAuth: false
+    }
+  },
+
+  {
+    path: "/giftcodes/index",
+    component: giftcode,
+    name: "giftcode",
     meta: {
       requiresAuth: false
     }
