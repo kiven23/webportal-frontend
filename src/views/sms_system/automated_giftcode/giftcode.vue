@@ -45,7 +45,9 @@
         <strong>GIFT CODE:</strong> <strong style="text-decoration: underline; color: green;">{{field.code}}</strong><br>
         <strong>DATE SENT:</strong> <strong>{{new Date(field.created_at)}}</strong><br>
         <strong>BIRTHDAY:</strong> <strong>{{new Date(field.birthday).toDateString()}}</strong><br><br>
-        <strong>MESSAGE:</strong><br> <small>{{ field.message}}</small></label>
+        <strong>MESSAGE:</strong><br> <small>{{ field.message}}</small><br>
+        <strong>STATUS:</strong><br> <div :style='field.status == "VALID"? "color: green; font-weight: bold;":"color: red; font-weight: bold;"'>{{ field.status}}</div>
+        </label>
          
         </v-list-item>
       </v-list>
