@@ -61,6 +61,9 @@ import DunningLetters from "./modules/ccs_portal/dunning_letters/index";
 
 import RaffleDraw from "./modules/raffle/index";
 
+//Authorized GiftCode
+import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -102,7 +105,9 @@ export default new Vuex.Store({
      //Dunning Letters
      dunning: DunningLetters,
      //Raffle Draw
-     raffledraw: RaffleDraw
+     raffledraw: RaffleDraw,
+     //Authorized GiftCode
+     Authgiftcode: AuthorizedGiftCode1,
       
   },
   state: {

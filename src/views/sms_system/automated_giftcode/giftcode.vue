@@ -80,24 +80,15 @@
       model: null,
       search: null,
     }),
-
     computed: {
       fields () {
          return [this.model];
       },
- 
     },
-
     watch: {
       search (val) {
-        // Items have already been loaded
-        
-         
-        // Items have already been requested
         if (this.isLoading) return
-
         this.isLoading = true
-
         // Lazily load input items
         fetch('http://127.0.0.1:8000/api/sms/giftcode/fetch?search='+val)
           .then(res => res.json())
@@ -112,5 +103,9 @@
           .finally(() => (this.isLoading = false))
       },
     },
+    mounted(){
+        this.$store.dispatch("Authgiftcode/AuthorizedAccess",'test');
+         
+    }
   }
 </script>

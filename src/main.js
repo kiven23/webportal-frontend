@@ -17,7 +17,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 AOS.init();
 /* Establish Connection */
-const socketConnection = SocketIO('http://10.10.10.38:3008');
+const socketConnection = SocketIO('http://192.168.1.19:3378');
 Vue.use(new VueSocketIO({
     debug: false,
     connection:socketConnection 

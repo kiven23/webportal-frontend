@@ -296,7 +296,7 @@ const viewRoutes = [
     component: giftcode,
     name: "giftcode",
     meta: {
-      requiresAuth: false
+      requiresAuth: true
     }
   },
  
