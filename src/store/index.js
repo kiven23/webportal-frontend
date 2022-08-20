@@ -65,7 +65,14 @@ import ValidationPortalTemplate from "./modules/validation_portal/template";
 //Validation Portal Good Receipt Model - Serial Model
 import ValidationPortalGoodReceiptModeToSerialModel from "./modules/validation_portal/good_receipt_model_serial_model";
 
+//Validation Portal BP Master Data - Card Code Ar Invoice
 import ValidationPortalBPMasterDataCardCodeArInvoice from "./modules/validation_portal/bp_master_data_cardcode_ar_invoice";
+
+//Raffle Draw
+import RaffleDraw from "./modules/raffle/index";
+
+//Authorized GiftCode
+import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
 
 Vue.use(Vuex);
 
@@ -107,6 +114,10 @@ export default new Vuex.Store({
      recon: AgingRecon,
      //Dunning Letters
      dunning: DunningLetters,
+     //Raffle Draw
+     raffledraw: RaffleDraw,
+     //Authorized GiftCode
+     Authgiftcode: AuthorizedGiftCode1,
       
      //Validation Portal Template
      validation_template: ValidationPortalTemplate,

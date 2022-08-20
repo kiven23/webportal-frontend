@@ -50,6 +50,12 @@ import validation_bp_master_cardcode_ar_invoice from "../views/validation_portal
 //Revolving Fund
 import revolving_fund from "../views/revolving_fund/revolving_fund.vue";
 
+//Raffle Draw
+import raffle from "../components/standalone/raffle.vue";
+
+//SmS Gift Code
+import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
+
 const viewRoutes = [
   {
     path: "/",
@@ -313,6 +319,22 @@ const viewRoutes = [
     path: "/revolving-fund",
     component: revolving_fund,
     name: "revolving_fund",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/raffle",
+    component: raffle,
+    name: "raffle",
+    meta: {
+      requiresAuth: false
+    }
+  },
+  {
+    path: "/giftcodes/index",
+    component: giftcode,
+    name: "giftcode",
     meta: {
       requiresAuth: true
     }
