@@ -23,12 +23,12 @@
 
         <span v-for="(link, index) in permissions" :key="index">
           <v-list-group
+            @click="toRoute(link.route)"
             :append-icon="link.subLinks ? 'keyboard_arrow_down' : ''"
             :prepend-icon="link.icon"
           >
             <template v-slot:activator>
               <v-list-item-title
-                @click="toRoute(link.route)"
                 v-text="link.text"
               ></v-list-item-title>
             </template>
@@ -40,7 +40,7 @@
             >
               <v-list-item v-if="!subLink.links">
                 <v-list-item-action></v-list-item-action>
-                <v-list-item-title v-text="subLink.text"></v-list-item-title>
+                <v-list-item-title class="text-wrap" v-text="subLink.text"></v-list-item-title>
                 <v-list-item-action>
                   <v-icon v-text="subLink.icon"></v-icon>
                 </v-list-item-action>
@@ -51,7 +51,7 @@
               <v-list-group v-if="subLink.links" no-action sub-group>
                 <template v-slot:activator>
                   <v-list-item-content>
-                    <v-list-item-title
+                    <v-list-item-title class="text-wrap"
                       v-text="subLink.text"
                     ></v-list-item-title>
                   </v-list-item-content>
@@ -98,6 +98,9 @@ export default {
     currentUser() {
       return this.$store.getters.currentUser;
     },
+    getCurrentRoutePath(){
+      return this.$route.path;
+    }
   },
   created() {
     this.$store.dispatch("userPermissions/fetchPermissions");
@@ -105,6 +108,9 @@ export default {
   },
   methods: {
     toRoute(_path) {
+      if(!_path || this.getCurrentRoutePath == _path) {
+        return
+      }
       this.$router.push(_path);
     },
  
