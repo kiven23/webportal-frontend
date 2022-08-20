@@ -41,11 +41,20 @@ import customer_digitized from "../views/credit_collection/customer_digitized/di
 import installment_due from "../views/credit_collection/installment_due_of_customer/installment.vue" 
 import aging_reconciliation from "../views/credit_collection/aging_reconciliation/reconciliation.vue" 
 import dunning_letters from "../views/credit_collection/dunning_letters/dunning.vue";
+
+//Validation Portal
+import validation_template from "../views/validation_portal/template/template.vue"
+import validation_good_receipt_serial_model from "../views/validation_portal/good_receipt_model_serial_model/good_receipt_model_serial_model.vue"
+import validation_bp_master_cardcode_ar_invoice from "../views/validation_portal/bp_master_data_cardcode_ar_invoice/bp_master_data_cardcode_ar_invoice.vue"
+ 
+//Revolving Fund
+import revolving_fund from "../views/revolving_fund/revolving_fund.vue";
+
 //Raffle Draw
 import raffle from "../components/standalone/raffle.vue";
+
 //SmS Gift Code
 import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
-
 
 const viewRoutes = [
   {
@@ -283,6 +292,38 @@ const viewRoutes = [
     }
   },
   {
+    path: "/validation-portal/template",
+    component: validation_template,
+    name: "validation_template",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/validation-portal/good-receipt-model-serial-model",
+    component: validation_good_receipt_serial_model,
+    name: "validation_good_receipt_serial_model",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/validation-portal/bp-master-cardcode-ar-invoice-cardcode",
+    component: validation_bp_master_cardcode_ar_invoice,
+    name: "validation_bp_master_cardcode_ar_invoice",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/revolving-fund",
+    component: revolving_fund,
+    name: "revolving_fund",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: "/raffle",
     component: raffle,
     name: "raffle",
@@ -290,7 +331,6 @@ const viewRoutes = [
       requiresAuth: false
     }
   },
-
   {
     path: "/giftcodes/index",
     component: giftcode,
@@ -299,6 +339,5 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
- 
 ];
 export default viewRoutes;

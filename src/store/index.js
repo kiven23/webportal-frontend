@@ -59,6 +59,16 @@ import AgingRecon from "./modules/ccs_portal/aging_recon/index";
 
 import DunningLetters from "./modules/ccs_portal/dunning_letters/index";
 
+//Validation Portal Template
+import ValidationPortalTemplate from "./modules/validation_portal/template";
+
+//Validation Portal Good Receipt Model - Serial Model
+import ValidationPortalGoodReceiptModeToSerialModel from "./modules/validation_portal/good_receipt_model_serial_model";
+
+//Validation Portal BP Master Data - Card Code Ar Invoice
+import ValidationPortalBPMasterDataCardCodeArInvoice from "./modules/validation_portal/bp_master_data_cardcode_ar_invoice";
+
+//Raffle Draw
 import RaffleDraw from "./modules/raffle/index";
 
 //Authorized GiftCode
@@ -109,6 +119,14 @@ export default new Vuex.Store({
      //Authorized GiftCode
      Authgiftcode: AuthorizedGiftCode1,
       
+     //Validation Portal Template
+     validation_template: ValidationPortalTemplate,
+
+     //Validation Portal Good Receipt Model - Serial Model 
+     validation_good_receipt_serial: ValidationPortalGoodReceiptModeToSerialModel,
+
+     //Validation Portal BP Master Data Card Code - Ar Invoice Card Code
+     validation_bp_master_ar_invoice_cardcode: ValidationPortalBPMasterDataCardCodeArInvoice,
   },
   state: {
     serverdate: [],
