@@ -90,7 +90,7 @@
         if (this.isLoading) return
         this.isLoading = true
         // Lazily load input items
-        fetch('http://127.0.0.1:8000/api/sms/giftcode/fetch?search='+val)
+        fetch('http://192.168.1.19:7771/api/sms/giftcode/fetch?search='+val)
           .then(res => res.json())
           .then(res => {
             const { count, entries } = res
@@ -104,8 +104,7 @@
       },
     },
     mounted(){
-        this.$store.dispatch("Authgiftcode/AuthorizedAccess",'test');
-         
+       // this.$store.dispatch("Authgiftcode/AuthorizedAccess",'test');
     }
   }
 </script>

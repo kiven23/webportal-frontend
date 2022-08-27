@@ -185,11 +185,11 @@ export default {
       return new Date(this.RaffleDate).getTime();
     },
   },
+ 
   methods: {},
   mounted() {
 
- 
-    this.sockets.subscribe("check", (res) => {
+ this.sockets.subscribe("check", (res) => {
       this.timer = res.status;
       console.log(res);
       if (res.status == 0) {
@@ -207,21 +207,25 @@ export default {
           clearInterval(interval);
           this.percent = 0;
           this.go = 1;
+       
         }, 4800);
         this.$store.dispatch("raffledraw/GetWinner");
       }
     });
+    
+ 
+   
   },
 };
 </script>
 <style >
 @font-face {
   font-family: myFirstFont;
-  src: url(http://192.168.1.19:7772/Macondo-Regular.ttf);
+  src: url(http://192.168.1.19/Macondo-Regular.ttf);
 }
 @font-face {
   font-family: myFirstFont2;
-  src: url(http://192.168.1.19:7772/LuckiestGuy-Regular.ttf);
+  src: url(http://192.168.1.19/LuckiestGuy-Regular.ttf);
 }
 p {
   font-family: myFirstFont;
