@@ -56,6 +56,9 @@ import raffle from "../components/standalone/raffle.vue";
 //SmS Gift Code
 import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
 
+//SAPREPORTS
+import sapreports from "../views/sap_reports/incoming_payment_crb/incoming_crb.vue";
+
 const viewRoutes = [
   {
     path: "/",
@@ -335,6 +338,15 @@ const viewRoutes = [
     path: "/giftcodes/index",
     component: giftcode,
     name: "giftcode",
+    meta: {
+      requiresAuth: true
+    }
+  },
+
+  {
+    path: "/sapb1/reports/index",
+    component: sapreports,
+    name: "incomingpaymentcrb",
     meta: {
       requiresAuth: true
     }

@@ -74,6 +74,9 @@ import RaffleDraw from "./modules/raffle/index";
 //Authorized GiftCode
 import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
 
+// PaymentCRB
+import GeneratePaymentCRB from "./modules/sap_reports/incoming_paymentCRB/index";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -127,6 +130,10 @@ export default new Vuex.Store({
 
      //Validation Portal BP Master Data Card Code - Ar Invoice Card Code
      validation_bp_master_ar_invoice_cardcode: ValidationPortalBPMasterDataCardCodeArInvoice,
+
+     //PaymentCRB
+     paymentCRB: GeneratePaymentCRB,
+
   },
   state: {
     serverdate: [],
