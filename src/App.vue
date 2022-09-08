@@ -1,8 +1,8 @@
 <template>
  
   <v-app >
-     <v-vanta v-if="this.$route.name == 'login'" effect="rings" :options="options">
-      </v-vanta>
+     <!-- <v-vanta v-if="this.$route.name == 'login'" effect="rings" :options="options">
+      </v-vanta> -->
     <!-- Navbar -->
     <Navbar v-if="isLoggedIn" />
 
@@ -29,11 +29,11 @@ import Navbar from "./components/layouts/Navbar";
 import Toolbar from "./components/layouts/Toolbar";
 import Footer from "./components/layouts/Footer";
 import Snackbar from "./components/layouts/Snackbar";
-import VVanta from 'vue-vanta';
+//import VVanta from 'vue-vanta';
 export default {
   
   components: {
-    VVanta,
+    // VVanta,
     Navbar,
     Toolbar,
     Footer,

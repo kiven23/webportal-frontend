@@ -15,7 +15,7 @@
 
       <v-spacer></v-spacer>
       <v-tooltip-title class="flex text-end">
-        <strong style="text-align: center">Addessa {{currentUser.branch.name == ''? currentUser.branch.name:''}}</strong>
+        <strong style="text-align: center">Addessa {{currentUser.branch.name !== ''? currentUser.branch.name: ''}}</strong>
       </v-tooltip-title>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
