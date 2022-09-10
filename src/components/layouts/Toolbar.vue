@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar app clipped-left isDark>
+    <v-app-bar app clipped-left  style="background-color: #f2e7d0; border-radius: 10px;">
       <!-- <v-app-bar-nav-icon @click.stop="drawer"></v-app-bar-nav-icon> -->
       <v-btn icon @click.stop="drawer">
         <v-icon>{{ toggleDrawer ? "mdi-menu" : "mdi-menu-open" }}</v-icon>

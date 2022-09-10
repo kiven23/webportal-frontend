@@ -1,10 +1,10 @@
 <template>
   <footer>
-    <v-footer app>
-      <v-card class="flex" flat>
+    <v-footer app style="background-color: #1b4475; ">
+      <v-card class="flex" flat >
         <v-card-actions class="justify-center">
           &copy;&nbsp;{{ new Date().getFullYear() }} —
-          <strong>&nbsp;Webportal + VueJS</strong>
+          <strong>&nbsp;Webportal + VueJS + SAP b1</strong>
         </v-card-actions>
       </v-card>
     </v-footer>

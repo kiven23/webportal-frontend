@@ -11,7 +11,7 @@
       >
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>Incoming Payments CRB</v-toolbar-title>
+            <v-toolbar-title>QPLD Incoming Payments CRB</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
 
             <v-tooltip bottom>
@@ -23,12 +23,13 @@
               <span>Generate</span>
             </v-tooltip>
 
-            <!-- <v-tooltip bottom>
+            <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn text icon v-on="on"><v-icon>print</v-icon></v-btn>
+                <v-btn text icon v-on="on" @click="printpre()"><v-icon>print</v-icon></v-btn>
               </template>
               <span>Print</span>
-            </v-tooltip> -->
+            </v-tooltip>  
+    
 
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -187,6 +188,45 @@
         </v-card>
       </v-dialog>
     </v-container>
+    <v-dialog
+      v-model="printDialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+
+      <v-card>
+        <v-toolbar
+          dark
+          style="background-color: #f2e7d0"
+        >
+          <v-btn
+            icon
+            dark
+            @click="printDialog = false"
+          >
+            <v-icon style="color: black">mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title style="color: black">Incoming Payment QPLD Print Preview</v-toolbar-title>
+          <v-spacer></v-spacer>
+ 
+        </v-toolbar>
+ 
+        <v-divider></v-divider>
+        <iframe v-if="iden == 1" :src="printLink"  ref="myiframe"  style="width: 100%; height: 1000px;" title="Incoming Payment PrintPreview">
+        
+        
+
+        </iframe> 
+        <v-skeleton-loader
+             v-if="iden == 0"
+             max-height="100%"
+             max-width="100%"
+             
+            type="card"
+         ></v-skeleton-loader>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -207,6 +247,9 @@ export default {
 
   data() {
     return {
+      iden: 0,
+      printLink: "",
+      printDialog: false,
       branch: "Agoo",
       dates_regular:  '2022-08-30',
       create: false,
@@ -275,11 +318,23 @@ export default {
     this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {
+    printpre(){
+        this.printLink = "";
+        this.printDialog = true;
+        this.iden = 0; 
+        this.printLink = 'http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
+        fetch('http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+           this.iden = 1; 
+           
+        })
+      },
+ 
     generate() {
       let data = {
         date: this.dates_regular,
         branch: this.branch["Name"],
       };
+
       this.$store.dispatch("paymentCRB/GeneratePaymentCRB", data);
     },
     refreshData() {
@@ -307,6 +362,7 @@ export default {
   animation: loader 1s infinite;
   display: flex;
 }
+ 
 .v-data-table > .v-data-table__wrapper > table > tbody > tr > td,
 v-data-table > .v-data-table__wrapper > table > thead > tr > td,
 .v-data-table > .v-data-table__wrapper > table > thead > tr > th {
@@ -346,4 +402,5 @@ v-data-table > .v-data-table__wrapper > table > thead > tr > td,
     transform: rotate(360deg);
   }
 }
+
 </style>
