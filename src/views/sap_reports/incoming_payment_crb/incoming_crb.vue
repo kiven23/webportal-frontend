@@ -69,7 +69,7 @@
         </template>
         <template v-slot:item.Amount="{ item }">
           <money-format
-            :value="parseInt(item.Amount)"
+            :value="parseFloat(item.Amount)"
             locale="en"
             currency-code="PHP"
           >
@@ -77,7 +77,7 @@
         </template>
         <template v-slot:item.Interest="{ item }">
           <money-format
-            :value="parseInt(item.Interest)"
+            :value="parseFloat(item.Interest)"
             locale="en"
             currency-code="PHP"
           >
@@ -85,7 +85,7 @@
         </template>
         <template v-slot:item.otherBranch_Acct="{ item }">
           <money-format
-            :value="parseInt(item.otherBranch_Acct)"
+            :value="parseFloat(item.otherBranch_Acct)"
             locale="en"
             currency-code="PHP"
           >
@@ -93,7 +93,7 @@
         </template>
         <template v-slot:item.PaymtAcct="{ item }">
           <money-format
-            :value="parseInt(item.PaymtAcct)"
+            :value="parseFloat(item.PaymtAcct)"
             locale="en"
             currency-code="PHP"
           >
@@ -267,12 +267,13 @@ export default {
         { text: "OR#", align: "left", value: "OR#" },
         { text: "Amount", align: "left", value: "Amount" },
         { text: "PaymtAcc", align: "left", value: "PaymtAcct" },
+
+        { text: "Interest/DP", align: "left", value: "Interest" },
         {
           text: "Other Incoming Payments",
           align: "left",
           value: "otherBranch_Acct",
         },
-        { text: "Interest/DP", align: "left", value: "Interest" },
         { text: "Supplier", align: "left", value: "Supplier" },
         { text: "Rebate", align: "left", value: "Rebate" },
         // { text: "Actions", align: "center", value: "action", sortable: false },
@@ -322,8 +323,8 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
-        fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+        this.printLink = 'http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
+        fetch('http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
            this.iden = 1; 
            
         })
