@@ -323,8 +323,8 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
-        fetch('http://10.10.10.38:9999/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+        this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
+        fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
            this.iden = 1; 
            
         })
