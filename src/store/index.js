@@ -77,6 +77,27 @@ import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
 // PaymentCRB
 import GeneratePaymentCRB from "./modules/sap_reports/incoming_paymentCRB/index";
 
+
+// adjustment sales discount
+import adjustment_sales_discount from "./modules/sap_reports/adjustment_sales_discount/index";
+// ar invoice open balance
+import ar_invoice_open_balance from "./modules/sap_reports/ar_invoice_open_balance/index";
+// incoming payment customer deposit
+import incoming_payment_customer_deposit from "./modules/sap_reports/incoming_payment_customer_deposit/index";
+// incoming payment open balance
+import incoming_payment_open_balance from "./modules/sap_reports/incoming_payment_open_balance/index";
+// invoice query series open balance
+import invoice_query_series_revised from "./modules/sap_reports/invoice_query_series_revised/index";
+// marketing ar invoice
+import marketing_ar_invoice from "./modules/sap_reports/marketing_ar_invoice/index";
+// recomputed account
+import recomputed_account from "./modules/sap_reports/recomputed_account/index";
+// searching of vehicles parts
+import searching_of_vehicles_parts from "./modules/sap_reports/searching_of_vehicles_parts/index";
+// summary of customer deposit applied
+import summary_of_customer_depostiapplied from "./modules/sap_reports/summary_of_customer_depositapplied/index";
+
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -133,6 +154,16 @@ export default new Vuex.Store({
 
      //PaymentCRB
      paymentCRB: GeneratePaymentCRB,
+
+     adjustment_sales_discount: adjustment_sales_discount,
+     ar_invoice_open_balance: ar_invoice_open_balance,
+     incoming_payment_customer_deposit: incoming_payment_customer_deposit,
+     incoming_payment_open_balance: incoming_payment_open_balance,
+     invoice_query_series_revised: invoice_query_series_revised,
+     marketing_ar_invoice: marketing_ar_invoice,
+     recomputed_account: recomputed_account,
+     searching_of_vehicles_parts: searching_of_vehicles_parts,
+     summary_of_customer_depostiapplied: summary_of_customer_depostiapplied
 
   },
   state: {

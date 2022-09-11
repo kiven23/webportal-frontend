@@ -59,6 +59,24 @@ import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
 //SAPREPORTS
 import sapreports from "../views/sap_reports/incoming_payment_crb/incoming_crb.vue";
 
+//invoice query series revised
+import sapreports_invoice_queryseries_revised from "../views/sap_reports/1193_invoice_query_series_revised/1193_invoice_query_series_revised.vue";
+//marketing ar invoice query
+import sapreports_marketing_ar_invoice from "../views/sap_reports/1207_marketing_ar_invoice_query/1207_marketing_ar_invoice_query.vue";
+//summary of customer deposit applied
+import sapreports_summary_of_customer_depositapplied from "../views/sap_reports/1231_summary_of_customer_depositapplied/1231_summary_of_customer_depositapplied.vue";
+//adjustments sales discount
+import sapreports_adjustment_sales_discount from "../views/sap_reports/1232_adjustments_sales_discount/1232_adjustments_sales_discount.vue";
+//recomputed account
+import sapreports_recomputed_account from "../views/sap_reports/1269_recomputed_account/1269_recomputed_account.vue";
+//searching of vehicles parts
+import sapreports_searching_vehicles_parts from "../views/sap_reports/340_query_searching_of_vehicles_parts/340_query_searching_of_vehicles_parts.vue";
+//ar invoice openbalance
+import sapreports_ar_invoice_openbalance from "../views/sap_reports/ar_invoice_open_balance/ar_invoice_open_balance.vue";
+//incomingpayment customer deposit
+import sapreports_incoming_customer_deposit from "../views/sap_reports/incoming_payment_customer_deposit/incoming_payment_customer_deposit.vue";
+//incomingpayment openbalance
+import sapreports_incoming_payment_openbalance from "../views/sap_reports/incoming_payment_open_balance/incoming_payment_open_balance.vue";
 const viewRoutes = [
   {
     path: "/",
@@ -342,7 +360,7 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
-
+  //INCOMING PAYMENT
   {
     path: "/sapb1/reports/index",
     component: sapreports,
@@ -351,5 +369,89 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
+
+  //incomingpayment openbalance
+  {
+    path: "/sapb1/reports/incomingpayment/openbalance",
+    component: sapreports_incoming_payment_openbalance,
+    name: "incomingpayment_openbalance",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //incomingpayment customer deposit
+  {
+    path: "/sapb1/reports/incomingpayment/customerdeposit",
+    component: sapreports_incoming_customer_deposit,
+    name: "incomingpayment_customer_deposit",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //ar invoice openbalance
+  {
+    path: "/sapb1/reports/ar/openbalance",
+    component: sapreports_ar_invoice_openbalance,
+    name: "ar_invoice_openbalance",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //searching of vehicles parts
+  {
+    path: "/sapb1/reports/query/searching/vehicles/parts",
+    component: sapreports_searching_vehicles_parts,
+    name: "searching_of_vehicles_parts",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //invoice query series revised
+  {
+    path: "/sapb1/reports/query/series/revised",
+    component: sapreports_invoice_queryseries_revised,
+    name: "invoice_query_series_revised",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //marketing ar invoice query
+  {
+    path: "/sapb1/reports/query/marketing/ar/invoice",
+    component: sapreports_marketing_ar_invoice,
+    name: "marketing_ar_invoice_query",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //summary of customer deposit applied
+  {
+    path: "/sapb1/reports/query/summary/customer/depositapplied",
+    component: sapreports_summary_of_customer_depositapplied,
+    name: "summary_of_customer_depositapplied",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //adjustments sales discount
+  {
+    path: "/sapb1/reports/query/adjustment/sales/discount",
+    component: sapreports_adjustment_sales_discount,
+    name: "adjustment_sales_discount",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //recomputed account
+  {
+    path: "/sapb1/reports/query/recomputed/account",
+    component: sapreports_recomputed_account,
+    name: "recomputed_amount",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  
+
 ];
 export default viewRoutes;
