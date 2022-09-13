@@ -1,25 +1,33 @@
 import actions from "./actions";
 
 const state = {
-  paymentcrb_data: [],
-  segment_data: []
+  vehicleparts_data: [],
+  vehicletypes_data: [],
+  vehiclequeries_data: []
 };
 
 const getters = {
-  getPaymentCRB(state) {
-    return state.paymentcrb_data
+  PARTS(state) {
+    return state.vehicleparts_data
   },
-  getBranchSegment(state) {
-    return state.segment_data
+  TYPES(state) {
+    return state.vehicletypes_data
   },
+  QUERIES(state) {
+    return state.vehiclequeries_data
+  },
+  
  
 };
 const mutations = {
-  GET_PAYMENTCRB(state, payload) {
-    state.paymentcrb_data = payload;
+  GET_VEHICLEPARTS(state, payload) {
+    state.vehicleparts_data = payload;
   },
-  GET_SEGMENT(state, payload) {
-    state.segment_data = payload;
+  GET_VEHICLETYPE(state, payload) {
+    state.vehicletypes_data = payload;
+  },
+  GET_VEHICLETQUERIES(state, payload) {
+    state.vehiclequeries_data = payload;
   },
  
 };

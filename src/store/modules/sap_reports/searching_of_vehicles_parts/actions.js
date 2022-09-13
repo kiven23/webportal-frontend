@@ -1,39 +1,33 @@
 import axios from "axios";
 import rootUrl from "../../../rootUrl";
-//INCOMING PAYMENT CRB
-const segment = rootUrl + "/api/public/branch/segment";
-const generate = rootUrl + "/api/public/reports/incoming/crb";
+//VEHICLES PARTS
+const types = rootUrl + "/api/public/reports/queries/searchofvehicleparts?q=items&req=type";
+const parts = rootUrl + "/api/public/reports/queries/searchofvehicleparts?q=items&req=parts";
+const generate = rootUrl + "/api/public/reports/queries/searchofvehicleparts?q=queries&";
 const actions = {
  
-  fetchBranchSegment(context) {
+  fetchVEHICLEPARTS(context) {
     context.commit("LOADING_STATUS", true, { root: true }); // start loading
-    axios.get(segment).then(response => {
-      context.commit("GET_SEGMENT", response.data);
+    axios.get(parts).then(response => {
+      context.commit("GET_VEHICLEPARTS", response.data);
       context.commit("LOADING_STATUS", false, { root: true });
     });
   },
-  
-  GeneratePaymentCRB(context, data)
+  fetchVEHICLETYPE(context) {
+    context.commit("LOADING_STATUS", true, { root: true }); // start loading
+    axios.get(types).then(response => {
+      context.commit("GET_VEHICLETYPE", response.data);
+      context.commit("LOADING_STATUS", false, { root: true });
+    });
+  },
+
+  GenerateVEHICLETQUERIES(context, data)
           { 
-              context.commit("LOADING_STATUS", true, { root: true });
-              axios
-              .post(generate,  data)
-              .then(response => {
-                    context.commit("LOADING_STATUS", false, { root: true });
-                    context.commit("GET_PAYMENTCRB", response.data);
-                          let payload = [
-                            {
-                              status: true,
-                              message: "Fetch Done...!",
-                              timeout: 3000
-                            }
-                          ];
-                    context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
-              })
-              .catch(error => {
-                  context.commit("PERM_ERROR", error.response.data); // get error from backend
-                  context.commit("LOADING_STATUS", false, { root: true }); // stop loading
-              });
+            context.commit("LOADING_STATUS", true, { root: true }); // start loading
+            axios.get(generate+'part='+data.part+'&type='+data.type).then(response => {
+              context.commit("GET_VEHICLETQUERIES", response.data);
+              context.commit("LOADING_STATUS", false, { root: true });
+            });
         },
  
 };

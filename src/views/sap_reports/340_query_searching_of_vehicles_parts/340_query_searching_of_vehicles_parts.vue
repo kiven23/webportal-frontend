@@ -4,7 +4,7 @@
       <v-data-table
         v-model="selected"
         :headers="headers"
-        :items="paymentcbr_data"
+        :items="queries"
         :search="search"
         :loading="loadingStatus"
         class="elevation-1"
@@ -13,7 +13,7 @@
           <v-toolbar flat>
             <v-toolbar-title>Searching of Vehicle Parts</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
-
+ 
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn text icon v-on="on" @click="openDialog"
@@ -33,7 +33,7 @@
 
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <json-excel :data="paymentcbr_data">
+                <json-excel :data="queries">
                   <v-btn text icon v-on="on"
                     ><v-icon>mdi-file-export</v-icon></v-btn
                   >
@@ -50,10 +50,7 @@
               </template>
               <span>Refresh</span>
             </v-tooltip>
-            <h6>
-              DATE: <i style="font-size: 13px"> {{ dates_regular  }} </i>
-              <br />BRANCH: <i style="font-size: 13px">{{ branch["Name"] }} </i>
-            </h6>
+ 
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
@@ -64,129 +61,47 @@
             ></v-text-field>
           </v-toolbar>
         </template>
-        <template v-slot:item.Date="{ item }">
-          {{ moment(item.Date).format("MM.DD.YY") }}
-        </template>
-        <template v-slot:item.Amount="{ item }">
-          <money-format
-            :value="parseFloat(item.Amount)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.Interest="{ item }">
-          <money-format
-            :value="parseFloat(item.Interest)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.otherBranch_Acct="{ item }">
-          <money-format
-            :value="parseFloat(item.otherBranch_Acct)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.PaymtAcct="{ item }">
-          <money-format
-            :value="parseFloat(item.PaymtAcct)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-      </v-data-table>
-      <!-- <v-dialog v-model="create" width="500">
-        <v-card>
-          <v-card-title class="text-h5 dark lighten-2">
-            Upload Black Listed Data
-          </v-card-title>
-
-          <v-file-input
-            v-model="blacklistedData"
-            placeholder="Upload xls document"
-            prepend-icon="upload_file"
-          >
-            <template v-slot:selection="{ text }">
-              <v-chip small label color="primary">
-                {{ text }}
-              </v-chip>
-            </template>
-          </v-file-input>
-
           
-          <strong style="margin: 15px"
-            >Download XLS Templates: <a href="#">Templates.xls</a></strong
+      </v-data-table>
+      <v-dialog
+            v-model="create"
+            max-width="500px"
           >
-          <v-divider></v-divider>
+            <v-card>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="upload"> Upload </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-      <v-dialog v-model="create" width="800">
-        <v-card>
-          <v-card-title class="text-h5 dark lighten-2">
-            Select Branch and Date
-          </v-card-title>
-          <!-- 
-          <v-file-input
-            v-model="creditstandingData"
-            placeholder="Upload xls document"
-            prepend-icon="upload_file"
-          >
-            <template v-slot:selection="{ text }">
-              <v-chip small label color="primary">
-                {{ text }}
-              </v-chip>
-            </template>
-          </v-file-input> -->
-          <!-- <strong style="margin: 15px"
-            >Download XLS Templates: <a href="#">Templates.xls</a></strong
-          > -->
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-date-picker
-                v-model="dates_regular"
-                class="ma-4"
-                year-icon="mdi-calendar-blank"
-                prev-icon="mdi-skip-previous"
-                next-icon="mdi-skip-next"
-              >
-              </v-date-picker>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-autocomplete
-                v-model="branch"
-                :loading="loadingStatus"
-                :items="branches"
-                item-value="Name"
-                item-text="Name"
-                return-object
-                dense
-                label="Select Branch"
-                chips
-                hide-details
-                hide-selected
-                solo
-                class="mt-10 mr-5"
-              ></v-autocomplete>
-            </v-col>
-          </v-row>
-          <v-divider></v-divider>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="generate"> Generate </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+              <v-card-title>
+                Select Vehicle Parts & Type
+              </v-card-title>
+              <v-card-text>
+                <v-select
+                  :items="parts"
+                  label="Parts"
+                  v-model="vpart"
+                  item-value="name"
+                  item-text="name"
+                 ></v-select>
+            
+                 <v-select
+                  :items="types"
+                  v-model="vtype"
+                  label="Type"
+                  item-text="U_vRMExpTyp"
+                  item-value="U_vRMExpTyp"
+                 ></v-select>
+              </v-card-text>
+              <v-card-actions right>
+                <v-btn
+                  color="primary"
+                  text
+                  @click="generate()"
+                  
+                >
+                  Generate
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+      
     </v-container>
     <v-dialog
       v-model="printDialog"
@@ -207,13 +122,13 @@
           >
             <v-icon style="color: black">mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title style="color: black">Incoming Payment QPLD Print Preview</v-toolbar-title>
+          <v-toolbar-title style="color: black">Searching of Vehicle Parts Print Preview</v-toolbar-title>
           <v-spacer></v-spacer>
  
         </v-toolbar>
  
         <v-divider></v-divider>
-        <iframe v-if="iden == 1" :src="printLink"  ref="myiframe"  style="width: 100%; height: 1000px;" title="Incoming Payment PrintPreview">
+        <iframe v-if="iden == 1" :src="printLink"  ref="myiframe"  style="width: 100%; height: 1000px;" title="Searching of Vehicle Parts PrintPreview">
         
         
 
@@ -231,27 +146,21 @@
 </template>
 
 <script>
-import MoneyFormat from "vue-money-format";
-//import { mapState } from 'vuex'
-// import { mapActions } from 'vuex'
 import { mapGetters } from "vuex";
-import { validationMixin } from "vuelidate";
-import { required } from "vuelidate/lib/validators";
-import moment from "moment";
 import JsonExcel from "vue-json-excel";
 export default {
   components: {
     JsonExcel,
-    "money-format": MoneyFormat,
   },
 
   data() {
     return {
+      vpart: '',
+      vtype: '',
+      itemsdata: [],
       iden: 0,
       printLink: "",
       printDialog: false,
-      branch: "Agoo",
-      dates_regular:  '2022-08-30',
       create: false,
       reveal: false,
       search: "",
@@ -260,47 +169,22 @@ export default {
       loading: false,
       submitDisable: true,
       headers: [
-        { text: "DocNum", align: "left", value: "DocNum" },
-        { text: "Date", align: "left", value: "Date" },
-        { text: "Name", align: "left", value: "Name" },
-        { text: "Particulars", align: "left", value: "Particulars" },
-        { text: "OR#", align: "left", value: "OR#" },
-        { text: "Amount", align: "left", value: "Amount" },
-        { text: "PaymtAcc", align: "left", value: "PaymtAcct" },
-
-        { text: "Interest/DP", align: "left", value: "Interest" },
-        {
-          text: "Other Incoming Payments",
-          align: "left",
-          value: "otherBranch_Acct",
-        },
-        { text: "Supplier", align: "left", value: "Supplier" },
-        { text: "Rebate", align: "left", value: "Rebate" },
-        // { text: "Actions", align: "center", value: "action", sortable: false },
+        { text: "CATEGORY", align: "left", value: "CATEGORY" },
+        { text: "VEHICLE PART", align: "left", value: "VEHICLE PART" },
+        { text: "BODY TYPE", align: "left", value: "BODY TYPE" },
+        { text: "EXPENSE TYPE", align: "left", value: "EXPENSE TYPE" },
+        { text: "LIFE SPAN", align: "left", value: "LIFE SPAN" },
       ],
     };
   },
   computed: {
     ...mapGetters({
-      paymentcbr_data: "paymentCRB/getPaymentCRB",
+      parts: "searching_of_vehicles_parts/PARTS",
+      types: "searching_of_vehicles_parts/TYPES",
+      queries: "searching_of_vehicles_parts/QUERIES",
       permissions: "userPermissions/getPermission",
-      branches: "blacklisted/getBranchSegment",
+   
     }),
-    // deleteAll() {
-    //   return this.permissions.includes("Delete Agencies File");
-    // },
-    userCanCreate_role() {
-      return this.permissions.includes("Create BlackListed CCS Portal");
-    },
-    // ShowDoc_role() {
-    //   return this.permissions.includes("Show Agencies File");
-    // },
-    // Editdoc_role() {
-    //   return this.permissions.includes("Edit Agencies File");
-    // },
-    // Download_role() {
-    //   return this.permissions.includes("Download Agencies Files");
-    // },
     dialog() {
       return this.$store.state.dialog;
     },
@@ -308,14 +192,9 @@ export default {
       return this.$store.state.loading;
     },
   },
-  watch: {
-    providers() {
-      this.$v.$reset(); // reset validation
-    },
-  },
   created() {
-    this.$store.dispatch("paymentCRB/GeneratePaymentCRB");
-    this.$store.dispatch("blacklisted/fetchBranchSegment");
+    this.$store.dispatch("searching_of_vehicles_parts/fetchVEHICLEPARTS");
+    this.$store.dispatch("searching_of_vehicles_parts/fetchVEHICLETYPE");
     this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {
@@ -323,37 +202,25 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
-        fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+        this.printLink = 'http://10.10.10.38:9999/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'';
+        fetch('http://10.10.10.38:9999/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'').then((res)=>{
            this.iden = 1; 
-           
         })
       },
- 
-    generate() {
-      let data = {
-        date: this.dates_regular,
-        branch: this.branch["Name"],
-      };
-
-      this.$store.dispatch("paymentCRB/GeneratePaymentCRB", data);
+  async  generate() {
+      this.itemsdata = {
+        type: this.vtype,
+        part: this.vpart
+      }
+      await this.$store.dispatch("searching_of_vehicles_parts/GenerateVEHICLETQUERIES", this.itemsdata);
+       this.create = false;
     },
-    refreshData() {
-      let data = {
-        date: this.dates_regular,
-        branch: this.branch["Name"],
-      };
-      this.$store.dispatch("paymentCRB/GeneratePaymentCRB",data);
+     refreshData() {
+      this.$store.dispatch("searching_of_vehicles_parts/GenerateVEHICLETQUERIES", this.itemsdata);
     },
     openDialog() {
+      
       this.create = true;
-    },
-    upload() {
-      this.$store.dispatch(
-        "blacklisted/UploadBlacklisted",
-        this.blacklistedData
-      );
-      this.refreshData();
     },
   },
 };
