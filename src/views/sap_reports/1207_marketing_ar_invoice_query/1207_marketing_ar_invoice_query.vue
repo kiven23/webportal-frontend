@@ -4,7 +4,7 @@
       <v-data-table
         v-model="selected"
         :headers="headers"
-        :items="paymentcbr_data"
+        :items="query"
         :search="search"
         :loading="loadingStatus"
         class="elevation-1"
@@ -52,7 +52,7 @@
             </v-tooltip>
             <h6>
               DATE: <i style="font-size: 13px"> {{ dates_regular  }} </i>
-              <br />BRANCH: <i style="font-size: 13px">{{ branch["Name"] }} </i>
+              <br />BRANCH: <i style="font-size: 13px">{{ branch.SeriesName }} </i>
             </h6>
             <v-spacer></v-spacer>
             <v-text-field
@@ -64,41 +64,7 @@
             ></v-text-field>
           </v-toolbar>
         </template>
-        <template v-slot:item.Date="{ item }">
-          {{ moment(item.Date).format("MM.DD.YY") }}
-        </template>
-        <template v-slot:item.Amount="{ item }">
-          <money-format
-            :value="parseFloat(item.Amount)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.Interest="{ item }">
-          <money-format
-            :value="parseFloat(item.Interest)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.otherBranch_Acct="{ item }">
-          <money-format
-            :value="parseFloat(item.otherBranch_Acct)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
-        <template v-slot:item.PaymtAcct="{ item }">
-          <money-format
-            :value="parseFloat(item.PaymtAcct)"
-            locale="en"
-            currency-code="PHP"
-          >
-          </money-format>
-        </template>
+       
       </v-data-table>
       <!-- <v-dialog v-model="create" width="500">
         <v-card>
@@ -158,6 +124,7 @@
                 year-icon="mdi-calendar-blank"
                 prev-icon="mdi-skip-previous"
                 next-icon="mdi-skip-next"
+                range
               >
               </v-date-picker>
             </v-col>
@@ -167,7 +134,7 @@
                 :loading="loadingStatus"
                 :items="branches"
                 item-value="Name"
-                item-text="Name"
+                item-text="SeriesName"
                 return-object
                 dense
                 label="Select Branch"
@@ -231,18 +198,12 @@
 </template>
 
 <script>
-import MoneyFormat from "vue-money-format";
-//import { mapState } from 'vuex'
-// import { mapActions } from 'vuex'
+ 
 import { mapGetters } from "vuex";
-import { validationMixin } from "vuelidate";
-import { required } from "vuelidate/lib/validators";
-import moment from "moment";
 import JsonExcel from "vue-json-excel";
 export default {
   components: {
     JsonExcel,
-    "money-format": MoneyFormat,
   },
 
   data() {
@@ -251,7 +212,7 @@ export default {
       printLink: "",
       printDialog: false,
       branch: "Agoo",
-      dates_regular:  '2022-08-30',
+      dates_regular:  ['2022-07-01','2022-07-30'],
       create: false,
       reveal: false,
       search: "",
@@ -260,47 +221,22 @@ export default {
       loading: false,
       submitDisable: true,
       headers: [
-        { text: "DocNum", align: "left", value: "DocNum" },
-        { text: "Date", align: "left", value: "Date" },
-        { text: "Name", align: "left", value: "Name" },
-        { text: "Particulars", align: "left", value: "Particulars" },
-        { text: "OR#", align: "left", value: "OR#" },
-        { text: "Amount", align: "left", value: "Amount" },
-        { text: "PaymtAcc", align: "left", value: "PaymtAcct" },
-
-        { text: "Interest/DP", align: "left", value: "Interest" },
-        {
-          text: "Other Incoming Payments",
-          align: "left",
-          value: "otherBranch_Acct",
-        },
-        { text: "Supplier", align: "left", value: "Supplier" },
-        { text: "Rebate", align: "left", value: "Rebate" },
-        // { text: "Actions", align: "center", value: "action", sortable: false },
+        { text: "NAME", align: "left", value: "NAME" },
+        { text: "ADDRESS", align: "left", value: "ADDRESS" },
+        { text: "BRAND", align: "left", value: "BRAND" },
+        { text: "PRODUCTCATEGORY", align: "left", value: "PRODUCTCATEGORY" },
+        { text: "MODEL", align: "left", value: "MODEL" },
+        { text: "CONTACTNO", align: "left", value: "CONTACTNO" },
       ],
     };
   },
   computed: {
     ...mapGetters({
-      paymentcbr_data: "paymentCRB/getPaymentCRB",
+      query: "marketing_ar_invoice/QUERY",
       permissions: "userPermissions/getPermission",
-      branches: "blacklisted/getBranchSegment",
+      branches: "marketing_ar_invoice/getBranchSegment",
     }),
-    // deleteAll() {
-    //   return this.permissions.includes("Delete Agencies File");
-    // },
-    userCanCreate_role() {
-      return this.permissions.includes("Create BlackListed CCS Portal");
-    },
-    // ShowDoc_role() {
-    //   return this.permissions.includes("Show Agencies File");
-    // },
-    // Editdoc_role() {
-    //   return this.permissions.includes("Edit Agencies File");
-    // },
-    // Download_role() {
-    //   return this.permissions.includes("Download Agencies Files");
-    // },
+    
     dialog() {
       return this.$store.state.dialog;
     },
@@ -314,8 +250,7 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch("paymentCRB/GeneratePaymentCRB");
-    this.$store.dispatch("blacklisted/fetchBranchSegment");
+    this.$store.dispatch("marketing_ar_invoice/fetchBranchSegment");
     this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {
@@ -323,8 +258,8 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
-        fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+        this.printLink = 'http://10.10.10.38:9999/api/public/reports/queries/marketingarinvoicequery?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.SeriesName+'';
+        fetch('http://10.10.10.38:9999/api/public/reports/queries/marketingarinvoicequery?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.SeriesName+'').then((res)=>{
            this.iden = 1; 
            
         })
@@ -333,17 +268,16 @@ export default {
     generate() {
       let data = {
         date: this.dates_regular,
-        branch: this.branch["Name"],
+        branch: this.branch,
       };
-
-      this.$store.dispatch("paymentCRB/GeneratePaymentCRB", data);
+      this.$store.dispatch("marketing_ar_invoice/generatequery", data);
     },
     refreshData() {
       let data = {
         date: this.dates_regular,
-        branch: this.branch["Name"],
+        branch: this.branch,
       };
-      this.$store.dispatch("paymentCRB/GeneratePaymentCRB",data);
+      this.$store.dispatch("marketing_ar_invoice/generatequery", data);
     },
     openDialog() {
       this.create = true;
