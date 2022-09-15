@@ -1,13 +1,13 @@
 import actions from "./actions";
 
 const state = {
-  paymentcrb_data: [],
+  query_data: [],
   segment_data: []
 };
 
 const getters = {
-  getPaymentCRB(state) {
-    return state.paymentcrb_data
+  QUERY(state) {
+    return state.query_data
   },
   getBranchSegment(state) {
     return state.segment_data
@@ -15,8 +15,8 @@ const getters = {
  
 };
 const mutations = {
-  GET_PAYMENTCRB(state, payload) {
-    state.paymentcrb_data = payload;
+  GET_QUERY(state, payload) {
+    state.query_data = payload;
   },
   GET_SEGMENT(state, payload) {
     state.segment_data = payload;
