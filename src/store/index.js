@@ -5,6 +5,10 @@ import axios from "axios";
 
 import rootUrl from "./rootUrl";
 const dateUrl = rootUrl + "/api/date";
+ 
+//MSSQL CONNECTIONS SAP B1
+const mssqlDB = rootUrl + "/api/connections";
+const mssqlDBUPDATE = rootUrl + "/api/connections/update";
 
 import user from "./modules/user/index";
 import employment from "./modules/user/employment/index";
@@ -163,11 +167,13 @@ export default new Vuex.Store({
      marketing_ar_invoice: marketing_ar_invoice,
      recomputed_account: recomputed_account,
      searching_of_vehicles_parts: searching_of_vehicles_parts,
-     summary_of_customer_depostiapplied: summary_of_customer_depostiapplied
+     summary_of_customer_depostiapplied: summary_of_customer_depostiapplied,
+ 
 
   },
   state: {
     serverdate: [],
+    connections : [],
     windowSize: {
       width: 0,
       height: 0
@@ -190,6 +196,9 @@ export default new Vuex.Store({
     serverDate(state) {
       return state.serverdate;
     },
+    mssqlCons(state){
+      return state.connections;
+    },
     // auth
     isLoggedIn(state) {
       return state.isLoggedIn;
@@ -209,7 +218,9 @@ export default new Vuex.Store({
       state.serverdate = data;
       console.log(state.serverdate);
     },
-
+    SET_DBCONNECTIONS(state, data){
+        state.connections = data
+    },
     WINDOW_SIZE(state) {
       state.windowSize.width = window.innerWidth;
       state.windowSize.height = window.innerHeight;
@@ -263,8 +274,6 @@ export default new Vuex.Store({
     triggerDialog(context, dialog) {
       context.commit("DIALOG_STATUS", dialog);
     },
- 
-
     // auth
     login(context) {
       context.commit("login");
@@ -272,6 +281,20 @@ export default new Vuex.Store({
     fetchDate(context) {
       axios.get(dateUrl).then(response => {
         context.commit("SET_DATE", response.data);
+      });
+    },
+    fetchDatabase(context) {
+      axios.get(mssqlDB).then(response => {
+        context.commit("SET_DBCONNECTIONS", response.data);
+      });
+    },
+    updateDB(context, data){
+      context.commit("LOADING_STATUS", true,{ root: true });
+      axios.post(mssqlDBUPDATE, data).then(response => {
+        context.commit("LOADING_STATUS", false,{ root: true });
+         
+        const url = new URL(window.location.pathname, window.location.origin)
+        window.location.href = url.toString()
       });
     }
   }

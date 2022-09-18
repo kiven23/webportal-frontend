@@ -65,10 +65,12 @@
                   link
                 >
  
-                  <v-list-item-title v-text="_subLink.text" style="margin-left: -76px"></v-list-item-title>
-                  <!-- <v-list-item-action>
+                   
+                 
+                  <v-list-item-title  class="text-wrap" v-text="_subLink.text" ></v-list-item-title>
+                  <v-list-item-action>
                     <v-icon v-text="_subLink.icon"></v-icon>
-                  </v-list-item-action> -->
+                  </v-list-item-action>  
                 </v-list-item>
               </v-list-group>
             </span>
