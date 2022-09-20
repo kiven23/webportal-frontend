@@ -77,6 +77,10 @@ import sapreports_ar_invoice_openbalance from "../views/sap_reports/ar_invoice_o
 import sapreports_incoming_customer_deposit from "../views/sap_reports/incoming_payment_customer_deposit/incoming_payment_customer_deposit.vue";
 //incomingpayment openbalance
 import sapreports_incoming_payment_openbalance from "../views/sap_reports/incoming_payment_open_balance/incoming_payment_open_balance.vue";
+//database configure
+import databaseconfigure from "../views/settings/database/configure.vue";
+
+
 const viewRoutes = [
   {
     path: "/",
@@ -447,6 +451,16 @@ const viewRoutes = [
     path: "/sapb1/reports/query/recomputed/account",
     component: sapreports_recomputed_account,
     name: "recomputed_amount",
+    meta: {
+      requiresAuth: true
+    }
+  },
+
+  //DATABASE SETTING CONFIGURE
+  {
+    path: "/settings/database/configure",
+    component: databaseconfigure,
+    name: "configure",
     meta: {
       requiresAuth: true
     }
