@@ -9,6 +9,8 @@ const dateUrl = rootUrl + "/api/date";
 //MSSQL CONNECTIONS SAP B1
 const mssqlDB = rootUrl + "/api/connections";
 const mssqlDBUPDATE = rootUrl + "/api/connections/update";
+//DATABASE CONNECTION CONFIGURATION
+const DBlinkConf = rootUrl + "/api/settings/database"
 
 import user from "./modules/user/index";
 import employment from "./modules/user/employment/index";
@@ -174,6 +176,7 @@ export default new Vuex.Store({
   state: {
     serverdate: [],
     connections : [],
+    database_data: [],
     windowSize: {
       width: 0,
       height: 0
@@ -193,6 +196,7 @@ export default new Vuex.Store({
     auth_error: null
   },
   getters: {
+
     serverDate(state) {
       return state.serverdate;
     },
@@ -217,6 +221,9 @@ export default new Vuex.Store({
     SET_DATE(state, data) {
       state.serverdate = data;
       console.log(state.serverdate);
+    },
+    SET_DBLIST(state, data){
+      state.database_data = data
     },
     SET_DBCONNECTIONS(state, data){
         state.connections = data
@@ -288,14 +295,67 @@ export default new Vuex.Store({
         context.commit("SET_DBCONNECTIONS", response.data);
       });
     },
-    updateDB(context, data){
-      context.commit("LOADING_STATUS", true,{ root: true });
-      axios.post(mssqlDBUPDATE, data).then(response => {
-        context.commit("LOADING_STATUS", false,{ root: true });
-         
-        const url = new URL(window.location.pathname, window.location.origin)
-        window.location.href = url.toString()
-      });
-    }
+    //SETTINGS CODES
+
+    //DATABASE 
+    //UPDATE DATABASE SELECTIONS
+        updateDB(context, data){
+          context.commit("LOADING_STATUS", true,{ root: true });
+          axios.post(mssqlDBUPDATE, data).then(response => {
+            context.commit("LOADING_STATUS", false,{ root: true });
+            
+            const url = new URL(window.location.pathname, window.location.origin)
+            window.location.href = url.toString()
+          });
+        },
+
+    //FETCH ALL DATABASE CONNECTION
+        fetchDBAll(context,data){
+           axios.post(DBlinkConf+'/fetch',data).then(response =>{
+                 context.commit("SET_DBLIST", response.data);
+           })
+        },
+    //CREATE DATABASE CONNECTION
+        createDBcon(context,data){
+           axios.post(DBlinkConf+'/create',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+          
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+           })
+        },
+    //DELETE DATABASE CONNECTION
+        deleteDBcon(context,data){
+          axios.post(DBlinkConf+'/delete',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+           
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+          })
+        },
+    //UPDATE DATABASE CONNECTION
+        updateDBcon(context,data){
+          axios.post(DBlinkConf+'/update',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+            
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+          })
+        }
   }
 });
