@@ -215,6 +215,9 @@ export default new Vuex.Store({
     },
     goDark(state) {
       return state.goDark;
+    },
+    getDBLIST(state) {
+      return state.database_data
     }
   },
   mutations: {
@@ -317,7 +320,7 @@ export default new Vuex.Store({
         },
     //CREATE DATABASE CONNECTION
         createDBcon(context,data){
-           axios.post(DBlinkConf+'/create',data).then(response =>{
+           return axios.post(DBlinkConf+'/create',data).then(response =>{
             let payload = [
               {
                 status: true,
@@ -327,11 +330,12 @@ export default new Vuex.Store({
             ];
           
             context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
            })
         },
     //DELETE DATABASE CONNECTION
         deleteDBcon(context,data){
-          axios.post(DBlinkConf+'/delete',data).then(response =>{
+          return axios.post(DBlinkConf+'/delete',data).then(response =>{
             let payload = [
               {
                 status: true,
@@ -341,11 +345,12 @@ export default new Vuex.Store({
             ];
            
             context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
           })
         },
     //UPDATE DATABASE CONNECTION
         updateDBcon(context,data){
-          axios.post(DBlinkConf+'/update',data).then(response =>{
+          return axios.post(DBlinkConf+'/update',data).then(response =>{
             let payload = [
               {
                 status: true,
@@ -355,6 +360,7 @@ export default new Vuex.Store({
             ];
             
             context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
           })
         }
   }

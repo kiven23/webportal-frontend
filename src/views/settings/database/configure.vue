@@ -147,6 +147,7 @@
 <script>
 import { validationMixin } from "vuelidate";
 import { required, maxLength, email } from "vuelidate/lib/validators";
+import { mapGetters } from "vuex";
 export default {
   mixins: [validationMixin],
   validations: {
@@ -192,9 +193,12 @@ export default {
     this.$store.dispatch("fetchDBAll");
   },
   computed: {
-    databaseData() {
-      return this.$store.state.database_data;
-    },
+    ...mapGetters({
+      databaseData: "getDBLIST"
+    }),
+    // databaseData() {
+    //   return this.$store.state.database_data;
+    // },
     hostErrors() {
       const errors = [];
       if (!this.$v.host.$dirty) return errors;
@@ -246,12 +250,22 @@ export default {
         entry: this.entryname
       };
      if(this.id){
-        this.$store.dispatch("updateDBcon", data);
+        this.$store.dispatch("updateDBcon", data)
+        .then( res => {
+          if(res.status == 200){
+            this.refresh();
+          }
+        })
      }else{
-        this.$store.dispatch("createDBcon", data);
+        this.$store.dispatch("createDBcon", data)
+        .then( res => {
+          if(res.status == 200){
+            this.refresh();
+          }
+        })
      }
-     this.refresh();
-     this.refresh();
+     //this.refresh();
+    
     },
     refresh(){
       this.id = '';
@@ -288,11 +302,12 @@ export default {
         id: data.id,
         entryname: data.entry
       }
-      this.$store.dispatch("deleteDBcon", trash);  
-      this.refresh();
-      this.refresh();
-      this.refresh();
-      this.refresh();
+      this.$store.dispatch("deleteDBcon", trash)
+      .then(res => {
+        if(res.status == 200){
+          this.refresh();
+        }
+      })  
     }
   },
 };
