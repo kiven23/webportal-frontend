@@ -230,8 +230,8 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://10.10.10.38:9999/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+this.branch.U_Branch1+'';
-        fetch('http://10.10.10.38:9999/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&&series='+this.branch.U_Branch1+'').then((res)=>{
+        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+this.branch.U_Branch1+'';
+        fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&&series='+this.branch.U_Branch1+'').then((res)=>{
            this.iden = 1; 
         })
       },

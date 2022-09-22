@@ -202,8 +202,8 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://10.10.10.38:9999/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'';
-        fetch('http://10.10.10.38:9999/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'').then((res)=>{
+        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'';
+        fetch('http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'').then((res)=>{
            this.iden = 1; 
         })
       },
