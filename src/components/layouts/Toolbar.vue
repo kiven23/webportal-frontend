@@ -34,7 +34,7 @@
       
     
       <v-tooltip-title >
-        <strong style="text-align: center">Addessa {{currentUser.branch.name !== ''? currentUser.branch.name: ''}}</strong>
+        <strong style="text-align: center">Addessa {{currentUser.branch == null? '': currentUser.branch.name}}</strong>
       </v-tooltip-title>
 
       <v-tooltip bottom>
