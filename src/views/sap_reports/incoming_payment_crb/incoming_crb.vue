@@ -285,6 +285,7 @@ export default {
       paymentcbr_data: "paymentCRB/getPaymentCRB",
       permissions: "userPermissions/getPermission",
       branches: "blacklisted/getBranchSegment",
+      currentUser: "currentUser",
     }),
     // deleteAll() {
     //   return this.permissions.includes("Delete Agencies File");
@@ -323,11 +324,24 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
-        fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
-           this.iden = 1; 
+        // this.printLink = 'http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'';
+        // fetch('http://192.168.1.19:7771/api/reports/printview?branch='+this.branch["Name"]+'&date='+this.dates_regular+'').then((res)=>{
+        //    this.iden = 1; 
            
-        })
+        // })
+        async function getSrc(token,  branch, dates) {
+              const res = await fetch('http://192.168.1.19:7771/api/reports/printview?branch='+branch+'&date='+dates+'', {
+              method: 'GET',
+              headers: {
+                'Authorization' : `Bearer ${ token }`
+              }
+              });
+              const blob = await res.blob();
+              const urlObject = URL.createObjectURL(blob);
+              document.querySelector('iframe').setAttribute("src", urlObject)
+        }
+         getSrc(this.currentUser.token,  this.branch["Name"], this.dates_regular);
+         this.iden = 1; 
       },
  
     generate() {

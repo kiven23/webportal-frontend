@@ -2,7 +2,8 @@ import actions from "./actions";
 
 const state = {
   query_data: [],
-  segment_data: []
+  segment_data: [],
+ 
 };
 
 const getters = {

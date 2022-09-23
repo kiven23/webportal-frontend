@@ -238,6 +238,7 @@ export default {
       query: "summary_of_customer_depostiapplied/QUERY",
       permissions: "userPermissions/getPermission",
       branches: "summary_of_customer_depostiapplied/getBranchSegment",
+      currentUser: "currentUser",
     }),
      
     dialog() {
@@ -261,11 +262,26 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/summaryofcustomerdepositapplied?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.U_Branch1+'';
-        fetch('http://192.168.1.19:7771/api/public/reports/queries/summaryofcustomerdepositapplied?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.U_Branch1+'').then((res)=>{
-           this.iden = 1; 
+        // this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/summaryofcustomerdepositapplied?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.U_Branch1+'';
+        // fetch('http://192.168.1.19:7771/api/public/reports/queries/summaryofcustomerdepositapplied?q=printing&datefrom='+this.dates_regular[0]+'&dateto='+this.dates_regular[1]+'&series='+this.branch.U_Branch1+'').then((res)=>{
+        //    this.iden = 1; 
            
-        })
+        // })
+        async function getSrc(token, dates_regular1,dates_regular2, series) {
+              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/summaryofcustomerdepositapplied?q=printing&datefrom='+dates_regular1+'&dateto='+dates_regular2+'&series='+series+'', {
+              method: 'GET',
+              headers: {
+                'Authorization' : `Bearer ${ token }`
+              }
+              });
+              const blob = await res.blob();
+              const urlObject = URL.createObjectURL(blob);
+              document.querySelector('iframe').setAttribute("src", urlObject)
+              
+        }
+         getSrc(this.currentUser.token, this.dates_regular[0], this.dates_regular[1],this.branch.U_Branch1);
+         this.iden = 1; 
+        
       },
  
     generate() {

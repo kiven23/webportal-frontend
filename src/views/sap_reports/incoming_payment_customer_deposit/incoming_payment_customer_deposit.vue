@@ -207,6 +207,7 @@ export default {
       query: "incoming_payment_customer_deposit/QUERY",
       permissions: "userPermissions/getPermission",
       branches: "incoming_payment_customer_deposit/getBranchSegment",
+      currentUser: "currentUser",
     }),
      
     dialog() {
@@ -230,10 +231,24 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+this.branch.U_Branch1+'';
-        fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&&series='+this.branch.U_Branch1+'').then((res)=>{
-           this.iden = 1; 
-        })
+        // this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+this.branch.U_Branch1+'';
+        // fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&&series='+this.branch.U_Branch1+'').then((res)=>{
+        //    this.iden = 1; 
+        // })
+        async function getSrc(token, series) {
+              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+series, {
+              method: 'GET',
+              headers: {
+                'Authorization' : `Bearer ${ token }`
+              }
+              });
+              const blob = await res.blob();
+              const urlObject = URL.createObjectURL(blob);
+              document.querySelector('iframe').setAttribute("src", urlObject)
+              
+        }
+         getSrc(this.currentUser.token, this.branch.U_Branch1);
+         this.iden = 1; 
       },
  
     generate() {

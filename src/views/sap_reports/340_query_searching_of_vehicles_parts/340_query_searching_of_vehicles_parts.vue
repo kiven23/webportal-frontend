@@ -183,6 +183,7 @@ export default {
       types: "searching_of_vehicles_parts/TYPES",
       queries: "searching_of_vehicles_parts/QUERIES",
       permissions: "userPermissions/getPermission",
+      currentUser: "currentUser",
    
     }),
     dialog() {
@@ -202,10 +203,24 @@ export default {
         this.printLink = "";
         this.printDialog = true;
         this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'';
-        fetch('http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'').then((res)=>{
-           this.iden = 1; 
-        })
+        // this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'';
+        // fetch('http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+this.vpart+'&type='+this.vtype+'').then((res)=>{
+        //    this.iden = 1; 
+        // })
+        async function getSrc(token, vpart, vtype) {
+              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+vpart+'&type='+vtype+'', {
+              method: 'GET',
+              headers: {
+                'Authorization' : `Bearer ${ token }`
+              }
+              });
+              const blob = await res.blob();
+              const urlObject = URL.createObjectURL(blob);
+              document.querySelector('iframe').setAttribute("src", urlObject)
+              
+        }
+         getSrc(this.currentUser.token, this.vpart, this.vtype);
+         this.iden = 1; 
       },
   async  generate() {
       this.itemsdata = {

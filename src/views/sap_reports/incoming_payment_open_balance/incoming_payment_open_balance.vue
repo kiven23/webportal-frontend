@@ -11,7 +11,7 @@
       >
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>Incoming Payment Open Balance</v-toolbar-title>
+            <v-toolbar-title>Incoming Payment Open Balance </v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
 
             <v-tooltip bottom>
@@ -208,6 +208,7 @@ export default {
       query: "incoming_payment_open_balance/QUERY",
       permissions: "userPermissions/getPermission",
       branches: "incoming_payment_open_balance/getBranchSegment",
+      currentUser: "currentUser",
     }),
      
     dialog() {
@@ -228,13 +229,42 @@ export default {
   },
   methods: {
     printpre(){
-        this.printLink = "";
-        this.printDialog = true;
-        this.iden = 0; 
-        this.printLink = 'http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentopenbalance?q=printing&series='+this.branch.SeriesName+'';
-        fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentopenbalance?q=printing&&series='+this.branch.SeriesName+'').then((res)=>{
-           this.iden = 1; 
-        })
+         this.printLink = "";
+         this.printDialog = true;
+         this.iden = 0; 
+          // let data = {
+          // branch: this.branch,
+          //  };
+          // this.$store.dispatch("incoming_payment_open_balance/print", data)
+          // .then(res => {
+          //   async function getSrc(res) {
+          //     const blob = new Blob([res.data]);
+          //     const urlObject = URL.createObjectURL(blob);
+          //     //document.querySelector('iframe').setAttribute("src", urlObject)
+          //      console.log(urlObject)
+          //   }
+          //   getSrc(res)
+          // })
+          // this.printLink = 'http://10.10.10.38:9999/api/public/reports/queries/incomingpaymentopenbalance?q=printing&series='+this.branch.SeriesName+'&auth='+this.userid+'';
+          // fetch('http://10.10.10.38:9999/api/public/reports/queries/incomingpaymentopenbalance?q=printing&&series='+this.branch.SeriesName+'&auth='+this.userid+'').then((res)=>{
+          //    this.iden = 1; 
+          // })
+        
+        async function getSrc(token, series) {
+              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentopenbalance?q=printing&series='+series, {
+              method: 'GET',
+              headers: {
+                'Authorization' : `Bearer ${ token }`
+              }
+              });
+              const blob = await res.blob();
+              const urlObject = URL.createObjectURL(blob);
+              document.querySelector('iframe').setAttribute("src", urlObject)
+              
+        }
+         getSrc(this.currentUser.token, this.branch.SeriesName);
+         this.iden = 1; 
+         
       },
  
     generate() {

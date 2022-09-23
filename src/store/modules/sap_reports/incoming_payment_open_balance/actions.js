@@ -2,7 +2,8 @@ import axios from "axios";
 import rootUrl from "../../../rootUrl";
 //ADJUSTMENT SALES DISCOUNT
 const segment = rootUrl + "/api/seriesname/fetch";
- const generate = rootUrl + "/api/public/reports/queries/incomingpaymentopenbalance?q=queries";
+const generate = rootUrl + "/api/public/reports/queries/incomingpaymentopenbalance?q=queries";
+const print = rootUrl + "/api/public/reports/queries/incomingpaymentopenbalance?q=printing";
 const actions = {
  
   fetchBranchSegment(context) {
@@ -20,6 +21,7 @@ const actions = {
       context.commit("LOADING_STATUS", false, { root: true });
     });
   },
+ 
   
  
 };
