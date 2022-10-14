@@ -5,6 +5,12 @@ import axios from "axios";
 
 import rootUrl from "./rootUrl";
 const dateUrl = rootUrl + "/api/date";
+ 
+//MSSQL CONNECTIONS SAP B1
+const mssqlDB = rootUrl + "/api/connections";
+const mssqlDBUPDATE = rootUrl + "/api/connections/update";
+//DATABASE CONNECTION CONFIGURATION
+const DBlinkConf = rootUrl + "/api/settings/database"
 
 import user from "./modules/user/index";
 import employment from "./modules/user/employment/index";
@@ -78,6 +84,30 @@ import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
 import RevolvingFundList from "./modules/revolving_fund/list_of_rv_funds";
 import RevolvingFundAvailRvFundOnHandReports from "./modules/revolving_fund/avail_rv_fund_on_hand_reports";
 
+// PaymentCRB
+import GeneratePaymentCRB from "./modules/sap_reports/incoming_paymentCRB/index";
+
+
+// adjustment sales discount
+import adjustment_sales_discount from "./modules/sap_reports/adjustment_sales_discount/index";
+// ar invoice open balance
+import ar_invoice_open_balance from "./modules/sap_reports/ar_invoice_open_balance/index";
+// incoming payment customer deposit
+import incoming_payment_customer_deposit from "./modules/sap_reports/incoming_payment_customer_deposit/index";
+// incoming payment open balance
+import incoming_payment_open_balance from "./modules/sap_reports/incoming_payment_open_balance/index";
+// invoice query series open balance
+import invoice_query_series_revised from "./modules/sap_reports/invoice_query_series_revised/index";
+// marketing ar invoice
+import marketing_ar_invoice from "./modules/sap_reports/marketing_ar_invoice/index";
+// recomputed account
+import recomputed_account from "./modules/sap_reports/recomputed_account/index";
+// searching of vehicles parts
+import searching_of_vehicles_parts from "./modules/sap_reports/searching_of_vehicles_parts/index";
+// summary of customer deposit applied
+import summary_of_customer_depostiapplied from "./modules/sap_reports/summary_of_customer_depositapplied/index";
+
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -135,9 +165,26 @@ export default new Vuex.Store({
      //Revolving Fund
      revolving_fund_list: RevolvingFundList,
      revolving_fund_avail_on_hand_reports: RevolvingFundAvailRvFundOnHandReports,
+     
+     //PaymentCRB
+     paymentCRB: GeneratePaymentCRB,
+
+     adjustment_sales_discount: adjustment_sales_discount,
+     ar_invoice_open_balance: ar_invoice_open_balance,
+     incoming_payment_customer_deposit: incoming_payment_customer_deposit,
+     incoming_payment_open_balance: incoming_payment_open_balance,
+     invoice_query_series_revised: invoice_query_series_revised,
+     marketing_ar_invoice: marketing_ar_invoice,
+     recomputed_account: recomputed_account,
+     searching_of_vehicles_parts: searching_of_vehicles_parts,
+     summary_of_customer_depostiapplied: summary_of_customer_depostiapplied,
+ 
+
   },
   state: {
     serverdate: [],
+    connections : [],
+    database_data: [],
     windowSize: {
       width: 0,
       height: 0
@@ -157,8 +204,12 @@ export default new Vuex.Store({
     auth_error: null
   },
   getters: {
+
     serverDate(state) {
       return state.serverdate;
+    },
+    mssqlCons(state){
+      return state.connections;
     },
     // auth
     isLoggedIn(state) {
@@ -172,6 +223,9 @@ export default new Vuex.Store({
     },
     goDark(state) {
       return state.goDark;
+    },
+    getDBLIST(state) {
+      return state.database_data
     }
   },
   mutations: {
@@ -179,7 +233,12 @@ export default new Vuex.Store({
       state.serverdate = data;
       console.log(state.serverdate);
     },
-
+    SET_DBLIST(state, data){
+      state.database_data = data
+    },
+    SET_DBCONNECTIONS(state, data){
+        state.connections = data
+    },
     WINDOW_SIZE(state) {
       state.windowSize.width = window.innerWidth;
       state.windowSize.height = window.innerHeight;
@@ -233,8 +292,6 @@ export default new Vuex.Store({
     triggerDialog(context, dialog) {
       context.commit("DIALOG_STATUS", dialog);
     },
- 
-
     // auth
     login(context) {
       context.commit("login");
@@ -243,6 +300,76 @@ export default new Vuex.Store({
       axios.get(dateUrl).then(response => {
         context.commit("SET_DATE", response.data);
       });
-    }
+    },
+    fetchDatabase(context) {
+      axios.get(mssqlDB).then(response => {
+        context.commit("SET_DBCONNECTIONS", response.data);
+      });
+    },
+    //SETTINGS CODES
+
+    //DATABASE 
+    //UPDATE DATABASE SELECTIONS
+        updateDB(context, data){
+          context.commit("LOADING_STATUS", true,{ root: true });
+          axios.post(mssqlDBUPDATE, data).then(response => {
+            context.commit("LOADING_STATUS", false,{ root: true });
+            
+            const url = new URL(window.location.pathname, window.location.origin)
+            window.location.href = url.toString()
+          });
+        },
+
+    //FETCH ALL DATABASE CONNECTION
+        fetchDBAll(context,data){
+           axios.post(DBlinkConf+'/fetch',data).then(response =>{
+                 context.commit("SET_DBLIST", response.data);
+           })
+        },
+    //CREATE DATABASE CONNECTION
+        createDBcon(context,data){
+           return axios.post(DBlinkConf+'/create',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+          
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
+           })
+        },
+    //DELETE DATABASE CONNECTION
+        deleteDBcon(context,data){
+          return axios.post(DBlinkConf+'/delete',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+           
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
+          })
+        },
+    //UPDATE DATABASE CONNECTION
+        updateDBcon(context,data){
+          return axios.post(DBlinkConf+'/update',data).then(response =>{
+            let payload = [
+              {
+                status: true,
+                message: response.data.msg,
+                timeout: 3000
+              }
+            ];
+            
+            context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
+            return response
+          })
+        }
   }
 });

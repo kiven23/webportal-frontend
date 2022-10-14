@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar app clipped-left isDark>
+    <v-app-bar app clipped-left  style="background-color: #f2e7d0; border-radius: 10px;">
       <!-- <v-app-bar-nav-icon @click.stop="drawer"></v-app-bar-nav-icon> -->
       <v-btn icon @click.stop="drawer">
         <v-icon>{{ toggleDrawer ? "mdi-menu" : "mdi-menu-open" }}</v-icon>
@@ -11,12 +11,32 @@
         max-height="40"
         style="margin: 5px"
       ></v-img>
-      <v-toolbar-title> <strong>Addessa Portal Staging</strong></v-toolbar-title>
+      <v-toolbar-title> <strong>Addessa Portal  {{connections.connection}}</strong></v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-tooltip-title class="flex text-end">
-        <strong style="text-align: center">Addessa {{currentUser.branch.name == ''? currentUser.branch.name:''}}</strong>
+      <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+    
+ 
+                  <v-select
+                      style="margin-top: 15px; margin-right: 15px; width: 10px"
+                      :items="connections.databases"
+                      label="Select Database"
+                      v-model="connections.connection"
+                      item-value="id"
+                      item-text="dbname"
+                      dense
+                      :loading="loadingStatus"
+                      @change ="change()"
+                       
+                 ></v-select>
+
+      
+    
+      <v-tooltip-title >
+        <strong style="text-align: center">Addessa {{currentUser.branch == null? '': currentUser.branch.name}}</strong>
       </v-tooltip-title>
+
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="goDark">
@@ -27,7 +47,7 @@
         </template>
         <span>{{ isDark ? "Go Dark" : "Go Light" }}</span>
       </v-tooltip>
-
+     
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="logout">
@@ -41,11 +61,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
  
 export default {
+ 
   methods: {
+    change(){
+      const data = {'id': this.connections.connection}
+      this.$store.dispatch("updateDB", data);
+    },
     drawer() {
       this.$store.state.drawer = !this.$store.state.drawer;
+
     },
 
     logout() {
@@ -59,15 +86,20 @@ export default {
     },
   },
 
-  created() {
+ created() {
     console.log(this.$store.getters.currentUser);
+    this.$store.dispatch("fetchDatabase");
+   
   },
 
   computed: {
+    connections(){
+     return  this.$store.state.connections;
+    },
     currentUser() {
       return this.$store.getters.currentUser;
     },
-
+    
     loadingStatus() {
       return this.$store.state.loading;
     },

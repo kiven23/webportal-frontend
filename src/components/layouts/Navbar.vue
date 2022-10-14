@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-navigation-drawer :value="drawer" app clipped>
+    <v-navigation-drawer :value="drawer" app clipped style="background-color: #f2e7d0; ">
       <v-list dense>
         <v-list-item>
           <v-list-item-content>
@@ -64,10 +64,13 @@
                   :to="_subLink.route"
                   link
                 >
-                  <v-list-item-title v-text="_subLink.text"></v-list-item-title>
+ 
+                   
+                 
+                  <v-list-item-title  class="text-wrap" v-text="_subLink.text" ></v-list-item-title>
                   <v-list-item-action>
                     <v-icon v-text="_subLink.icon"></v-icon>
-                  </v-list-item-action>
+                  </v-list-item-action>  
                 </v-list-item>
               </v-list-group>
             </span>
