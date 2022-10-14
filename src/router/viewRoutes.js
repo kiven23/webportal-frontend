@@ -46,15 +46,16 @@ import dunning_letters from "../views/credit_collection/dunning_letters/dunning.
 import validation_template from "../views/validation_portal/template/template.vue"
 import validation_good_receipt_serial_model from "../views/validation_portal/good_receipt_model_serial_model/good_receipt_model_serial_model.vue"
 import validation_bp_master_cardcode_ar_invoice from "../views/validation_portal/bp_master_data_cardcode_ar_invoice/bp_master_data_cardcode_ar_invoice.vue"
- 
-//Revolving Fund
-import revolving_fund from "../views/revolving_fund/revolving_fund.vue";
 
 //Raffle Draw
 import raffle from "../components/standalone/raffle.vue";
 
 //SmS Gift Code
 import giftcode from "../views/sms_system/automated_giftcode/giftcode.vue";
+
+//Revolving Fund
+import list_of_rv_funds from "../views/revolving_fund/list_of_rv_funds/list_of_rv_funds.vue";
+import avail_rv_fund_on_hand_reports from "../views/revolving_fund/avail_rv_fund_on_hand_reports/avail_rv_fund_on_hand_reports.vue"
 
 const viewRoutes = [
   {
@@ -316,14 +317,6 @@ const viewRoutes = [
     }
   },
   {
-    path: "/revolving-fund",
-    component: revolving_fund,
-    name: "revolving_fund",
-    meta: {
-      requiresAuth: true
-    }
-  },
-  {
     path: "/raffle",
     component: raffle,
     name: "raffle",
@@ -335,6 +328,22 @@ const viewRoutes = [
     path: "/giftcodes/index",
     component: giftcode,
     name: "giftcode",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/revolving-fund/list",
+    component: list_of_rv_funds,
+    name: "list_of_rv_funds",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/revolving-fund/avail-revolving-fund-on-hand-reports",
+    component: avail_rv_fund_on_hand_reports,
+    name: "avail_rv_fund_on_hand_reports",
     meta: {
       requiresAuth: true
     }

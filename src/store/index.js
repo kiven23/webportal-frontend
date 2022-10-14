@@ -74,6 +74,10 @@ import RaffleDraw from "./modules/raffle/index";
 //Authorized GiftCode
 import AuthorizedGiftCode1 from "./modules/sms_system/hbdgiftcode/index";
 
+//Revolving Fund
+import RevolvingFundList from "./modules/revolving_fund/list_of_rv_funds";
+import RevolvingFundAvailRvFundOnHandReports from "./modules/revolving_fund/avail_rv_fund_on_hand_reports";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -127,6 +131,10 @@ export default new Vuex.Store({
 
      //Validation Portal BP Master Data Card Code - Ar Invoice Card Code
      validation_bp_master_ar_invoice_cardcode: ValidationPortalBPMasterDataCardCodeArInvoice,
+
+     //Revolving Fund
+     revolving_fund_list: RevolvingFundList,
+     revolving_fund_avail_on_hand_reports: RevolvingFundAvailRvFundOnHandReports,
   },
   state: {
     serverdate: [],
