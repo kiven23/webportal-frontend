@@ -68,7 +68,11 @@
                             :items-per-page="15"
                             class="elevation-2 mt-4"
                             v-if="validation_errors.notEqualColumns"
-                        ></v-data-table>
+                        >
+                            <template v-slot:item.value="{ item }">
+                                {{ item.value.replace(/ /g, '\u00a0') }}
+                            </template>
+                        </v-data-table>
                         <!-- <v-simple-table v-if="validation_errors.notEqualColumns">
                             <template v-slot:default>
                                 <thead>
