@@ -11,7 +11,7 @@
         max-height="40"
         style="margin: 5px"
       ></v-img>
-      <v-toolbar-title> <strong>Addessa Portal  {{connections.connection}}</strong></v-toolbar-title>
+      <v-toolbar-title> <strong>Addessa Portal  </strong></v-toolbar-title>
 
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>
