@@ -345,11 +345,12 @@ export default {
       },
  
     generate() {
+     
       let data = {
         date: this.dates_regular,
         branch: this.branch["Name"],
       };
-
+  console.log(this.branch["Name"])
       this.$store.dispatch("paymentCRB/GeneratePaymentCRB", data);
     },
     refreshData() {
