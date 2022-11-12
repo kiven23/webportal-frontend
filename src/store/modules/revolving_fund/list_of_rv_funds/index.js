@@ -1,6 +1,7 @@
 import actions from "./actions";
 
 const state = {
+    glaccount: [],
     revolving_funds: [], 
     rv_fund_with_expense_items: {
         check_voucher_verifications: [],
@@ -20,6 +21,9 @@ const getters = {
     getRvFundWithExpenseItems(state){
         return state.rv_fund_with_expense_items
     },
+    getGlAccount(state){
+        return state.glaccount
+    }
     // getDeletingOnProgress(state) {
     //     return state.deleting_on_progress
     // }
@@ -41,6 +45,9 @@ const mutations = {
     setExpensesForChkPreparationTotal(state, payload) {
         state.rv_fund_with_expense_items.expenses_for_check_preparations_total = payload
     },
+    GL_ACCOUNT(state, payload){
+        state.glaccount = payload
+    }
     // setDeletingOnProgress(state, payload) {
     //     state.deleting_on_progress = payload
     // }

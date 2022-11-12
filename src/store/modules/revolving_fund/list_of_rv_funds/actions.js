@@ -217,6 +217,16 @@ const actions = {
             return err.response
         })
     },
+    fetchGLaccount(context, payload) {
+        return axios.get(prefix+"/gl/account") 
+        .then(res => {
+            context.commit("GL_ACCOUNT", res)
+            return res
+        })
+        .catch(err => {
+            return err.response
+        })
+    },
 }
 
 export default actions

@@ -2,6 +2,7 @@
   <div>
     <v-container grid-list-md text-xs-center>
       <!-- Start - DataTable -->
+       
       <v-data-table
         :headers="headers"
         :search="search"
@@ -512,15 +513,16 @@
                             small
                             @click="editCheckVoucherVerification(item)"
                             v-if="canEditRvFundExpenses"
-                            ><v-icon small>mdi-pencil</v-icon></v-btn
-                          >
+                            ><v-icon small>mdi-pencil</v-icon>
+                          </v-btn>
                           <v-btn
                             icon
                             small
                             @click="deleteChkVerification(item)"
                             v-if="canDeleteRvFundExpenses"
-                            ><v-icon small>mdi-delete</v-icon></v-btn
-                          >
+                            ><v-icon small>mdi-check</v-icon>
+                          </v-btn>  
+
                         </td>
                       </tr>
                     </tbody>
@@ -688,6 +690,9 @@
                         <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '305' : '328') + 'px'}">
                           PCV Date
                         </th>
+                              <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '305' : '328') + 'px'}">
+                          GL Account
+                        </th>
                         <th class="text-left">Particulars</th>
                         <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '270' : '374') + 'px'}">Amount</th>
                         <th
@@ -719,6 +724,7 @@
                         <td>
                           {{ moment(item.pcv_date).format("MM/DD/YY") }}
                         </td>
+                        <td>{{ item.glaccounts }}</td>
                         <td>{{ item.particulars }}</td>
                         <td>
                           <money-format
@@ -1161,6 +1167,21 @@
                   </v-menu>
                 </v-list-item-content>
               </v-list-item>
+                    <v-list-item>  
+                <v-list-item-content>
+                  <v-autocomplete
+                    dense 
+                    v-model="fields.expense_for_chk_prep.glaccounts"
+                    hide-details="auto"
+                    prepend-icon="mdi-truck-delivery"
+                    :items="glaccountList.data"
+                    item-text="AcctName"
+                    item-value="AcctName"
+                    label="GL Account"
+                  ></v-autocomplete>
+                </v-list-item-content>
+              </v-list-item>
+        
               <v-list-item>
                 <v-list-item-content>
                   <v-text-field
@@ -1175,6 +1196,7 @@
                   ></v-text-field>
                 </v-list-item-content>
               </v-list-item>
+          
               <v-list-item>
                 <v-list-item-content>
                   <v-text-field
@@ -1339,6 +1361,7 @@ export default {
     //this.$store.dispatch("revolving_fund_list/resetRvFundWithExpenseItems")
     this.$store.dispatch("userPermissions/fetchPermission");
     this.refreshRvFunds();
+    this.$store.dispatch("revolving_fund_list/fetchGLaccount");
   },
   data() {
     return {
@@ -1371,6 +1394,7 @@ export default {
       ],
       search: "",
       selected_items: [],
+      
       dialogs: {
         // add_revolving_fund: false,
         view_revolving_fund: false,
@@ -1401,12 +1425,13 @@ export default {
           pcv_date: null,
           particulars: "",
           amount: "",
+          glaccounts: ""
         },
         replenish_expenses: {
           check_voucher_date: null,
           ck_no: "",
           amount: "",
-        }
+        },
       },
       validation_errors: {
         rv_fund: {},
@@ -1475,22 +1500,24 @@ export default {
       this.selected_index.rv_fund = this.revolving_funds.indexOf(item);
       this.dialogs.view_revolving_fund = true;
     },
-    saveCashAdv(){
-      this.$store.dispatch("revolving_fund_list/updateCashAdvances", this.fields.rv_fund)
-      .then(res => {
-         let resStatus = res.status;
+    saveCashAdv() {
+      this.$store
+        .dispatch("revolving_fund_list/updateCashAdvances", this.fields.rv_fund)
+        .then((res) => {
+          let resStatus = res.status;
           let resData = res.data;
           if (resStatus == 200) {
-            let cashAdvances = resData.cashAdvances
-            this.revolving_funds[this.selected_index.rv_fund].cash_advances = cashAdvances
+            let cashAdvances = resData.cashAdvances;
+            this.revolving_funds[this.selected_index.rv_fund].cash_advances =
+              cashAdvances;
             this.rv_fund_with_expense_items.cash_advances = cashAdvances;
-            this.cancelUpdatingCashAdv()  
+            this.cancelUpdatingCashAdv();
           }
-      })
+        });
     },
-    cancelUpdatingCashAdv(){
-      this.isEditingCashAdvances = false
-      this.setRvFieldsData(this.rv_fund_with_expense_items)
+    cancelUpdatingCashAdv() {
+      this.isEditingCashAdvances = false;
+      this.setRvFieldsData(this.rv_fund_with_expense_items);
     },
     // updateRevolvingFund() {
     //   this.$store
@@ -1575,7 +1602,8 @@ export default {
     //Revolving Fund Check Voucher Verification CRUD Methods
     saveCheckVoucherVerification() {
       if (!this.isEditingRVFundItems) {
-        this.fields.chk_voucher_verification.rv_fund_id = this.rv_fund_with_expense_items.id;
+        this.fields.chk_voucher_verification.rv_fund_id =
+          this.rv_fund_with_expense_items.id;
       }
       this.$store
         .dispatch(
@@ -1625,9 +1653,8 @@ export default {
       this.selected_index.rv_fund_items = -1;
     },
     editCheckVoucherVerification(item) {
-      this.selected_index.rv_fund_items = this.chkVoucherVerifications.indexOf(
-        item
-      );
+      this.selected_index.rv_fund_items =
+        this.chkVoucherVerifications.indexOf(item);
       this.fields.chk_voucher_verification = {
         id: item.id,
         date_transmitted: item.date_transmitted,
@@ -1637,9 +1664,8 @@ export default {
       this.dialogs.add_edit_chk_voucher_verification = true;
     },
     editChkVoucherVerificationStatus(item) {
-      this.selected_index.rv_fund_items = this.chkVoucherVerifications.indexOf(
-        item
-      );
+      this.selected_index.rv_fund_items =
+        this.chkVoucherVerifications.indexOf(item);
       this.fields.chk_voucher_verification = {
         id: item.id,
         status: item.status,
@@ -1673,13 +1699,13 @@ export default {
     deleteChkVerification(item) {
       this.$dialog
         .warning({
-          text: "Are you sure to delete this item?",
-          title: "Confirm Delete",
+          text: "Are you sure to Approved this item?",
+          title: "Confirm Approved",
           actions: {
             false: "Cancel",
             true: {
               text: "Confirm",
-              color: "warning",
+              color: "success",
             },
           },
         })
@@ -1709,7 +1735,8 @@ export default {
     //Revolving Fund Check Voucher For Transmittal CRUD Methods
     saveCheckVoucherForTrans() {
       if (!this.isEditingRVFundItems) {
-        this.fields.chk_voucher_for_trans.rv_fund_id = this.rv_fund_with_expense_items.id;
+        this.fields.chk_voucher_for_trans.rv_fund_id =
+          this.rv_fund_with_expense_items.id;
       }
       this.$store
         .dispatch(
@@ -1757,9 +1784,8 @@ export default {
       this.selected_index.rv_fund_items = -1;
     },
     editCheckVoucherForTrans(item) {
-      this.selected_index.rv_fund_items = this.chkVoucherForTransmittals.indexOf(
-        item
-      );
+      this.selected_index.rv_fund_items =
+        this.chkVoucherForTransmittals.indexOf(item);
       this.fields.chk_voucher_for_trans = {
         id: item.id,
         check_voucher_date: item.check_voucher_date,
@@ -1805,7 +1831,7 @@ export default {
         });
     },
     transmitChkVoucher(item) {
-       this.$dialog
+      this.$dialog
         .info({
           text: "Are you sure to trasmit this item?",
           title: "Confirm Transmit",
@@ -1819,24 +1845,32 @@ export default {
         })
         .then((state) => {
           if (state) {
-            console.log(state)
-            this.$store.dispatch("revolving_fund_list/transmitChkVoucher", {id: item.id})
-            .then(res => {
-              let resStatus = res.status;
-              let resData = res.data;
-              if (resStatus == 200) {
-                let chkVoucherForTrans = this.chkVoucherForTransmittals
-                chkVoucherForTrans.splice(chkVoucherForTrans.indexOf(item), 1)
-                this.chkVoucherVerifications.push(resData.item)
-              }
-            })
+            console.log(state);
+            this.$store
+              .dispatch("revolving_fund_list/transmitChkVoucher", {
+                id: item.id,
+              })
+              .then((res) => {
+                let resStatus = res.status;
+                let resData = res.data;
+                if (resStatus == 200) {
+                  let chkVoucherForTrans = this.chkVoucherForTransmittals;
+                  chkVoucherForTrans.splice(
+                    chkVoucherForTrans.indexOf(item),
+                    1
+                  );
+                  this.chkVoucherVerifications.push(resData.item);
+                }
+              });
           }
-        })
+        });
     },
     //Revolving Fund Expenses For Check Preparation CRUD Methods
     saveExpenseForChkPrep() {
+
       if (!this.isEditingRVFundItems) {
-        this.fields.expense_for_chk_prep.rv_fund_id = this.rv_fund_with_expense_items.id;
+        this.fields.expense_for_chk_prep.rv_fund_id =
+          this.rv_fund_with_expense_items.id;
       }
       this.$store
         .dispatch(
@@ -1883,11 +1917,12 @@ export default {
       this.selected_index.rv_fund_items = -1;
     },
     editExpenseForChkPrep(item) {
-      this.selected_index.rv_fund_items = this.expensesForChkPreparations.indexOf(
-        item
-      );
+    
+      this.selected_index.rv_fund_items =
+        this.expensesForChkPreparations.indexOf(item);
       this.fields.expense_for_chk_prep = {
         id: item.id,
+        glaccounts: item.glaccounts,
         pcv_date: item.pcv_date,
         particulars: item.particulars,
         amount: item.amount,
@@ -1941,32 +1976,33 @@ export default {
         this.selected_expenses = [];
       }
     },
-    replenishExpenses(){
-      let replenish_fields = this.fields.replenish_expenses
-      replenish_fields.rv_fund_id = this.rv_fund_with_expense_items.id
-      replenish_fields.amount = this.getSelectedExpensesTotal
-      replenish_fields.items = this.selected_expenses
-      console.log(replenish_fields)
-      this.$store.dispatch("revolving_fund_list/replenishExpenses", replenish_fields)
-      .then(res => {
-        let resStatus = res.status;
+    replenishExpenses() {
+      let replenish_fields = this.fields.replenish_expenses;
+      replenish_fields.rv_fund_id = this.rv_fund_with_expense_items.id;
+      replenish_fields.amount = this.getSelectedExpensesTotal;
+      replenish_fields.items = this.selected_expenses;
+      console.log(replenish_fields);
+      this.$store
+        .dispatch("revolving_fund_list/replenishExpenses", replenish_fields)
+        .then((res) => {
+          let resStatus = res.status;
           let resData = res.data;
           this.resetValidationErrors();
           if (resStatus == 422) {
             this.validation_errors.replenish_expenses = resData.errors;
           } else if (resStatus == 200) {
-            let expenses = this.expensesForChkPreparations
-            this.selected_expenses.forEach(item => {
-              expenses.splice(expenses.indexOf(item), 1)
-            })
-            this.chkVoucherForTransmittals.push(resData.item)
-            this.dialogs.replenish_expenses = false
+            let expenses = this.expensesForChkPreparations;
+            this.selected_expenses.forEach((item) => {
+              expenses.splice(expenses.indexOf(item), 1);
+            });
+            this.chkVoucherForTransmittals.push(resData.item);
+            this.dialogs.replenish_expenses = false;
           }
-      })
+        });
     },
-    onCloseReplenishExpensesDialog(){
-      this.resetValidationErrors()
-      this.dialogs.replenish_expenses = false
+    onCloseReplenishExpensesDialog() {
+      this.resetValidationErrors();
+      this.dialogs.replenish_expenses = false;
     },
 
     resetValidationErrors() {
@@ -1975,12 +2011,13 @@ export default {
         chk_voucher_verification: {},
         chk_voucher_for_trans: {},
         expense_for_chk_prep: {},
-        replenish_expenses: {}
+        replenish_expenses: {},
       };
     },
   },
   computed: {
     ...mapGetters({
+      glaccountList: "revolving_fund_list/getGlAccount",
       revolving_funds: "revolving_fund_list/getRevolvingFunds",
       rv_fund_with_expense_items:
         "revolving_fund_list/getRvFundWithExpenseItems",
@@ -2053,7 +2090,7 @@ export default {
     // canDeleteRvFunds() {
     //   return this.checkIfHasPermission("Delete Revolving Funds");
     // },
-    canEditCashAdvances(){
+    canEditCashAdvances() {
       return this.checkIfHasPermission("Edit Revolving Fund Cash Advances");
     },
     canAddRvFundExpenses() {
@@ -2068,22 +2105,22 @@ export default {
     canEditRvFundExpensesStat() {
       return this.checkIfHasPermission("Edit Revolving Fund Expenses Status");
     },
-    canReplenishRvFundExpenses(){
+    canReplenishRvFundExpenses() {
       return this.checkIfHasPermission("Replenish Revolving Fund Expenses");
     },
-    canTransmitRvFundExpenses(){
+    canTransmitRvFundExpenses() {
       return this.checkIfHasPermission("Transmit Revolving Fund Expenses");
     },
     canHaveActionInRvFundExpenses() {
       return this.canEditRvFundExpenses || this.canDeleteRvFundExpenses;
     },
-    getSelectedExpensesTotal(){
-      let total = 0
-      this.selected_expenses.forEach(item => {
-        total += parseFloat(item.amount)
-      })
-      return total
-    }
+    getSelectedExpensesTotal() {
+      let total = 0;
+      this.selected_expenses.forEach((item) => {
+        total += parseFloat(item.amount);
+      });
+      return total;
+    },
   },
   watch: {
     getAvailRVFundOnHand(val) {

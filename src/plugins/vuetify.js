@@ -5,6 +5,8 @@ import Vuetify from "vuetify/lib";
 import VuetifyDialog from "vuetify-dialog";
 import { Ripple } from "vuetify/lib/directives";
 import "vuetify-dialog/dist/vuetify-dialog.css";
+import '@mdi/font/css/materialdesignicons.css' 
+
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 var colors = false;
 Axios.get('http://10.10.10.38:9999/api/change/background').then((res)=>{
