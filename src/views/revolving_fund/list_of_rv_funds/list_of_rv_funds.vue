@@ -2,7 +2,7 @@
   <div>
     <v-container grid-list-md text-xs-center>
       <!-- Start - DataTable -->
-       
+
       <v-data-table
         :headers="headers"
         :search="search"
@@ -195,19 +195,19 @@
           <v-list two-line>
             <v-list-item>
               <v-list-item-content>
-                 <div class="d-flex">
+                <div class="d-flex">
                   <div class="d-flex align-center">
                     <span class="font-weight-bold mr-1">BRANCH:</span>
                     <span class="text-uppercase">{{
                       rv_fund_with_expense_items.branch
                     }}</span>
                   </div>
-                  <div class="d-inline-flex align-center  ml-auto">
+                  <div class="d-inline-flex align-center ml-auto">
                     <span class="font-weight-bold mr-1">SUBMITTED DATE:</span>
                     <span>{{ rv_fund_with_expense_items.submitted_date }}</span>
                   </div>
                 </div>
-                 <div class="d-inline-flex align-center">
+                <div class="d-inline-flex align-center">
                   <span class="font-weight-bold mr-1">AS OF:</span>
                   <span>{{
                     moment(rv_fund_with_expense_items.as_of).format(
@@ -282,15 +282,10 @@
               <v-list-item-content>
                 <div class="d-flex">
                   <div class="mr-auto">REVOLVING FUND:</div>
-                  <div style="    margin-right: 8.5em;">
-                     <money-format
+                  <div style="margin-right: 8.5em">
+                    <money-format
                       class="d-inline-block"
-                      :value="
-                        parseFloat(
-                         rv_fund_with_expense_items
-                          .fund
-                        )
-                      "
+                      :value="parseFloat(rv_fund_with_expense_items.fund)"
                       locale="en"
                       currency-code="PHP"
                     >
@@ -299,40 +294,58 @@
                 </div>
                 <div class="d-flex align-center">
                   <div class="mr-auto d-flex align-center">
-                    <span>CASH ADVANCES: Marketing Activities</span> 
-                    <v-btn icon small @click="isEditingCashAdvances = true" v-if="!isEditingCashAdvances && canEditCashAdvances"><v-icon small>mdi-pencil</v-icon></v-btn>
+                    <span>CASH ADVANCES: Marketing Activities</span>
+                    <v-btn
+                      icon
+                      small
+                      @click="isEditingCashAdvances = true"
+                      v-if="!isEditingCashAdvances && canEditCashAdvances"
+                      ><v-icon small>mdi-pencil</v-icon></v-btn
+                    >
                   </div>
-                  <div style="    margin-right: 3.4em;">
-                     <money-format v-if="!isEditingCashAdvances"
+                  <div style="margin-right: 3.4em">
+                    <money-format
+                      v-if="!isEditingCashAdvances"
                       class="d-inline-block"
                       :value="
-                        parseFloat(
-                         rv_fund_with_expense_items
-                          .cash_advances
-                        )
+                        parseFloat(rv_fund_with_expense_items.cash_advances)
                       "
                       locale="en"
                       currency-code="PHP"
                     >
                     </money-format>
-                    <div class="d-flex align-center" style="width:160px" v-if="isEditingCashAdvances && canEditCashAdvances">
+                    <div
+                      class="d-flex align-center"
+                      style="width: 160px"
+                      v-if="isEditingCashAdvances && canEditCashAdvances"
+                    >
                       <div class="align-self-center d-flex mt-1 ml-1">
                         <v-tooltip bottom>
                           <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon  v-bind="attrs"
-                              v-on="on" @click="saveCashAdv()"><v-icon>mdi-content-save</v-icon></v-btn>
+                            <v-btn
+                              icon
+                              v-bind="attrs"
+                              v-on="on"
+                              @click="saveCashAdv()"
+                              ><v-icon>mdi-content-save</v-icon></v-btn
+                            >
                           </template>
                           <span>Save</span>
                         </v-tooltip>
                         <v-tooltip bottom>
                           <template v-slot:activator="{ on, attrs }">
-                            <v-btn icon v-bind="attrs"
-                              v-on="on" @click="cancelUpdatingCashAdv()"><v-icon>mdi-close</v-icon></v-btn>
+                            <v-btn
+                              icon
+                              v-bind="attrs"
+                              v-on="on"
+                              @click="cancelUpdatingCashAdv()"
+                              ><v-icon>mdi-close</v-icon></v-btn
+                            >
                           </template>
                           <span>Cancel</span>
                         </v-tooltip>
                       </div>
-                      <v-text-field 
+                      <v-text-field
                         v-model="fields.rv_fund.cash_advances"
                         dense
                         reverse
@@ -340,17 +353,12 @@
                         hide-details="auto"
                         label="0.00"
                       ></v-text-field>
-                      
                     </div>
                   </div>
-                  <div> 
+                  <div>
                     <money-format
                       class="d-inline-block"
-                      :value="
-                        parseFloat(
-                          getTotalOfRv
-                        )
-                      "
+                      :value="parseFloat(getTotalOfRv)"
                       locale="en"
                       currency-code="PHP"
                     >
@@ -423,7 +431,11 @@
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
-          <v-expansion-panels class="mt-5 px-2" v-model="rvFundItemsPanel" multiple>
+          <v-expansion-panels
+            class="mt-5 px-2"
+            v-model="rvFundItemsPanel"
+            multiple
+          >
             <v-expansion-panel>
               <v-expansion-panel-header>
                 <div class="d-flex">
@@ -439,14 +451,17 @@
                       <v-icon>mdi-plus-circle</v-icon>
                     </v-btn>
                   </div>
-                  <div class="ml-auto align-self-center" style="margin-right:6.5em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.5em"
+                  >
                     <span class="mr-1"> Total : </span>
                     <money-format
                       class="d-inline-block"
                       :value="
                         parseFloat(
-                         this.rv_fund_with_expense_items
-                          .check_voucher_verifications_total
+                          this.rv_fund_with_expense_items
+                            .check_voucher_verifications_total
                         )
                       "
                       locale="en"
@@ -461,12 +476,37 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th class="text-left" :style="canHaveActionInRvFundExpenses? '' : 'width:330px'">Date Transmitted</th>
-                        <th class="text-left" style="width: 350px;">CK#</th>
-                        <th class="text-left" :style="canHaveActionInRvFundExpenses? '' : 'width:300px'">Status</th>
-                        <th class="text-left" :style="canHaveActionInRvFundExpenses? 'width:268px' : ''">Amount</th>
                         <th
-                          :style="{width:(canHaveActionInRvFundExpenses? '123' : '100')+ 'px'}"
+                          class="text-left"
+                          :style="
+                            canHaveActionInRvFundExpenses ? '' : 'width:330px'
+                          "
+                        >
+                          Date Transmitted
+                        </th>
+                        <th class="text-left" style="width: 350px">CK#</th>
+                        <th
+                          class="text-left"
+                          :style="
+                            canHaveActionInRvFundExpenses ? '' : 'width:300px'
+                          "
+                        >
+                          Status
+                        </th>
+                        <th
+                          class="text-left"
+                          :style="
+                            canHaveActionInRvFundExpenses ? 'width:268px' : ''
+                          "
+                        >
+                          Amount
+                        </th>
+                        <th
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '123' : '100') +
+                              'px',
+                          }"
                           class="text-left"
                           v-if="canHaveActionInRvFundExpenses"
                         >
@@ -521,8 +561,7 @@
                             @click="deleteChkVerification(item)"
                             v-if="canDeleteRvFundExpenses"
                             ><v-icon small>mdi-check</v-icon>
-                          </v-btn>  
-
+                          </v-btn>
                         </td>
                       </tr>
                     </tbody>
@@ -545,14 +584,17 @@
                       <v-icon>mdi-plus-circle</v-icon>
                     </v-btn>
                   </div>
-                  <div class="ml-auto align-self-center" style="margin-right:6.5em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.5em"
+                  >
                     <span class="mr-1"> Total : </span>
                     <money-format
                       class="d-inline-block"
                       :value="
                         parseFloat(
-                         this.rv_fund_with_expense_items
-                          .check_voucher_for_transmittals_total
+                          this.rv_fund_with_expense_items
+                            .check_voucher_for_transmittals_total
                         )
                       "
                       locale="en"
@@ -567,13 +609,29 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '370' : '328') + 'px'}">
+                        <th
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '370' : '328') +
+                              'px',
+                          }"
+                        >
                           Check Voucher Date
                         </th>
                         <th class="text-left">CK#</th>
-                        <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '270' : '376') + 'px'}">Amount</th>
                         <th
-                          style="width:120px"
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '270' : '376') +
+                              'px',
+                          }"
+                        >
+                          Amount
+                        </th>
+                        <th
+                          style="width: 120px"
                           class="text-left"
                           v-if="canHaveActionInRvFundExpenses"
                         >
@@ -623,8 +681,13 @@
                           >
                           <v-tooltip bottom v-if="canTransmitRvFundExpenses">
                             <template v-slot:activator="{ on, attrs }">
-                              <v-btn icon small v-bind="attrs"
-                                v-on="on" @click="transmitChkVoucher(item)">
+                              <v-btn
+                                icon
+                                small
+                                v-bind="attrs"
+                                v-on="on"
+                                @click="transmitChkVoucher(item)"
+                              >
                                 <v-icon small>mdi-truck-outline</v-icon>
                               </v-btn>
                             </template>
@@ -652,9 +715,25 @@
                     >
                       <v-icon>mdi-plus-circle</v-icon>
                     </v-btn>
-                    <v-btn class="align-self-center" depressed small outlined tile @click.native.stop="dialogs.replenish_expenses = true" :disabled="selected_expenses.length == 0" v-if="canReplenishRvFundExpenses">Replenish</v-btn>
+                    <v-btn
+                      class="align-self-center"
+                      depressed
+                      small
+                      outlined
+                      tile
+                      @click.native.stop="dialogs.replenish_expenses = true"
+                      :disabled="selected_expenses.length == 0"
+                      v-if="canReplenishRvFundExpenses"
+                      >Replenish</v-btn
+                    >
                   </div>
-                  <div class="ml-auto align-self-center" style="margin-right:6.5em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.5em"
+                  >
+                    <v-btn @click="expensesHistory()" style="margin: 5px"
+                      >History</v-btn
+                    >
                     <span class="mr-1"> Total : </span>
                     <money-format
                       class="d-inline-block"
@@ -676,27 +755,53 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th style="width:5px" v-if="canReplenishRvFundExpenses">
+                        <th
+                          style="width: 5px"
+                          v-if="canReplenishRvFundExpenses"
+                        >
                           <v-checkbox
                             @click="selectAllExpenses()"
                             v-model="select_all_expenses"
                             :indeterminate="
                               selected_expenses.length > 0 &&
-                                selected_expenses.length <
-                                  expensesForChkPreparations.length
+                              selected_expenses.length <
+                                expensesForChkPreparations.length
                             "
                           ></v-checkbox>
                         </th>
-                        <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '305' : '328') + 'px'}">
+                        <th
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '305' : '328') +
+                              'px',
+                          }"
+                        >
                           PCV Date
                         </th>
-                              <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '305' : '328') + 'px'}">
+                        <th
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '305' : '328') +
+                              'px',
+                          }"
+                        >
                           GL Account
                         </th>
-                        <th class="text-left">Particulars</th>
-                        <th class="text-left" :style="{width: (canHaveActionInRvFundExpenses? '270' : '374') + 'px'}">Amount</th>
+                        <th class="text-left">BIR</th>
                         <th
-                          style="width: 120px;"
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '270' : '374') +
+                              'px',
+                          }"
+                        >
+                          Amount
+                        </th>
+                        <th
+                          style="width: 120px"
                           class="text-left"
                           v-if="canHaveActionInRvFundExpenses"
                         >
@@ -725,7 +830,10 @@
                           {{ moment(item.pcv_date).format("MM/DD/YY") }}
                         </td>
                         <td>{{ item.glaccounts }}</td>
-                        <td>{{ item.particulars }}</td>
+                        <td>
+                          <h1 v-if="item.tin == 1">&#10003;</h1>
+                          <h3 v-if="item.tin == 0">None</h3>
+                        </td>
                         <td>
                           <money-format
                             :value="parseFloat(item.amount)"
@@ -761,23 +869,25 @@
             <v-list-item>
               <v-list-item-content>
                 <div class="text-right pb-2">
-                   <money-format
-                        :value="parseFloat(getTotalOfRvFundItems)"
-                        locale="en"
-                        currency-code="PHP"
-                      >
-                      </money-format>
+                  <money-format
+                    :value="parseFloat(getTotalOfRvFundItems)"
+                    locale="en"
+                    currency-code="PHP"
+                  >
+                  </money-format>
                 </div>
                 <v-divider></v-divider>
                 <div class="d-flex mt-1 text-h6">
-                  <div class="font-weight-bold">AVAILABLE REVOLVING FUND ON HAND</div>
-                  <div class="ml-auto font-weight-bold"> 
+                  <div class="font-weight-bold">
+                    AVAILABLE REVOLVING FUND ON HAND
+                  </div>
+                  <div class="ml-auto font-weight-bold">
                     <money-format
-                        :value="parseFloat(getAvailRVFundOnHand)"
-                        locale="en"
-                        currency-code="PHP"
-                      >
-                      </money-format>
+                      :value="parseFloat(getAvailRVFundOnHand)"
+                      locale="en"
+                      currency-code="PHP"
+                    >
+                    </money-format>
                   </div>
                 </div>
               </v-list-item-content>
@@ -832,7 +942,8 @@
                         clearable
                         hide-details="auto"
                         @click:clear="
-                          fields.chk_voucher_verification.date_transmitted = null
+                          fields.chk_voucher_verification.date_transmitted =
+                            null
                         "
                         v-bind="attrs"
                         v-on="on"
@@ -923,9 +1034,7 @@
         v-model="dialogs.status_chk_voucher_verification"
       >
         <v-card>
-          <v-card-title>
-            Update Status
-          </v-card-title>
+          <v-card-title> Update Status </v-card-title>
           <v-card-subtitle>Update check verification status</v-card-subtitle>
           <v-card-text>
             <v-list>
@@ -1167,10 +1276,10 @@
                   </v-menu>
                 </v-list-item-content>
               </v-list-item>
-                    <v-list-item>  
+              <v-list-item>
                 <v-list-item-content>
                   <v-autocomplete
-                    dense 
+                    dense
                     v-model="fields.expense_for_chk_prep.glaccounts"
                     hide-details="auto"
                     prepend-icon="mdi-truck-delivery"
@@ -1181,10 +1290,10 @@
                   ></v-autocomplete>
                 </v-list-item-content>
               </v-list-item>
-        
+
               <v-list-item>
                 <v-list-item-content>
-                  <v-text-field
+                  <!-- <v-text-field
                     dense
                     v-model="fields.expense_for_chk_prep.particulars"
                     label="Particulars"
@@ -1193,10 +1302,14 @@
                     :error-messages="
                       validation_errors.expense_for_chk_prep.particulars
                     "
-                  ></v-text-field>
+                  ></v-text-field> -->
+                  <v-checkbox
+                    v-model="fields.expense_for_chk_prep.tin"
+                    label="w/TIN"
+                  ></v-checkbox>
                 </v-list-item-content>
               </v-list-item>
-          
+
               <v-list-item>
                 <v-list-item-content>
                   <v-text-field
@@ -1229,106 +1342,110 @@
       <!-- End - Add/Edit Expenses for Check Preparation Dialog -->
 
       <!-- Start - Replenish Expenses Dialog -->
-      <v-dialog
-        v-model="dialogs.replenish_expenses"
-        max-width="550"
-        persistent
-      >
+      <v-dialog v-model="dialogs.replenish_expenses" max-width="550" persistent>
         <v-card>
           <v-card-title>Replenish Expenses</v-card-title>
-          <v-card-subtitle class="pb-1">Replenishing expenses for check preparation</v-card-subtitle>
+          <v-card-subtitle class="pb-1"
+            >Replenishing expenses for check preparation</v-card-subtitle
+          >
           <v-card-text>
             <v-row>
               <v-col cols="6">
                 <v-menu
-                    ref="replenish_chk_voucher_date_menu"
-                    v-model="menus_activator.replenish_chk_voucher_date"
-                    :close-on-content-click="false"
-                    :return-value.sync="fields.replenish_expenses.check_voucher_date"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
+                  ref="replenish_chk_voucher_date_menu"
+                  v-model="menus_activator.replenish_chk_voucher_date"
+                  :close-on-content-click="false"
+                  :return-value.sync="
+                    fields.replenish_expenses.check_voucher_date
+                  "
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      :value="
+                        formatDate(fields.replenish_expenses.check_voucher_date)
+                      "
+                      label="Check Voucher Date"
+                      prepend-inner-icon="mdi-calendar"
+                      readonly
+                      clearable
+                      hide-details="auto"
+                      @click:clear="
+                        fields.replenish_expenses.check_voucher_date = null
+                      "
+                      v-bind="attrs"
+                      v-on="on"
+                      :error-messages="
+                        validation_errors.replenish_expenses.check_voucher_date
+                      "
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="fields.replenish_expenses.check_voucher_date"
+                    no-title
+                    scrollable
                   >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        :value="
-                          formatDate(fields.replenish_expenses.check_voucher_date)
-                        "
-                        label="Check Voucher Date"
-                        prepend-inner-icon="mdi-calendar"
-                        readonly
-                        clearable
-                        hide-details="auto"
-                        @click:clear="
-                          fields.replenish_expenses.check_voucher_date = null
-                        "
-                        v-bind="attrs"
-                        v-on="on"
-                        :error-messages="
-                          validation_errors.replenish_expenses.check_voucher_date
-                        "
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="fields.replenish_expenses.check_voucher_date"
-                      no-title
-                      scrollable
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        menus_activator.replenish_chk_voucher_date = false
+                      "
                     >
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="menus_activator.replenish_chk_voucher_date = false"
-                      >
-                        Cancel
-                      </v-btn>
-                      <v-btn
-                        text
-                        color="primary"
-                        @click="
-                          $refs.replenish_chk_voucher_date_menu.save(
-                            fields.replenish_expenses.check_voucher_date
-                          )
-                        "
-                      >
-                        OK
-                      </v-btn>
-                    </v-date-picker>
-                  </v-menu>
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        $refs.replenish_chk_voucher_date_menu.save(
+                          fields.replenish_expenses.check_voucher_date
+                        )
+                      "
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
               </v-col>
               <v-col cols="6">
                 <v-text-field
-                    v-model="fields.replenish_expenses.ck_no"
-                    label="Check No"
-                    prepend-inner-icon="mdi-checkbook"
-                    hide-details="auto"
-                    :error-messages="
-                      validation_errors.replenish_expenses.ck_no
-                    "
-                  ></v-text-field>
+                  v-model="fields.replenish_expenses.ck_no"
+                  label="Check No"
+                  prepend-inner-icon="mdi-checkbook"
+                  hide-details="auto"
+                  :error-messages="validation_errors.replenish_expenses.ck_no"
+                ></v-text-field>
               </v-col>
             </v-row>
             <div class="text-body-1 mt-5 mb-1">Particulars</div>
-            <div v-for="(item, index) in selected_expenses" :key="item.id" class="d-flex text-body-2">
-              <div class="mr-1">{{ `${index + 1}) `  }}</div>
-              <div>{{ item.particulars}}</div>
+            <div
+              v-for="(item, index) in selected_expenses"
+              :key="item.id"
+              class="d-flex text-body-2"
+            >
+              <div class="mr-1">{{ `${index + 1}) ` }}</div>
+              <div>{{ item.particulars }}</div>
               <div class="ml-auto">
-                 <money-format
-                        :value="parseFloat(item.amount)"
-                        locale="en"
-                        currency-code="PHP"
-                      ></money-format>
+                <money-format
+                  :value="parseFloat(item.amount)"
+                  locale="en"
+                  currency-code="PHP"
+                ></money-format>
               </div>
             </div>
             <v-divider></v-divider>
             <div class="d-flex mt-1 text-body-1">
               <div class="t">Total</div>
               <div class="ml-auto">
-                 <money-format
-                        :value="parseFloat(getSelectedExpensesTotal)"
-                        locale="en"
-                        currency-code="PHP"
-                      ></money-format>
+                <money-format
+                  :value="parseFloat(getSelectedExpensesTotal)"
+                  locale="en"
+                  currency-code="PHP"
+                ></money-format>
               </div>
             </div>
           </v-card-text>
@@ -1346,6 +1463,63 @@
         </v-card>
       </v-dialog>
       <!-- End - Replenish Expenses Dialog Dialog -->
+      <!-- Preparation -->
+      <v-dialog
+        v-model="dialogHistory"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
+      
+        <v-card>
+          <v-toolbar color="dark">
+            <v-btn icon @click="dialogHistory = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>History</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark text @click="dialog = false"> Save </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-list three-line subheader>
+            <v-subheader>Expenses For Check Preparation History</v-subheader>
+            <v-list-item>
+              <v-list-item-content>
+                <v-card>
+                  <v-card-title>
+                    <v-text-field
+                      v-model="search"
+                      append-icon="mdi-magnify"
+                      label="Search"
+                      single-line
+                      hide-details
+                    ></v-text-field>
+                     <v-checkbox
+                      v-model="FilterBIR"
+                      :label="FilterBIR == true? 'With BIR':'ALL/With BIR'"
+                      @click="filterbir"
+                    ></v-checkbox>
+                  </v-card-title>
+                  <v-data-table
+                    :headers="headers2"
+                    :items="historydata"
+                    :search="search"
+                  >
+                   <template v-slot:item.tin="{ item }">
+                   
+                      <strong>{{item.tin == 1? 'With BIR': 'None'}}</strong>
+                    </template>
+                  
+                  
+                  </v-data-table>
+                </v-card>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-dialog>
+      <!-- END Preparation-->
     </v-container>
   </div>
 </template>
@@ -1392,9 +1566,39 @@ export default {
           sortable: false,
         },
       ],
+        headers2: [
+          {
+            text: 'PCV DATE',
+            align: 'start',
+            value: 'pcv_date',
+          },
+          {
+            text: 'AMOUNT',
+            align: 'start',
+            value: 'amount',
+          },
+          {
+            text: 'BIR',
+            align: 'start',
+            value: 'tin',
+          },
+          {
+            text: 'GL ACCOUNT',
+            align: 'start',
+            value: 'glaccounts',
+          },
+            {
+            text: 'STATUS',
+            align: 'start',
+            value: 'status',
+          },
+
+        ],
+      FilterBIR: false,
       search: "",
       selected_items: [],
-      
+      withBIR: false,
+      dialogHistory: false,
       dialogs: {
         // add_revolving_fund: false,
         view_revolving_fund: false,
@@ -1425,7 +1629,8 @@ export default {
           pcv_date: null,
           particulars: "",
           amount: "",
-          glaccounts: ""
+          glaccounts: "",
+          tin: false,
         },
         replenish_expenses: {
           check_voucher_date: null,
@@ -1865,9 +2070,21 @@ export default {
           }
         });
     },
+    expensesHistory() {
+      this.$store.dispatch("revolving_fund_list/fetchPreparationHistory");
+      this.dialogHistory = true;
+    },
+    filterbir(){
+      var value;
+       if(this.FilterBIR == true){
+          value = 1
+       }else{
+          value = 0
+       }
+       this.$store.dispatch("revolving_fund_list/fetchPreparationHistory", value);
+    },
     //Revolving Fund Expenses For Check Preparation CRUD Methods
     saveExpenseForChkPrep() {
-
       if (!this.isEditingRVFundItems) {
         this.fields.expense_for_chk_prep.rv_fund_id =
           this.rv_fund_with_expense_items.id;
@@ -1917,7 +2134,6 @@ export default {
       this.selected_index.rv_fund_items = -1;
     },
     editExpenseForChkPrep(item) {
-    
       this.selected_index.rv_fund_items =
         this.expensesForChkPreparations.indexOf(item);
       this.fields.expense_for_chk_prep = {
@@ -1985,6 +2201,8 @@ export default {
       this.$store
         .dispatch("revolving_fund_list/replenishExpenses", replenish_fields)
         .then((res) => {
+          this.select_all_expenses = false;
+
           let resStatus = res.status;
           let resData = res.data;
           this.resetValidationErrors();
@@ -1998,6 +2216,7 @@ export default {
             this.chkVoucherForTransmittals.push(resData.item);
             this.dialogs.replenish_expenses = false;
           }
+          this.selected_expenses.length = [];
         });
     },
     onCloseReplenishExpensesDialog() {
@@ -2019,6 +2238,7 @@ export default {
     ...mapGetters({
       glaccountList: "revolving_fund_list/getGlAccount",
       revolving_funds: "revolving_fund_list/getRevolvingFunds",
+      historydata: "revolving_fund_list/getHistory",
       rv_fund_with_expense_items:
         "revolving_fund_list/getRvFundWithExpenseItems",
       // deleting_on_progress: "revolving_fund_list/getDeletingOnProgress",

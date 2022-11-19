@@ -11,6 +11,7 @@ const state = {
         check_voucher_for_transmittals_total: 0,
         expenses_for_check_preparations_total:0,
     },
+    history: [],
     // deleting_on_progress: false,
 }
 
@@ -23,6 +24,9 @@ const getters = {
     },
     getGlAccount(state){
         return state.glaccount
+    },
+    getHistory(state){
+        return state.history
     }
     // getDeletingOnProgress(state) {
     //     return state.deleting_on_progress
@@ -47,6 +51,9 @@ const mutations = {
     },
     GL_ACCOUNT(state, payload){
         state.glaccount = payload
+    },
+    setPreparationHistory(state, payload){
+        state.history = payload
     }
     // setDeletingOnProgress(state, payload) {
     //     state.deleting_on_progress = payload

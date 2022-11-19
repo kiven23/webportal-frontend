@@ -23,6 +23,15 @@ const actions = {
             context.commit("LOADING_STATUS", false, { root: true }); 
         })
     },
+    fetchPreparationHistory(context, payload) {
+       
+        context.commit("LOADING_STATUS", true, { root: true }); // start loading
+        axios.get(prefix + "/preparation/history"+"?id="+payload)
+        .then(({data}) => {
+            context.commit('setPreparationHistory', data)
+            context.commit("LOADING_STATUS", false, { root: true }); 
+        })
+    },
     // addRevolvingFund(context, payload){
     //     return axios.post(prefix + "/create", payload)
     //     .then(res => {
