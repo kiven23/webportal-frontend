@@ -42,7 +42,14 @@ const actions = {
         commit('setRFTotal', payload.rfTotal)
         commit('setCATotal', payload.caTotal)
         commit('setAvailRFTotal', payload.availRfTotal)
-    }
+    },
+    historyData(context, payload) {
+        axios.get(prefix + "/history?b="+payload,)
+        .then(({data}) => {
+            context.commit("setHistoryData", data)
+        })
+    },
+    
 }
 
 export default actions

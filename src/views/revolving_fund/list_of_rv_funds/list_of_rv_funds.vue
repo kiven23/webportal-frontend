@@ -1476,7 +1476,9 @@
             <v-btn icon @click="dialogHistory = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>History</v-toolbar-title>
+            <v-toolbar-title>{{
+                      rv_fund_with_expense_items.branch
+                    }} History</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark text @click="dialog = false"> Save </v-btn>
@@ -1625,6 +1627,7 @@ export default {
           ck_no: "",
           amount: "",
         },
+         
         expense_for_chk_prep: {
           pcv_date: null,
           particulars: "",
@@ -2125,7 +2128,10 @@ export default {
             );
             this.onCloseExpenseForChkPrepDialog();
           }
+           this.fields.expense_for_chk_prep.tin = false
+            this.$store.dispatch("revolving_fund_list/fetchRevolvingFunds");
         });
+          
     },
     onCloseExpenseForChkPrepDialog() {
       this.resetValidationErrors();
@@ -2140,7 +2146,8 @@ export default {
         id: item.id,
         glaccounts: item.glaccounts,
         pcv_date: item.pcv_date,
-        particulars: item.particulars,
+        particulars: 1,
+        tin: item.tin == 1? true:false,
         amount: item.amount,
       };
       this.dialogs.add_edit_expenses_for_chk_prep = true;

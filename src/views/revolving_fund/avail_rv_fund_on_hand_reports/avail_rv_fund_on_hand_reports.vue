@@ -78,6 +78,9 @@
           <v-btn icon @click="viewDetails(item)"
             ><v-icon small>mdi-eye</v-icon></v-btn
           >
+          <v-btn icon @click="viewHistory(item)"
+            ><v-icon small>mdi-history</v-icon></v-btn
+          >
         </template>
         <template v-slot:footer>
           <v-divider></v-divider>
@@ -134,6 +137,18 @@
               v-model="fields.cash_advances"
               :error-messages="validation_errors.cash_advances"
               label="Cash Advances"
+              hide-details="auto"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="fields.incoming"
+              label="Incoming"
+              hide-details="auto"
+            ></v-text-field>
+            <v-text-field
+              class="mt-4"
+              v-model="fields.outgoing"
+              label="Outgoing"
               hide-details="auto"
             ></v-text-field>
           </v-card-text>
@@ -537,6 +552,63 @@
         </v-card>
       </v-dialog>
       <!-- End - Summary of Revolving Fund Dialog -->
+         <!-- Preparation -->
+      <v-dialog
+        v-model="dialogHistory"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
+      
+        <v-card>
+          <v-toolbar color="dark">
+            <v-btn icon @click="dialogHistory = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>{{branch}} History</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark text @click="dialog = false"> Save </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-list three-line subheader>
+            <v-subheader>
+              Revolving Fund On Hand History 
+            </v-subheader>
+              
+            <v-list-item>
+              <v-list-item-content>
+                <v-card>
+          
+                  <v-card-title>
+                    <v-text-field
+                      v-model="search"
+                      append-icon="mdi-magnify"
+                      label="Search"
+                      single-line
+                      hide-details
+                    ></v-text-field>
+                
+                  </v-card-title>
+                  <v-data-table
+                    :headers="headers2"
+                    :items="historyData"
+                    :search="search"
+                  >
+                   <!-- <template v-slot:item.tin="{ item }">
+                   
+                      <strong>{{item.tin == 1? 'With BIR': 'None'}}</strong>
+                    </template> -->
+                  
+                  
+                  </v-data-table>
+                </v-card>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-dialog>
+      <!-- END Preparation-->
     </v-container>
   </div>
 </template>
@@ -575,11 +647,40 @@ export default {
           value: "actions",
         },
       ],
+        headers2: [ 
+        {
+          text: "REVOLVING FUND",
+          value: "revolvingfund",
+        },
+        {
+          text: "CASH ADVANCES",
+          value: "cashadvance",
+        },
+        {
+          text: "BALANCE",
+          value: "balance",
+        },
+        {
+          text: "INCOMING",
+          value: "incoming",
+        },
+           {
+          text: "OUTGOING",
+          value: "outgoing",
+        },
+           {
+          text: "DATE CREATED",
+          value: "created_at",
+        },
+         
+      ],
+      branch: "",
       search: "",
       dialogs: {
         edit_rf: false,
         summary_of_rf: false,
       },
+      dialogHistory: false,
       fields: {
         fund: 0,
       },
@@ -602,11 +703,15 @@ export default {
         cash_advances: item.cash_advances,
         rv_fund_id: item.rv_fund_id,
         branch_id: item.id,
+
+        incoming: 0,
+        outgoing:  0
       };
       this.selected_branch = item.branch;
       this.dialogs.edit_rf = true;
     },
     saveDetailsDialog() {
+       
       this.$store
         .dispatch(
           "revolving_fund_avail_on_hand_reports/updateOrCreateRFund",
@@ -641,6 +746,11 @@ export default {
       this.fields = {};
       this.dialogs.edit_rf = false;
     },
+    viewHistory(item){
+      this.$store.dispatch("revolving_fund_avail_on_hand_reports/historyData", item.branch)
+      this.branch = item.branch
+       this.dialogHistory = true
+    },
     viewDetails(item) {
       if(! item.rv_fund_id) {
         this.$store.commit("SNACKBAR_STATUS", [
@@ -672,6 +782,7 @@ export default {
         "revolving_fund_avail_on_hand_reports/getAvailRvFundOnHands",
       rv_fund_with_expense_items:
         "revolving_fund_list/getRvFundWithExpenseItems",
+      historyData: "revolving_fund_avail_on_hand_reports/getHistoryData"
     }),
     loadingStatus() {
       return this.$store.state.loading;

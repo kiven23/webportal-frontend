@@ -7,12 +7,16 @@ const state = {
         ca_total: 0,
         avail_rf_total: 0
     },
+    historyData: []
 }
 
 const getters = {
     getAvailRvFundOnHands(state){
         return state.avail_rf_on_hands
     },
+    getHistoryData(state){
+        return state.historyData
+    }
 }
 
 const mutations = {
@@ -27,6 +31,9 @@ const mutations = {
     },
     setAvailRFTotal(state, payload) {
         state.avail_rf_on_hands.avail_rf_total = payload
+    },
+    setHistoryData(state, payload){
+        state.historyData = payload
     }
 }
 
