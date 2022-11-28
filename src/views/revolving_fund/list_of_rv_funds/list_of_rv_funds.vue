@@ -553,6 +553,7 @@
                             small
                             @click="editCheckVoucherVerification(item)"
                             v-if="canEditRvFundExpenses"
+                            :disabled="item.status == 'Transmittal'"
                             ><v-icon small>mdi-pencil</v-icon>
                           </v-btn>
                           <v-btn
@@ -560,6 +561,7 @@
                             small
                             @click="deleteChkVerification(item)"
                             v-if="canDeleteRvFundExpenses"
+                            :disabled="item.status == 'Pending'"
                             ><v-icon small>mdi-check</v-icon>
                           </v-btn>
                         </td>
@@ -779,6 +781,16 @@
                         >
                           PCV Date
                         </th>
+                           <th
+                          class="text-left"
+                          :style="{
+                            width:
+                              (canHaveActionInRvFundExpenses ? '305' : '328') +
+                              'px',
+                          }"
+                        >
+                         PAYEE
+                        </th>
                         <th
                           class="text-left"
                           :style="{
@@ -829,6 +841,7 @@
                         <td>
                           {{ moment(item.pcv_date).format("MM/DD/YY") }}
                         </td>
+                        <td>{{item.payee}}</td>
                         <td>{{ item.glaccounts }}</td>
                         <td>
                           <h1 v-if="item.tin == 1">&#10003;</h1>
@@ -1309,7 +1322,20 @@
                   ></v-checkbox>
                 </v-list-item-content>
               </v-list-item>
-
+              <v-list-item>
+                <v-list-item-content>
+                  <v-text-field
+                    dense
+                    v-model="fields.expense_for_chk_prep.payee"
+                    :error-messages="
+                      validation_errors.expense_for_chk_prep.amount
+                    "
+                    label="Payee"
+                    prepend-icon="mdi-account"
+                    hide-details="auto"
+                  ></v-text-field>
+                </v-list-item-content>
+              </v-list-item>
               <v-list-item>
                 <v-list-item-content>
                   <v-text-field
@@ -1575,6 +1601,11 @@ export default {
             value: 'pcv_date',
           },
           {
+            text: 'PAYEE',
+            align: 'start',
+            value: 'payee',
+          },
+          {
             text: 'AMOUNT',
             align: 'start',
             value: 'amount',
@@ -1634,6 +1665,7 @@ export default {
           amount: "",
           glaccounts: "",
           tin: false,
+          payee: ""
         },
         replenish_expenses: {
           check_voucher_date: null,
@@ -1667,6 +1699,8 @@ export default {
       status: ["Pending", "Transmittal"],
       selected_expenses: [],
       select_all_expenses: false,
+
+      branch_selected: ""
     };
   },
   methods: {
@@ -1707,6 +1741,8 @@ export default {
         });
       this.selected_index.rv_fund = this.revolving_funds.indexOf(item);
       this.dialogs.view_revolving_fund = true;
+
+      this.branch_selected = item;
     },
     saveCashAdv() {
       this.$store
@@ -1935,6 +1971,8 @@ export default {
                     "revolving_fund_list/setChkVoucherVerificationsTotal",
                     resData.total
                   );
+
+                  this.viewRevolvingFund(this.branch_selected);
                 }
               });
           }
@@ -2068,6 +2106,8 @@ export default {
                     1
                   );
                   this.chkVoucherVerifications.push(resData.item);
+
+                   this.viewRevolvingFund(this.branch_selected);
                 }
               });
           }
@@ -2128,7 +2168,8 @@ export default {
             );
             this.onCloseExpenseForChkPrepDialog();
           }
-           this.fields.expense_for_chk_prep.tin = false
+            this.fields.expense_for_chk_prep.tin = false
+            this.selected_expenses = [];
             this.$store.dispatch("revolving_fund_list/fetchRevolvingFunds");
         });
           
@@ -2147,6 +2188,7 @@ export default {
         glaccounts: item.glaccounts,
         pcv_date: item.pcv_date,
         particulars: 1,
+        payee: item.payee,
         tin: item.tin == 1? true:false,
         amount: item.amount,
       };
@@ -2222,6 +2264,8 @@ export default {
             });
             this.chkVoucherForTransmittals.push(resData.item);
             this.dialogs.replenish_expenses = false;
+
+            this.viewRevolvingFund(this.branch_selected);
           }
           this.selected_expenses.length = [];
         });
@@ -2229,6 +2273,7 @@ export default {
     onCloseReplenishExpensesDialog() {
       this.resetValidationErrors();
       this.dialogs.replenish_expenses = false;
+      this.branch_selected = "";
     },
 
     resetValidationErrors() {
