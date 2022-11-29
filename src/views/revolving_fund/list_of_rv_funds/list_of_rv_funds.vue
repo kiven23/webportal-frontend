@@ -781,7 +781,7 @@
                         >
                           PCV Date
                         </th>
-                           <th
+                        <th
                           class="text-left"
                           :style="{
                             width:
@@ -789,7 +789,7 @@
                               'px',
                           }"
                         >
-                         PAYEE
+                          PAYEE
                         </th>
                         <th
                           class="text-left"
@@ -841,7 +841,7 @@
                         <td>
                           {{ moment(item.pcv_date).format("MM/DD/YY") }}
                         </td>
-                        <td>{{item.payee}}</td>
+                        <td>{{ item.payee }}</td>
                         <td>{{ item.glaccounts }}</td>
                         <td>
                           <h1 v-if="item.tin == 1">&#10003;</h1>
@@ -1496,18 +1496,57 @@
         hide-overlay
         transition="dialog-bottom-transition"
       >
-      
         <v-card>
           <v-toolbar color="dark">
             <v-btn icon @click="dialogHistory = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{
-                      rv_fund_with_expense_items.branch
-                    }} History</v-toolbar-title>
+            <v-toolbar-title
+              >{{ rv_fund_with_expense_items.branch }} History</v-toolbar-title
+            >
             <v-spacer></v-spacer>
+            <v-toolbar-item>
+              <v-menu
+                ref="menu"
+                v-model="menu"
+                :close-on-content-click="false"
+                :return-value.sync="date"
+                transition="scale-transition"
+                offset-y
+                max-width="290px"
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="date"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    dense
+
+                    style="margin-top: 10px"
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
+                </template>
+                <v-date-picker v-model="date" type="month" no-title scrollable>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="menu = false">
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="$refs.menu.save(date) || searchDate()"
+                  >
+                    OK
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </v-toolbar-item>
             <v-toolbar-items>
-              <v-btn dark text @click="dialog = false"> Save </v-btn>
+              <v-btn text @click="printBIR(rv_fund_with_expense_items.branch)">
+                Print
+              </v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-list three-line subheader>
@@ -1523,9 +1562,9 @@
                       single-line
                       hide-details
                     ></v-text-field>
-                     <v-checkbox
+                    <v-checkbox
                       v-model="FilterBIR"
-                      :label="FilterBIR == true? 'With BIR':'ALL/With BIR'"
+                      :label="FilterBIR == true ? 'With BIR' : 'ALL/With BIR'"
                       @click="filterbir"
                     ></v-checkbox>
                   </v-card-title>
@@ -1534,12 +1573,9 @@
                     :items="historydata"
                     :search="search"
                   >
-                   <template v-slot:item.tin="{ item }">
-                   
-                      <strong>{{item.tin == 1? 'With BIR': 'None'}}</strong>
+                    <template v-slot:item.tin="{ item }">
+                      <strong>{{ item.tin == 1 ? "With BIR" : "None" }}</strong>
                     </template>
-                  
-                  
                   </v-data-table>
                 </v-card>
               </v-list-item-content>
@@ -1552,6 +1588,7 @@
   </div>
 </template>
 <script>
+ 
 import MoneyFormat from "vue-money-format";
 import moment from "moment";
 import { mapGetters } from "vuex";
@@ -1567,6 +1604,10 @@ export default {
   },
   data() {
     return {
+      date: new Date().toISOString().substr(0, 7),
+      menu: false,
+      modal: false,
+      value: { tin: 1, date: new Date().toISOString().substr(0, 7)},
       headers: [
         {
           text: "BRANCH",
@@ -1594,39 +1635,38 @@ export default {
           sortable: false,
         },
       ],
-        headers2: [
-          {
-            text: 'PCV DATE',
-            align: 'start',
-            value: 'pcv_date',
-          },
-          {
-            text: 'PAYEE',
-            align: 'start',
-            value: 'payee',
-          },
-          {
-            text: 'AMOUNT',
-            align: 'start',
-            value: 'amount',
-          },
-          {
-            text: 'BIR',
-            align: 'start',
-            value: 'tin',
-          },
-          {
-            text: 'GL ACCOUNT',
-            align: 'start',
-            value: 'glaccounts',
-          },
-            {
-            text: 'STATUS',
-            align: 'start',
-            value: 'status',
-          },
-
-        ],
+      headers2: [
+        {
+          text: "PCV DATE",
+          align: "start",
+          value: "pcv_date",
+        },
+        {
+          text: "PAYEE",
+          align: "start",
+          value: "payee",
+        },
+        {
+          text: "AMOUNT",
+          align: "start",
+          value: "amount",
+        },
+        {
+          text: "BIR",
+          align: "start",
+          value: "tin",
+        },
+        {
+          text: "GL ACCOUNT",
+          align: "start",
+          value: "glaccounts",
+        },
+        {
+          text: "STATUS",
+          align: "start",
+          value: "status",
+        },
+      ],
       FilterBIR: false,
       search: "",
       selected_items: [],
@@ -1658,14 +1698,14 @@ export default {
           ck_no: "",
           amount: "",
         },
-         
+
         expense_for_chk_prep: {
           pcv_date: null,
           particulars: "",
           amount: "",
           glaccounts: "",
           tin: false,
-          payee: ""
+          payee: "",
         },
         replenish_expenses: {
           check_voucher_date: null,
@@ -1700,10 +1740,20 @@ export default {
       selected_expenses: [],
       select_all_expenses: false,
 
-      branch_selected: ""
+      branch_selected: "",
     };
   },
   methods: {
+    searchDate() {
+      this.value.date = this.date;
+      this.$store.dispatch(
+        "revolving_fund_list/fetchPreparationHistory", this.value
+      );
+    },
+    //PRINT BIR
+    printBIR() {
+      this.$store.dispatch("revolving_fund_list/PrintBIR", this.value);
+    },
     //Revolving Fund CRUD Methods
     refreshRvFunds() {
       this.$store.dispatch("revolving_fund_list/fetchRevolvingFunds");
@@ -2107,24 +2157,32 @@ export default {
                   );
                   this.chkVoucherVerifications.push(resData.item);
 
-                   this.viewRevolvingFund(this.branch_selected);
+                  this.viewRevolvingFund(this.branch_selected);
                 }
               });
           }
         });
     },
     expensesHistory() {
-      this.$store.dispatch("revolving_fund_list/fetchPreparationHistory");
+      this.$store.dispatch("revolving_fund_list/fetchPreparationHistory",this.value);
       this.dialogHistory = true;
     },
-    filterbir(){
-      var value;
-       if(this.FilterBIR == true){
-          value = 1
-       }else{
-          value = 0
-       }
-       this.$store.dispatch("revolving_fund_list/fetchPreparationHistory", value);
+    filterbir() {
+      if (this.FilterBIR == true) {
+        this.value = {
+           tin: 1,
+           date: this.date
+        }
+      } else {
+         this.value = {
+           tin: 0,
+           date: this.date
+        }
+      }
+      this.$store.dispatch(
+        "revolving_fund_list/fetchPreparationHistory",
+        this.value
+      );
     },
     //Revolving Fund Expenses For Check Preparation CRUD Methods
     saveExpenseForChkPrep() {
@@ -2168,11 +2226,10 @@ export default {
             );
             this.onCloseExpenseForChkPrepDialog();
           }
-            this.fields.expense_for_chk_prep.tin = false
-            this.selected_expenses = [];
-            this.$store.dispatch("revolving_fund_list/fetchRevolvingFunds");
+          this.fields.expense_for_chk_prep.tin = false;
+          this.selected_expenses = [];
+          this.$store.dispatch("revolving_fund_list/fetchRevolvingFunds");
         });
-          
     },
     onCloseExpenseForChkPrepDialog() {
       this.resetValidationErrors();
@@ -2189,7 +2246,7 @@ export default {
         pcv_date: item.pcv_date,
         particulars: 1,
         payee: item.payee,
-        tin: item.tin == 1? true:false,
+        tin: item.tin == 1 ? true : false,
         amount: item.amount,
       };
       this.dialogs.add_edit_expenses_for_chk_prep = true;

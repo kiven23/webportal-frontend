@@ -3,7 +3,7 @@ import rootUrl from "../../../rootUrl";
 
 //Revolving fund prefix
 const prefix = rootUrl + "/api/revolving-fund"
-
+const Printbir = prefix + "/preparation/history"
 //Rv Fund Check Voucher Verification
 const chkVoucherVeriPrefix = prefix + "/check-voucher-verification";
 
@@ -24,9 +24,9 @@ const actions = {
         })
     },
     fetchPreparationHistory(context, payload) {
-       
+  
         context.commit("LOADING_STATUS", true, { root: true }); // start loading
-        axios.get(prefix + "/preparation/history"+"?id="+payload)
+        axios.get(prefix + "/preparation/history"+"?id="+payload.tin+"&date="+payload.date)
         .then(({data}) => {
             context.commit('setPreparationHistory', data)
             context.commit("LOADING_STATUS", false, { root: true }); 
@@ -81,6 +81,24 @@ const actions = {
     //         return data   
     //     })
     // },
+    PrintBIR(context, payload) {
+        axios.get(Printbir + "/print?id=" + payload.tin+"&date="+payload.date, { responseType: 'blob'})
+        .then(response => {
+            console.log(response.data)
+            // let blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+            // let link = document.createElement('a')
+            // link.href = window.URL.createObjectURL(blob)
+            // link.download = response.headers['content-disposition'].split("filename=")[1].replace(/"/g, '')
+            // link.click()
+
+            //window.open(URL.createObjectURL(response.data));
+            // const file = new Blob([response.data], {
+            //     type: "application/pdf",
+            //   });
+            // const fileURL = URL.createObjectURL(file);
+            // window.open(fileURL);
+        })
+    },
     printRvFundsSummary(context, payload) {
         axios.get(prefix + "/print/" + payload.id, { responseType: 'blob'})
         .then(response => {

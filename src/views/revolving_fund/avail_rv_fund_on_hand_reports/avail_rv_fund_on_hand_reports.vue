@@ -139,7 +139,13 @@
               label="Cash Advances"
               hide-details="auto"
             ></v-text-field>
-
+            <v-text-field
+              class="mt-4"
+              v-model="fields.cash_advances_or"
+              label="OR#"
+              hide-details="auto"
+              v-if="fields.cash_advances == 0"
+            ></v-text-field>
             <v-text-field
               v-model="fields.incoming"
               label="Incoming"
@@ -566,6 +572,7 @@
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title>{{branch}} History</v-toolbar-title>
+            
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark text @click="dialog = false"> Save </v-btn>
@@ -652,6 +659,10 @@ export default {
           text: "REVOLVING FUND",
           value: "revolvingfund",
         },
+         {
+          text: "OR NUMBER",
+          value: "ornumber",
+        },
         {
           text: "CASH ADVANCES",
           value: "cashadvance",
@@ -703,16 +714,16 @@ export default {
         cash_advances: item.cash_advances,
         rv_fund_id: item.rv_fund_id,
         branch_id: item.id,
-
+        cash_advances_or: item.or,
         incoming: 0,
         outgoing:  0
       };
       this.selected_branch = item.branch;
       this.dialogs.edit_rf = true;
     },
-    saveDetailsDialog() {
-       
-      this.$store
+    saveCallRvOnHand(){
+      
+        this.$store
         .dispatch(
           "revolving_fund_avail_on_hand_reports/updateOrCreateRFund",
           this.fields
@@ -740,6 +751,17 @@ export default {
             this.onCloseEditDetailsDialog();
           }
         });
+    },
+    saveDetailsDialog() {
+      let ca = this.fields.cash_advances? this.fields.cash_advances: 0;
+      if(ca == 0){
+        this.fields.cash_advances = 0
+        this.saveCallRvOnHand()
+      }else{
+        this.fields.cash_advances_or = null
+        this.saveCallRvOnHand()
+      }
+      
     },
     onCloseEditDetailsDialog() {
       this.validation_errors = {};
