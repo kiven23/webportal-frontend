@@ -142,23 +142,22 @@
             <v-text-field
               class="mt-4"
               v-model="fields.cash_advances_or"
-              label="OR#"
+               :error-messages="validation_errors.cash_advances_or"
+              label="INCOMING OR#"
               hide-details="auto"
               v-if="fields.cash_advances == 0"
             ></v-text-field>
-            <v-text-field
-              v-model="fields.incoming"
-              label="Incoming"
-              hide-details="auto"
-            ></v-text-field>
+           
             <v-text-field
               class="mt-4"
               v-model="fields.outgoing"
-              label="Outgoing"
+               :error-messages="validation_errors.outgoing"
+              label="OUTGOING #"
               hide-details="auto"
+               v-if="fields.cash_advances != 0"
             ></v-text-field>
-          </v-card-text>
-          <v-card-actions>
+            </v-card-text>
+            <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn text @click="onCloseEditDetailsDialog()">
               Cancel
@@ -620,9 +619,16 @@
   </div>
 </template>
 <script>
+import { validationMixin } from 'vuelidate'
+import { required, maxLength, email } from 'vuelidate/lib/validators'
 import MoneyFormat from "vue-money-format";
 import { mapGetters } from "vuex";
 export default {
+  mixins: [validationMixin],
+      validations: {
+      outcoming: { required },
+      incoming: { required },
+  },
   components: {
     "money-format": MoneyFormat,
   },
@@ -659,10 +665,7 @@ export default {
           text: "REVOLVING FUND",
           value: "revolvingfund",
         },
-         {
-          text: "OR NUMBER",
-          value: "ornumber",
-        },
+ 
         {
           text: "CASH ADVANCES",
           value: "cashadvance",
@@ -671,12 +674,12 @@ export default {
           text: "BALANCE",
           value: "balance",
         },
-        {
-          text: "INCOMING",
-          value: "incoming",
+         {
+          text: "OR NUMBER",
+          value: "ornumber",
         },
            {
-          text: "OUTGOING",
+          text: "OUTGOING #",
           value: "outgoing",
         },
            {
@@ -862,6 +865,18 @@ export default {
       return this.rv_fund_with_expense_items
         .expenses_for_check_preparations_total;
     },
+     incomingErrors () {
+        const errors = []
+        if (!this.$v.incoming.$dirty) return errors
+        !this.$v.incoming.required && errors.push('Incoming is required.')
+        return errors
+      },
+     outgoingErrors () {
+        const errors = []
+        if (!this.$v.outgoing.$dirty) return errors
+        !this.$v.outgoing.required && errors.push('Outgoing is required.')
+        return errors
+      },
   },
 };
 </script>

@@ -11,8 +11,7 @@ import VueHtmlToPaper from 'vue-html-to-paper';
 import 'vuesax/dist/vuesax.css' //Vuesax styles
 import VueSocketIO from 'vue-socket.io'
 import SocketIO from 'socket.io-client'
-
-
+ 
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 AOS.init();

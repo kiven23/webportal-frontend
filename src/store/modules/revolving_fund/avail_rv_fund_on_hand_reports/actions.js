@@ -24,13 +24,13 @@ const actions = {
     printAvailRFOnHandReports(context, payload) {
         axios.get(prefix + "/print", { responseType: 'blob'})
         .then(response => {
-            // let blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-            // let link = document.createElement('a')
-            // link.href = window.URL.createObjectURL(blob)
-            // link.download = response.headers['content-disposition'].split("filename=")[1].replace(/"/g, '')
-            // link.click()
+            let blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+            let link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = response.headers['content-disposition'].split("filename=")[1].replace(/"/g, '')
+            link.click()
 
-            //window.open(URL.createObjectURL(response.data));
+            window.open(URL.createObjectURL(response.data));
             const file = new Blob([response.data], {
                 type: "application/pdf",
               });
