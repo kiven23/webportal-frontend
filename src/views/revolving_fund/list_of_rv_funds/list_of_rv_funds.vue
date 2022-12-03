@@ -1932,7 +1932,7 @@ export default {
 
             this.$store.commit(
               "revolving_fund_list/setChkVoucherVerificationsTotal",
-              resData.total
+              resData.totalthis.value
             );
             // this.chkVoucherVerificationsTotal = this.chkVoucherVerificationsTotal +
             //   resData.item.amount;
@@ -1993,12 +1993,12 @@ export default {
     deleteChkVerification(item) {
       this.$dialog
         .warning({
-          text: "Are you sure to Approved this item?",
-          title: "Confirm Approved",
+          text: "Check Voucher Acceptance",
+          title: "Confirm Accept",
           actions: {
-            false: "Cancel",
+             
             true: {
-              text: "Confirm",
+              text: "Accept",
               color: "success",
             },
           },
@@ -2164,6 +2164,11 @@ export default {
         });
     },
     expensesHistory() {
+           this.value = {
+           tin: 1,
+           date: this.date,
+           branch: this.rv_fund_with_expense_items.branch
+        }
       this.$store.dispatch("revolving_fund_list/fetchPreparationHistory",this.value);
       this.dialogHistory = true;
     },
@@ -2171,12 +2176,14 @@ export default {
       if (this.FilterBIR == true) {
         this.value = {
            tin: 1,
-           date: this.date
+           date: this.date,
+           branch: this.rv_fund_with_expense_items.branch
         }
       } else {
          this.value = {
            tin: 0,
-           date: this.date
+           date: this.date,
+           branch: this.rv_fund_with_expense_items.branch
         }
       }
       this.$store.dispatch(

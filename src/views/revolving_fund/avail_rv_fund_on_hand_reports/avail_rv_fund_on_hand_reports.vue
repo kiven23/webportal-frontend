@@ -6,7 +6,6 @@
         :items="items"
         :loading="loadingStatus"
         :search="search"
-       
         class="elevation-1"
       >
         <template v-slot:top>
@@ -72,7 +71,7 @@
           </money-format>
         </template>
         <template v-slot:item.actions="{ item }">
-          <v-btn icon @click="editDetails(item)"
+          <v-btn icon @click="editDetails(item, row = null)"
             ><v-icon small>mdi-pencil</v-icon></v-btn
           >
           <v-btn icon @click="viewDetails(item)"
@@ -85,9 +84,9 @@
         <template v-slot:footer>
           <v-divider></v-divider>
           <div class="d-flex my-2">
-            <div class="ml-4" style="width:16.8em">Total</div>
+            <div class="ml-4" style="width: 16.8em">Total</div>
             <div
-              style="width:11em"
+              style="width: 11em"
               class="ml-4 d-flex d-inline-block subtitle-1"
             >
               <money-format
@@ -97,7 +96,7 @@
               >
               </money-format>
             </div>
-            <div  style="width:10.7em" class="ml-4 d-flex subtitle-1">
+            <div style="width: 10.7em" class="ml-4 d-flex subtitle-1">
               <money-format
                 :value="parseFloat(rvCashAdvTotal)"
                 locale="en"
@@ -105,7 +104,7 @@
               >
               </money-format>
             </div>
-            <div class="ml-4 d-flex d-inline-block  subtitle-1">
+            <div class="ml-4 d-flex d-inline-block subtitle-1">
               <money-format
                 :value="parseFloat(availRFundsTotal)"
                 locale="en"
@@ -118,12 +117,9 @@
       </v-data-table>
       <v-dialog max-width="300" v-model="dialogs.edit_rf" persistent>
         <v-card>
-          <v-card-title class="text-h6 mb-1">
-            Update Fund
-          </v-card-title>
-          <v-card-subtitle class="pb-1" style="line-height: normal;"
-            >Edit Fund of
-            {{ selected_branch }} branch</v-card-subtitle
+          <v-card-title class="text-h6 mb-1"> Update Fund </v-card-title>
+          <v-card-subtitle class="pb-1" style="line-height: normal"
+            >Edit Fund of {{ selected_branch }} branch</v-card-subtitle
           >
           <v-card-text>
             <v-text-field
@@ -132,36 +128,39 @@
               label="Revolving Fund"
               hide-details="auto"
             ></v-text-field>
+      
             <v-text-field
               class="mt-4"
               v-model="fields.cash_advances"
               :error-messages="validation_errors.cash_advances"
+              :disabled="rfAv < 1"
               label="Cash Advances"
               hide-details="auto"
             ></v-text-field>
+            
+            <v-radio-group  v-model="row" row >
+              <v-radio label="OUT" value="RF" :disabled="rfAv == 0 && fields.fund < 1"></v-radio>
+              <v-radio label="IN" value="CA" :disabled="caAv !== 0 && fields.cash_advances < 1"></v-radio>
+              
+            </v-radio-group>
             <v-text-field
               class="mt-4"
-              v-model="fields.cash_advances_or"
-               :error-messages="validation_errors.cash_advances_or"
-              label="INCOMING OR#"
+              v-model="fields.or"
+              :error-messages="validation_errors.or"
+              label="DOCUMENT NO"
               hide-details="auto"
-              v-if="fields.cash_advances == 0"
-            ></v-text-field>
-           
-            <v-text-field
-              class="mt-4"
-              v-model="fields.outgoing"
-               :error-messages="validation_errors.outgoing"
-              label="OUTGOING #"
-              hide-details="auto"
-               v-if="fields.cash_advances != 0"
-            ></v-text-field>
-            </v-card-text>
-            <v-card-actions>
+              dense
+              
+         
+            >
+              <strong slot="prepend"> {{row}}-</strong>
+            </v-text-field>
+
+     
+          </v-card-text>
+          <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn text @click="onCloseEditDetailsDialog()">
-              Cancel
-            </v-btn>
+            <v-btn text @click="onCloseEditDetailsDialog()"> Cancel </v-btn>
 
             <v-btn color="primary" text @click="saveDetailsDialog()">
               Update
@@ -178,7 +177,13 @@
       >
         <v-card>
           <v-toolbar>
-            <v-btn icon @click="dialogs.summary_of_rf = false; rvFundItemsPanel = []">
+            <v-btn
+              icon
+              @click="
+                dialogs.summary_of_rf = false;
+                rvFundItemsPanel = [];
+              "
+            >
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title>Summary of Revolving Fund</v-toolbar-title>
@@ -189,22 +194,22 @@
               >
             </v-toolbar-items>
           </v-toolbar>
-         <v-list two-line>
+          <v-list two-line>
             <v-list-item>
               <v-list-item-content>
-                 <div class="d-flex">
+                <div class="d-flex">
                   <div class="d-flex align-center">
                     <span class="font-weight-bold mr-1">BRANCH:</span>
                     <span class="text-uppercase">{{
                       rv_fund_with_expense_items.branch
                     }}</span>
                   </div>
-                  <div class="d-inline-flex align-center  ml-auto">
+                  <div class="d-inline-flex align-center ml-auto">
                     <span class="font-weight-bold mr-1">SUBMITTED DATE:</span>
                     <span>{{ rv_fund_with_expense_items.submitted_date }}</span>
                   </div>
                 </div>
-                 <div class="d-inline-flex align-center">
+                <div class="d-inline-flex align-center">
                   <span class="font-weight-bold mr-1">AS OF:</span>
                   <span>{{
                     moment(rv_fund_with_expense_items.as_of).format(
@@ -279,15 +284,10 @@
               <v-list-item-content>
                 <div class="d-flex">
                   <div class="mr-auto">REVOLVING FUND:</div>
-                  <div style="    margin-right: 8.5em;">
-                     <money-format
+                  <div style="margin-right: 8.5em">
+                    <money-format
                       class="d-inline-block"
-                      :value="
-                        parseFloat(
-                         rv_fund_with_expense_items
-                          .fund
-                        )
-                      "
+                      :value="parseFloat(rv_fund_with_expense_items.fund)"
                       locale="en"
                       currency-code="PHP"
                     >
@@ -296,30 +296,23 @@
                 </div>
                 <div class="d-flex align-center">
                   <div class="mr-auto d-flex align-center">
-                    <span>CASH ADVANCES: Marketing Activities</span> 
+                    <span>CASH ADVANCES: Marketing Activities</span>
                   </div>
-                  <div style="    margin-right: 3.4em;">
-                     <money-format
+                  <div style="margin-right: 3.4em">
+                    <money-format
                       class="d-inline-block"
                       :value="
-                        parseFloat(
-                         rv_fund_with_expense_items
-                          .cash_advances
-                        )
+                        parseFloat(rv_fund_with_expense_items.cash_advances)
                       "
                       locale="en"
                       currency-code="PHP"
                     >
                     </money-format>
                   </div>
-                  <div> 
+                  <div>
                     <money-format
                       class="d-inline-block"
-                      :value="
-                        parseFloat(
-                          getTotalOfRv
-                        )
-                      "
+                      :value="parseFloat(getTotalOfRv)"
                       locale="en"
                       currency-code="PHP"
                     >
@@ -330,21 +323,28 @@
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
-          <v-expansion-panels class="mt-5 px-2" v-model="rvFundItemsPanel" multiple>
+          <v-expansion-panels
+            class="mt-5 px-2"
+            v-model="rvFundItemsPanel"
+            multiple
+          >
             <v-expansion-panel>
               <v-expansion-panel-header>
                 <div class="d-flex">
                   <div>
                     <span class="mr-1">Check Voucher Verification</span>
                   </div>
-                  <div class="ml-auto align-self-center" style="margin-right:6.6em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.6em"
+                  >
                     <span class="mr-1"> Total : </span>
                     <money-format
                       class="d-inline-block"
                       :value="
                         parseFloat(
-                         this.rv_fund_with_expense_items
-                          .check_voucher_verifications_total
+                          this.rv_fund_with_expense_items
+                            .check_voucher_verifications_total
                         )
                       "
                       locale="en"
@@ -359,17 +359,17 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th class="text-left" style="width:352px">Date Transmitted</th>
-                        <th class="text-left" style="width:400px">CK#</th>
+                        <th class="text-left" style="width: 352px">
+                          Date Transmitted
+                        </th>
+                        <th class="text-left" style="width: 400px">CK#</th>
                         <th class="text-left" style="width: 200px">Status</th>
                         <th class="text-left">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-if="chkVoucherVerifications.length == 0">
-                        <td colspan="4">
-                          No record found
-                        </td>
+                        <td colspan="4">No record found</td>
                       </tr>
                       <tr
                         v-else
@@ -403,7 +403,10 @@
                   <div>
                     <span> Check Voucher For Transmittal</span>
                   </div>
-                  <div class="ml-auto align-self-center"  style="margin-right:6.6em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.6em"
+                  >
                     <span class="mr-1">Total:</span>
                     <money-format
                       class="d-inline-block"
@@ -425,18 +428,16 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th class="text-left" style="width:350px">
+                        <th class="text-left" style="width: 350px">
                           Check Voucher Date
                         </th>
-                        <th class="text-left" style="width:600px">CK#</th>
+                        <th class="text-left" style="width: 600px">CK#</th>
                         <th class="text-left">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-if="chkVoucherForTransmittals.length == 0">
-                        <td colspan="3">
-                          No record found
-                        </td>
+                        <td colspan="3">No record found</td>
                       </tr>
                       <tr
                         v-else
@@ -469,14 +470,17 @@
                   <div>
                     <span>Expenses For Check Preparation</span>
                   </div>
-                  <div class="ml-auto align-self-center"  style="margin-right:6.6em">
+                  <div
+                    class="ml-auto align-self-center"
+                    style="margin-right: 6.6em"
+                  >
                     <span class="mr-1">Total:</span>
                     <money-format
                       class="d-inline-block"
                       :value="
                         parseFloat(
                           this.rv_fund_with_expense_items
-                          .expenses_for_check_preparations_total
+                            .expenses_for_check_preparations_total
                         )
                       "
                       locale="en"
@@ -491,18 +495,16 @@
                   <template v-slot:default>
                     <thead>
                       <tr>
-                        <th class="text-left" style="width:350px">
-                          PCV Date
+                        <th class="text-left" style="width: 350px">PCV Date</th>
+                        <th class="text-left" style="width: 600px">
+                          Particulars
                         </th>
-                        <th class="text-left"  style="width:600px">Particulars</th>
                         <th class="text-left">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-if="expensesForChkPreparations.length == 0">
-                        <td colspan="3">
-                          No record found
-                        </td>
+                        <td colspan="3">No record found</td>
                       </tr>
                       <tr
                         v-else
@@ -532,23 +534,25 @@
             <v-list-item>
               <v-list-item-content>
                 <div class="text-right pb-2">
-                   <money-format
-                        :value="parseFloat(getTotalOfRvFundItems)"
-                        locale="en"
-                        currency-code="PHP"
-                      >
-                      </money-format>
+                  <money-format
+                    :value="parseFloat(getTotalOfRvFundItems)"
+                    locale="en"
+                    currency-code="PHP"
+                  >
+                  </money-format>
                 </div>
                 <v-divider></v-divider>
                 <div class="d-flex mt-1 text-h6">
-                  <div class="font-weight-bold">AVAILABLE REVOLVING FUND ON HAND</div>
-                  <div class="ml-auto font-weight-bold"> 
+                  <div class="font-weight-bold">
+                    AVAILABLE REVOLVING FUND ON HAND
+                  </div>
+                  <div class="ml-auto font-weight-bold">
                     <money-format
-                        :value="parseFloat(getAvailRVFundOnHand)"
-                        locale="en"
-                        currency-code="PHP"
-                      >
-                      </money-format>
+                      :value="parseFloat(getAvailRVFundOnHand)"
+                      locale="en"
+                      currency-code="PHP"
+                    >
+                    </money-format>
                   </div>
                 </div>
               </v-list-item-content>
@@ -557,35 +561,31 @@
         </v-card>
       </v-dialog>
       <!-- End - Summary of Revolving Fund Dialog -->
-         <!-- Preparation -->
+      <!-- Preparation -->
       <v-dialog
         v-model="dialogHistory"
         fullscreen
         hide-overlay
         transition="dialog-bottom-transition"
       >
-      
         <v-card>
           <v-toolbar color="dark">
             <v-btn icon @click="dialogHistory = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{branch}} History</v-toolbar-title>
-            
+            <v-toolbar-title>{{ branch }} History</v-toolbar-title>
+
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark text @click="dialog = false"> Save </v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-list three-line subheader>
-            <v-subheader>
-              Revolving Fund On Hand History 
-            </v-subheader>
-              
+            <v-subheader> Revolving Fund On Hand History </v-subheader>
+
             <v-list-item>
               <v-list-item-content>
                 <v-card>
-          
                   <v-card-title>
                     <v-text-field
                       v-model="search"
@@ -594,19 +594,16 @@
                       single-line
                       hide-details
                     ></v-text-field>
-                
                   </v-card-title>
                   <v-data-table
                     :headers="headers2"
                     :items="historyData"
                     :search="search"
                   >
-                   <!-- <template v-slot:item.tin="{ item }">
+                    <!-- <template v-slot:item.tin="{ item }">
                    
                       <strong>{{item.tin == 1? 'With BIR': 'None'}}</strong>
                     </template> -->
-                  
-                  
                   </v-data-table>
                 </v-card>
               </v-list-item-content>
@@ -619,15 +616,15 @@
   </div>
 </template>
 <script>
-import { validationMixin } from 'vuelidate'
-import { required, maxLength, email } from 'vuelidate/lib/validators'
+import { validationMixin } from "vuelidate";
+import { required, maxLength, email } from "vuelidate/lib/validators";
 import MoneyFormat from "vue-money-format";
 import { mapGetters } from "vuex";
 export default {
   mixins: [validationMixin],
-      validations: {
-      outcoming: { required },
-      incoming: { required },
+  validations: {
+    outcoming: { required },
+    incoming: { required },
   },
   components: {
     "money-format": MoneyFormat,
@@ -641,7 +638,7 @@ export default {
         {
           text: "BRANCH",
           value: "branch",
-          width: "25%"
+          width: "25%",
         },
         {
           text: "REVOLVING FUND",
@@ -660,12 +657,16 @@ export default {
           value: "actions",
         },
       ],
-        headers2: [ 
+      headers2: [
+              {
+          text: "DOCUMENT NO",
+          value: "ornumber",
+        },
         {
           text: "REVOLVING FUND",
           value: "revolvingfund",
         },
- 
+
         {
           text: "CASH ADVANCES",
           value: "cashadvance",
@@ -674,20 +675,13 @@ export default {
           text: "BALANCE",
           value: "balance",
         },
-         {
-          text: "OR NUMBER",
-          value: "ornumber",
-        },
-           {
-          text: "OUTGOING #",
-          value: "outgoing",
-        },
-           {
+        {
           text: "DATE CREATED",
           value: "created_at",
         },
-         
       ],
+      rfAv: 0,
+      caAv:0,
       branch: "",
       search: "",
       dialogs: {
@@ -698,6 +692,8 @@ export default {
       fields: {
         fund: 0,
       },
+      column: null,
+      row: null,
       validation_errors: {},
       selected_index: -1,
       selected_branch: "",
@@ -712,24 +708,31 @@ export default {
     },
     editDetails(item) {
       this.selected_index = this.items.indexOf(item);
+      if(item.revolving_fund == 0){
+         this.rfAv = item.revolving_fund
+         this.row = 'RF'
+      } 
+       if(item.cash_advances !== 0){
+         this.caAv = item.cash_advances
+         this.rfAv = item.revolving_fund
+         this.row = 'CA'
+      } 
       this.fields = {
         fund: item.revolving_fund,
         cash_advances: item.cash_advances,
         rv_fund_id: item.rv_fund_id,
         branch_id: item.id,
-        cash_advances_or: item.or,
-        incoming: 0,
-        outgoing:  0
+        or: item.or
+         
       };
       this.selected_branch = item.branch;
       this.dialogs.edit_rf = true;
     },
-    saveCallRvOnHand(){
-      
-        this.$store
+    saveCallRvOnHand(data) {
+      this.$store
         .dispatch(
           "revolving_fund_avail_on_hand_reports/updateOrCreateRFund",
-          this.fields
+          data
         )
         .then((res) => {
           this.validation_errors = {};
@@ -756,36 +759,52 @@ export default {
         });
     },
     saveDetailsDialog() {
-      let ca = this.fields.cash_advances? this.fields.cash_advances: 0;
-      if(ca == 0){
-        this.fields.cash_advances = 0
-        this.saveCallRvOnHand()
-      }else{
-        this.fields.cash_advances_or = null
-        this.saveCallRvOnHand()
+    let index = this.fields; 
+    let data = {
+        branch_id: index.branch_id,
+        cash_advances: index.cash_advances,
+        fund: index.fund,
+        or: index.or,
+        ex: this.row,
+        rv_fund_id: index.rv_fund_id
       }
-      
+      this.saveCallRvOnHand(data)
+      // let ca = this.fields.cash_advances? this.fields.cash_advances: 0;
+      // if(ca == 0){
+      //   this.fields.cash_advances = 0
+      //   this.saveCallRvOnHand()
+      // }else{
+      //   this.fields.cash_advances_or = null
+      //   this.saveCallRvOnHand()
+      // }
     },
     onCloseEditDetailsDialog() {
       this.validation_errors = {};
       this.fields = {};
       this.dialogs.edit_rf = false;
     },
-    viewHistory(item){
-      this.$store.dispatch("revolving_fund_avail_on_hand_reports/historyData", item.branch)
-      this.branch = item.branch
-       this.dialogHistory = true
+    viewHistory(item) {
+      this.$store.dispatch(
+        "revolving_fund_avail_on_hand_reports/historyData",
+        item.branch
+      );
+      this.branch = item.branch;
+      this.dialogHistory = true;
     },
     viewDetails(item) {
-      if(! item.rv_fund_id) {
-        this.$store.commit("SNACKBAR_STATUS", [
-        {
-          status: true,
-          message: "Please set branch's revolving fund first.",
-          timeout: 3000
-        }
-      ], { root: true });
-      return
+      if (!item.rv_fund_id) {
+        this.$store.commit(
+          "SNACKBAR_STATUS",
+          [
+            {
+              status: true,
+              message: "Please set branch's revolving fund first.",
+              timeout: 3000,
+            },
+          ],
+          { root: true }
+        );
+        return;
       }
       this.$store.dispatch("revolving_fund_list/viewRevolvingFund", {
         id: item.rv_fund_id,
@@ -796,10 +815,11 @@ export default {
       this.$store.dispatch("revolving_fund_list/printRvFundsSummary", {
         id: this.rv_fund_with_expense_items.id,
       });
+    },roweports() {
+      this.$store.dispatch(
+        "revolving_fund_avail_on_hand_reports/printAvailRFOnHandReports"
+      );
     },
-    printAvailRFOnHandReports(){
-      this.$store.dispatch("revolving_fund_avail_on_hand_reports/printAvailRFOnHandReports");
-    }
   },
   computed: {
     ...mapGetters({
@@ -807,7 +827,7 @@ export default {
         "revolving_fund_avail_on_hand_reports/getAvailRvFundOnHands",
       rv_fund_with_expense_items:
         "revolving_fund_list/getRvFundWithExpenseItems",
-      historyData: "revolving_fund_avail_on_hand_reports/getHistoryData"
+      historyData: "revolving_fund_avail_on_hand_reports/getHistoryData",
     }),
     loadingStatus() {
       return this.$store.state.loading;
@@ -818,7 +838,7 @@ export default {
     rvFundsTotal() {
       return this.avail_rf_on_hands.rf_total;
     },
-    rvCashAdvTotal(){
+    rvCashAdvTotal() {
       return this.avail_rf_on_hands.ca_total;
     },
     availRFundsTotal() {
@@ -865,18 +885,18 @@ export default {
       return this.rv_fund_with_expense_items
         .expenses_for_check_preparations_total;
     },
-     incomingErrors () {
-        const errors = []
-        if (!this.$v.incoming.$dirty) return errors
-        !this.$v.incoming.required && errors.push('Incoming is required.')
-        return errors
-      },
-     outgoingErrors () {
-        const errors = []
-        if (!this.$v.outgoing.$dirty) return errors
-        !this.$v.outgoing.required && errors.push('Outgoing is required.')
-        return errors
-      },
+    incomingErrors() {
+      const errors = [];
+      if (!this.$v.incoming.$dirty) return errors;
+      !this.$v.incoming.required && errors.push("Incoming is required.");
+      return errors;
+    },
+    outgoingErrors() {
+      const errors = [];
+      if (!this.$v.outgoing.$dirty) return errors;
+      !this.$v.outgoing.required && errors.push("Outgoing is required.");
+      return errors;
+    },
   },
 };
 </script>

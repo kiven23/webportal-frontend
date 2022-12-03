@@ -26,7 +26,7 @@ const actions = {
     fetchPreparationHistory(context, payload) {
   
         context.commit("LOADING_STATUS", true, { root: true }); // start loading
-        axios.get(prefix + "/preparation/history"+"?id="+payload.tin+"&date="+payload.date)
+        axios.get(prefix + "/preparation/history"+"?id="+payload.tin+"&date="+payload.date+"&b="+payload.branch)
         .then(({data}) => {
             context.commit('setPreparationHistory', data)
             context.commit("LOADING_STATUS", false, { root: true }); 
