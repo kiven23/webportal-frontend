@@ -12,6 +12,7 @@ const state = {
         expenses_for_check_preparations_total:0,
     },
     history: [],
+    ckhistory: [],
     // deleting_on_progress: false,
 }
 
@@ -27,6 +28,9 @@ const getters = {
     },
     getHistory(state){
         return state.history
+    },
+    getckHistory(state){
+        return state.ckhistory
     }
     // getDeletingOnProgress(state) {
     //     return state.deleting_on_progress
@@ -54,6 +58,9 @@ const mutations = {
     },
     setPreparationHistory(state, payload){
         state.history = payload
+    },
+    setckHistory(state, payload){
+        state.ckhistory = payload
     }
     // setDeletingOnProgress(state, payload) {
     //     state.deleting_on_progress = payload

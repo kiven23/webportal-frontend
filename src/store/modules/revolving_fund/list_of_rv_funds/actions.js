@@ -26,10 +26,20 @@ const actions = {
     fetchPreparationHistory(context, payload) {
   
         context.commit("LOADING_STATUS", true, { root: true }); // start loading
-        axios.get(prefix + "/preparation/history"+"?id="+payload.tin+"&date="+payload.date+"&b="+payload.branch)
+      return axios.get(prefix + "/preparation/history"+"?id="+payload.tin+"&date="+payload.date+"&b="+payload.branch)
         .then(({data}) => {
             context.commit('setPreparationHistory', data)
             context.commit("LOADING_STATUS", false, { root: true }); 
+            return data
+        })
+    },
+    fetchckHistory(context, payload){
+        context.commit("LOADING_STATUS", true, { root: true }); // start loading
+      return  axios.get(prefix + "/ck/history"+"?&b="+payload.branch)
+        .then(({data}) => {
+            context.commit('setckHistory', data)
+            context.commit("LOADING_STATUS", false, { root: true }); 
+            return data;
         })
     },
     // addRevolvingFund(context, payload){
@@ -82,7 +92,7 @@ const actions = {
     //     })
     // },
     PrintBIR(context, payload) {
-        axios.get(Printbir + "/print?id=" + payload.tin+"&date="+payload.date, { responseType: 'blob'})
+        axios.get(Printbir + "/print?id=" + payload.tin+"&date="+payload.date+"&b="+payload.branch, { responseType: 'blob'})
         .then(response => {
             
             // let blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })

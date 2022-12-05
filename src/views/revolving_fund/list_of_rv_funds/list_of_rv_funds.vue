@@ -13,6 +13,7 @@
       >
         <template v-slot:top>
           <v-toolbar flat>
+            
             <v-toolbar-title>Revolving Fund</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <!-- <v-tooltip bottom v-if="canAddRvFunds">
@@ -454,7 +455,9 @@
                   <div
                     class="ml-auto align-self-center"
                     style="margin-right: 6.5em"
-                  >
+                  >    <v-btn @click="ckHistory()" style="margin: 5px"
+                      >History</v-btn
+                    >
                     <span class="mr-1"> Total : </span>
                     <money-format
                       class="d-inline-block"
@@ -1507,6 +1510,7 @@
             <v-spacer></v-spacer>
             <v-toolbar-item>
               <v-menu
+               v-if="historyIdentify.iden == 0"
                 ref="menu"
                 v-model="menu"
                 :close-on-content-click="false"
@@ -1544,13 +1548,13 @@
               </v-menu>
             </v-toolbar-item>
             <v-toolbar-items>
-              <v-btn text @click="printBIR(rv_fund_with_expense_items.branch)">
+              <v-btn  v-if="historyIdentify.iden == 0" text @click="printBIR(rv_fund_with_expense_items.branch)">
                 Print
               </v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-list three-line subheader>
-            <v-subheader>Expenses For Check Preparation History</v-subheader>
+            <v-subheader>{{historyIdentify.title}}</v-subheader>
             <v-list-item>
               <v-list-item-content>
                 <v-card>
@@ -1563,6 +1567,7 @@
                       hide-details
                     ></v-text-field>
                     <v-checkbox
+                    v-if="historyIdentify.iden == 0"
                       v-model="FilterBIR"
                       :label="FilterBIR == true ? 'With BIR' : 'ALL/With BIR'"
                       @click="filterbir"
@@ -1570,7 +1575,7 @@
                   </v-card-title>
                   <v-data-table
                     :headers="headers2"
-                    :items="historydata"
+                    :items="historyDATA"
                     :search="search"
                   >
                     <template v-slot:item.tin="{ item }">
@@ -1578,12 +1583,15 @@
                     </template>
                   </v-data-table>
                 </v-card>
+                
               </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-card>
       </v-dialog>
       <!-- END Preparation-->
+
+      
     </v-container>
   </div>
 </template>
@@ -1635,38 +1643,9 @@ export default {
           sortable: false,
         },
       ],
-      headers2: [
-        {
-          text: "PCV DATE",
-          align: "start",
-          value: "pcv_date",
-        },
-        {
-          text: "PAYEE",
-          align: "start",
-          value: "payee",
-        },
-        {
-          text: "AMOUNT",
-          align: "start",
-          value: "amount",
-        },
-        {
-          text: "BIR",
-          align: "start",
-          value: "tin",
-        },
-        {
-          text: "GL ACCOUNT",
-          align: "start",
-          value: "glaccounts",
-        },
-        {
-          text: "STATUS",
-          align: "start",
-          value: "status",
-        },
-      ],
+      historyIdentify: {},
+      headers2: [],
+      historyDATA: [],
       FilterBIR: false,
       search: "",
       selected_items: [],
@@ -1739,16 +1718,49 @@ export default {
       status: ["Pending", "Transmittal"],
       selected_expenses: [],
       select_all_expenses: false,
-
       branch_selected: "",
     };
   },
   methods: {
     searchDate() {
+        this.headers2 =[
+              {
+                text: "PCV DATE",
+                align: "start",
+                value: "pcv_date",
+              },
+              {
+                text: "PAYEE",
+                align: "start",
+                value: "payee",
+              },
+              {
+                text: "AMOUNT",
+                align: "start",
+                value: "amount",
+              },
+              {
+                text: "BIR",
+                align: "start",
+                value: "tin",
+              },
+              {
+                text: "GL ACCOUNT",
+                align: "start",
+                value: "glaccounts",
+              },
+              {
+                text: "STATUS",
+                align: "start",
+                value: "status",
+              },
+      ],
       this.value.date = this.date;
       this.$store.dispatch(
         "revolving_fund_list/fetchPreparationHistory", this.value
-      );
+      ).then((res)=>{
+        this.historyDATA = res
+      });
     },
     //PRINT BIR
     printBIR() {
@@ -2163,13 +2175,100 @@ export default {
           }
         });
     },
+    ckHistory() {
+       this.historyIdentify = {
+        title: "Check Voucher Verification History",
+        iden: 1
+       }
+       this.headers2 =[
+              {
+                text: "DATE TRANSMITTED",
+                align: "start",
+                value: "DATETRANSMITTED",
+              },
+              {
+                text: "CK#",
+                align: "start",
+                value: "ck_no",
+              },
+              {
+                text: "AMOUNT",
+                align: "start",
+                value: "AMOUNT",
+              },
+              {
+                text: "FUND",
+                align: "start",
+                value: "fund",
+              },
+              {
+                text: "BRANCH",
+                align: "start",
+                value: "BRANCH",
+              },
+              {
+                text: "STATUS",
+                align: "start",
+                value: "status",
+              },
+      ],
+  
+        
+      this.value = {
+           branch: this.rv_fund_with_expense_items.branch
+        }
+      this.$store.dispatch("revolving_fund_list/fetchckHistory", this.value).then((res)=>{
+       this.historyDATA = res
+      });
+      this.dialogHistory = true;
+      
+    },
     expensesHistory() {
-           this.value = {
+       this.historyIdentify = {
+        title: "Expenses For Check Preparation History",
+        iden: 0
+       }
+      this.headers2 =[
+              {
+                text: "PCV DATE",
+                align: "start",
+                value: "pcv_date",
+              },
+              {
+                text: "PAYEE",
+                align: "start",
+                value: "payee",
+              },
+              {
+                text: "AMOUNT",
+                align: "start",
+                value: "amount",
+              },
+              {
+                text: "BIR",
+                align: "start",
+                value: "tin",
+              },
+              {
+                text: "GL ACCOUNT",
+                align: "start",
+                value: "glaccounts",
+              },
+              {
+                text: "STATUS",
+                align: "start",
+                value: "status",
+              },
+      ],
+         
+        this.value = {
            tin: 1,
            date: this.date,
            branch: this.rv_fund_with_expense_items.branch
         }
-      this.$store.dispatch("revolving_fund_list/fetchPreparationHistory",this.value);
+      this.$store.dispatch("revolving_fund_list/fetchPreparationHistory",this.value).then((res)=>{
+        this.historyDATA = res;
+      });
       this.dialogHistory = true;
     },
     filterbir() {
@@ -2186,10 +2285,45 @@ export default {
            branch: this.rv_fund_with_expense_items.branch
         }
       }
+       this.headers2 =[
+              {
+                text: "PCV DATE",
+                align: "start",
+                value: "pcv_date",
+              },
+              {
+                text: "PAYEE",
+                align: "start",
+                value: "payee",
+              },
+              {
+                text: "AMOUNT",
+                align: "start",
+                value: "amount",
+              },
+              {
+                text: "BIR",
+                align: "start",
+                value: "tin",
+              },
+              {
+                text: "GL ACCOUNT",
+                align: "start",
+                value: "glaccounts",
+              },
+              {
+                text: "STATUS",
+                align: "start",
+                value: "status",
+              },
+      ],
+         
       this.$store.dispatch(
         "revolving_fund_list/fetchPreparationHistory",
         this.value
-      );
+      ).then((res)=>{
+        this.historyDATA = res
+      });
     },
     //Revolving Fund Expenses For Check Preparation CRUD Methods
     saveExpenseForChkPrep() {
@@ -2355,6 +2489,7 @@ export default {
       glaccountList: "revolving_fund_list/getGlAccount",
       revolving_funds: "revolving_fund_list/getRevolvingFunds",
       historydata: "revolving_fund_list/getHistory",
+      ckhistory: "revolving_fund_list/getckHistory",
       rv_fund_with_expense_items:
         "revolving_fund_list/getRvFundWithExpenseItems",
       // deleting_on_progress: "revolving_fund_list/getDeletingOnProgress",
