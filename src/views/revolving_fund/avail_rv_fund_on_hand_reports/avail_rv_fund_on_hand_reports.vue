@@ -46,6 +46,7 @@
             {{ group.toUpperCase() }} BRANCH
           </th>
         </template> -->
+        
         <template v-slot:item.revolving_fund="{ item }">
           <money-format
             :value="parseFloat(item.revolving_fund)"
@@ -115,7 +116,7 @@
           </div>
         </template>
       </v-data-table>
-      <v-dialog max-width="300" v-model="dialogs.edit_rf" persistent>
+      <v-dialog max-width="350" v-model="dialogs.edit_rf" persistent>
         <v-card>
           <v-card-title class="text-h6 mb-1"> Update Fund </v-card-title>
           <v-card-subtitle class="pb-1" style="line-height: normal"
@@ -127,20 +128,22 @@
               :error-messages="validation_errors.fund"
               label="Revolving Fund"
               hide-details="auto"
+              @keypress="onlyNumber"
             ></v-text-field>
-      
+      <!-- :disabled="rfAv < 1" -->
             <v-text-field
-              class="mt-4"
+              class="mt-5"
               v-model="fields.cash_advances"
               :error-messages="validation_errors.cash_advances"
-              :disabled="rfAv < 1"
+              @keypress="onlyNumber"
               label="Cash Advances"
               hide-details="auto"
             ></v-text-field>
-            
+             <!-- :disabled="rfAv == 0 && fields.fund < 1"
+              :disabled="caAv !== 0 && fields.cash_advances < 1 -->
             <v-radio-group  v-model="row" row >
-              <v-radio label="OUT" value="RF" :disabled="rfAv == 0 && fields.fund < 1"></v-radio>
-              <v-radio label="IN" value="CA" :disabled="caAv !== 0 && fields.cash_advances < 1"></v-radio>
+              <v-radio label="OUTGOING" value="PS"></v-radio>
+              <v-radio label="INCOMING" value="RC"></v-radio>
               
             </v-radio-group>
             <v-text-field
@@ -150,7 +153,9 @@
               label="DOCUMENT NO"
               hide-details="auto"
               dense
-              
+              type="integer"
+              :maxlength="8"
+              @keypress="onlyNumber"
          
             >
               <strong slot="prepend"> {{row}}-</strong>
@@ -604,6 +609,56 @@
                    
                       <strong>{{item.tin == 1? 'With BIR': 'None'}}</strong>
                     </template> -->
+                          <!-- <template v-slot:item.revolvingfund="{ item }">
+                           
+                           <money-format
+                            v-if="item.explode == 'PS'"
+                            :value="item.revolvingfund == 0 ? 0 : parseFloat(item.revolvingfund)"
+                            locale="en"
+                            currency-code="PHP"
+                          >
+                          </money-format> 
+                          {{item.explode == 'RC'? item.revolvingfund: ''}}
+                       
+                          <money-format
+                            v-if="item.ornumber == 'TOTAL'"
+                            :value="  parseFloat(item.revolvingfund)"
+                            locale="en"
+                            currency-code="PHP"
+                          >
+                          </money-format> 
+                         </template>
+
+                          <template v-slot:item.cashadvance="{ item }">
+                           <money-format
+                            v-if="item.explode == 'PS'"
+                            :value="item.cashadvance == 0 ? 0 : parseFloat(item.cashadvance)"
+                            locale="en"
+                            currency-code="PHP"
+                          >
+                          </money-format> 
+                          {{item.explode == 'RC'? item.cashadvance: ''}}
+                       
+                          <money-format
+                            v-if="item.ornumber == 'TOTAL'"
+                            :value="  parseFloat(item.cashadvance)"
+                            locale="en"
+                            currency-code="PHP"
+                          >
+                          </money-format> 
+                         </template>
+
+                        <template v-slot:item.balance="{ item }">
+                           <money-format
+                            
+                            :value="item.balance == 0 ? 0 : parseFloat(item.balance)"
+                            locale="en"
+                            currency-code="PHP"
+                          >
+                          </money-format> 
+                          
+                         </template> -->
+                         
                   </v-data-table>
                 </v-card>
               </v-list-item-content>
@@ -625,6 +680,11 @@ export default {
   validations: {
     outcoming: { required },
     incoming: { required },
+    fields: {
+        or: {
+            maxLength: maxLength(8),
+        },
+      }
   },
   components: {
     "money-format": MoneyFormat,
@@ -701,6 +761,14 @@ export default {
     };
   },
   methods: {
+        onlyNumber($event) {
+      //console.log($event.keyCode); //keyCodes value
+      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+      if ((keyCode < 48 || keyCode > 57) && keyCode !== 46) {
+        // 46 is dot
+        $event.preventDefault();
+      }
+    },
     refreshData() {
       this.$store.dispatch(
         "revolving_fund_avail_on_hand_reports/fetchAvailRvFundOnHandsReports"
@@ -710,16 +778,16 @@ export default {
       this.selected_index = this.items.indexOf(item);
       if(item.revolving_fund == 0){
          this.rfAv = item.revolving_fund
-         this.row = 'RF'
+        // this.row = 'RF'
       } 
        if(item.cash_advances !== 0){
          this.caAv = item.cash_advances
          this.rfAv = item.revolving_fund
-         this.row = 'CA'
+        // this.row = 'CA'
       } 
       this.fields = {
-        fund: item.revolving_fund,
-        cash_advances: item.cash_advances,
+        fund: 0,
+        cash_advances: 0,
         rv_fund_id: item.rv_fund_id,
         branch_id: item.id,
         or: item.or
@@ -897,6 +965,7 @@ export default {
       !this.$v.outgoing.required && errors.push("Outgoing is required.");
       return errors;
     },
+ 
   },
 };
 </script>
