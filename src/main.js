@@ -12,8 +12,19 @@ import 'vuesax/dist/vuesax.css' //Vuesax styles
 import VueSocketIO from 'vue-socket.io'
 import SocketIO from 'socket.io-client'
  
+ 
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
+import VueGoodTable from 'vue-good-table';
+Vue.use(VueGoodTable);
+import 'vue-good-table/dist/vue-good-table.css';
+import VueSweetalert2 from 'vue-sweetalert2';
+
+// If you don't need the styles, do not connect
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+Vue.use(VueSweetalert2);
+ 
 AOS.init();
 /* Establish Connection */
 // const socketConnection = SocketIO('http://192.168.1.19:3378');

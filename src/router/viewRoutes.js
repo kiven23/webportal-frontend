@@ -78,6 +78,9 @@ import sapreports_ar_invoice_openbalance from "../views/sap_reports/ar_invoice_o
 import sapreports_incoming_customer_deposit from "../views/sap_reports/incoming_payment_customer_deposit/incoming_payment_customer_deposit.vue";
 //incomingpayment openbalance
 import sapreports_incoming_payment_openbalance from "../views/sap_reports/incoming_payment_open_balance/incoming_payment_open_balance.vue";
+
+//Item Master Data
+import itemmasterdata from "../views/inventory/itemmasterdata.vue";
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
 
@@ -464,6 +467,17 @@ const viewRoutes = [
     }
   },
 
+
+    //ITEM MASTER DATA
+    {
+      path: "/sapb1/itmmasterdata/create",
+      component: itemmasterdata,
+      name: "itemmasterdata",
+      meta: {
+        requiresAuth: true
+      }
+    },
+  
   //DATABASE SETTING CONFIGURE
   {
     path: "/settings/database/configure",
