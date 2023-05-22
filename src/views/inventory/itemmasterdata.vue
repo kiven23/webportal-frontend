@@ -1,9 +1,14 @@
 <template>
-  <v-container grid-list-md text-xs-center style="margin: 20px">
+  <v-container grid-list-md text-xs-center style="margin: 10px; " >
+     <v-breadcrumbs :items="breadcrumbs"></v-breadcrumbs>
+           
     <v-card class="mx-auto">
+      
       <template>
+         
         <v-row justify="end">
           <v-col cols="12" sm="2">
+             
             <vs-input
               v-model="searchTerm"
               @input="onSearch"
@@ -19,6 +24,7 @@
       </template>
       <!-- <input type="text" v-model="searchTerm" @input="onSearch" >   -->
       <vue-good-table
+      
         :columns="columns"
         :rows="rows"
         :totalRows="totalRows"
@@ -43,18 +49,19 @@
       hide-overlay
       transition="dialog-bottom-transition"
     >
-      <v-card>
-        <v-toolbar dense dark style="background-color: #f2e7d0"  v-if="identify == 0">
-          <v-btn icon dark @click="dialog = false" style="color: black">
+      <v-card >
+        <v-toolbar dense dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); "  v-if="identify == 0">
+          <v-btn icon dark @click="dialog = false" >
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title style="color: black">Add Item</v-toolbar-title>
+          <v-toolbar-title dark >Add Item</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn  dark style="color: black" text @click="save()"> Save </v-btn>
+            <!-- :disabled="allError"   -->
+            <v-btn  dark  text @click="save()"> Save </v-btn>
           </v-toolbar-items>
         </v-toolbar>
-        <v-list three-line subheader>
+        <v-list three-line subheader style="background: #E9F0F6">
           <v-subheader v-if="itemcode"><h3>{{itemcode}}</h3></v-subheader>
            <v-subheader>Item Master Data</v-subheader>
           <v-list-item>
@@ -122,7 +129,7 @@
                          </v-list-item-subtitle>
                  </v-col>
                  <v-col cols="12" sm="2">
-                  <v-list-item-title>Manage Item By</v-list-item-title>
+                  <v-list-item-title>Manage Item By {{managebyserial}}</v-list-item-title>
                       <v-list-item-subtitle>
                          <v-select
                                 :items="batchnumber"
@@ -145,7 +152,7 @@
                             dense
                             filled
                             label="Filled"
-                             :disabled="identify == 1"
+                             :disabled="identify == 1 || managebyserial !== true"
                           ></v-autocomplete>
                         </v-list-item-subtitle>
                  </v-col>
@@ -161,6 +168,7 @@
                             filled
                             label="Filled"
                              :disabled="identify == 1"
+                               @change="handleAutocompleteChange"
                           ></v-autocomplete>
                        </v-list-item-subtitle>
                  </v-col>
@@ -201,7 +209,7 @@
  
         </v-list>
         <v-subheader>UDF</v-subheader>
-          <v-list-item>
+          <v-list-item style="background: #E9F0F6">
              <v-list-item-content>
                  <v-col cols="12" sm="2">
                   <v-list-item-title>Sell-Out</v-list-item-title>
@@ -375,9 +383,9 @@
              <template v-slot:item.action="{ item , index }">
              
              <v-checkbox
-             v-model="item.value"
+             v-model="chek[index]"
              @click="saveProperty(item.ItmsTypCod, index)"
-              
+             
             >  </v-checkbox>
              </template>
             
@@ -406,21 +414,26 @@
             v-model="isLoading"
             hide-overlay
             persistent
-            width="300"
+            width="240"
+             
           >
-            <v-card
-              color="primary"
-              dark
-            >
+            <v-card style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%);" >
+            <v-img
+            lazy-src="/syncing3.gif"
+            max-height="60"
+            max-width="240"
+            src="/syncing3.gif"
+          > </v-img>
+          </v-card>
               <v-card-text>
-                Please stand by
+                {{ animatedText }}
                 <v-progress-linear
                   indeterminate
                   color="white"
                   class="mb-0"
                 ></v-progress-linear>
               </v-card-text>
-            </v-card>
+            
           </v-dialog>
     </v-dialog>
   </v-container>
@@ -456,6 +469,16 @@ export default {
   },
   data() {
     return {
+         chek: [],
+         text: "Connecting to SAP B1 Integration",
+         dots: "",
+
+         breadcrumbs: [
+        { text: 'Home', disabled: false, href: '/' },
+        { text: 'Inventory', disabled: true, href: '/' },
+        { text: 'Item Master Data', disabled: true },
+        { text: 'Create', disabled: true },
+      ],
         itemcode: '',
         identify: 0,
         isLoading: false,
@@ -469,6 +492,7 @@ export default {
           batchserial: '',
           warrantytemp: '',
           preferredvendor: '',
+          prevendor: '',
           purchaseuom: '',
           inventoryoum: '',
           sellout: '00.0',
@@ -533,6 +557,9 @@ export default {
   },
 
   computed: {
+    animatedText() {
+      return this.text + this.dots;
+    },
     allError(){
       this.$v.data.$touch();
        if (!this.$v.data.$error) {
@@ -541,10 +568,39 @@ export default {
            return true;
       }
       
+    },
+    managebyserial(){
+      if(this.data.batchserial == 'None' || this.data.batchserial == 'Batches'|| this.data.batchserial == ''){
+         return false
+      }else{
+         return true
+      }
     }
 
   },
+   created() {
+    this.animateText();
+  },
   methods: {
+    animateText() {
+      setInterval(() => {
+        this.dots += "*";
+        if (this.dots.length > 10) {
+          this.dots = "";
+        }
+      }, 500); // Adjust the interval as needed
+    },
+        handleAutocompleteChange() {
+      const selectedValue = this.data.preferredvendor;
+      const selectedVendor = this.preferredv.find(
+        (vendor) => vendor.CardCode === selectedValue
+      );
+
+      if (selectedVendor) {
+        const selectedText = selectedVendor.CardName;
+        this.data.prevendor = selectedText
+      }
+    },
      restrictToNumbers() {
       if(this.data.instsubamp == ""){
             this.data.instsubamp = "00.0"
@@ -567,7 +623,9 @@ export default {
       
     },
     save(){
-      this.isLoading = true
+      
+     
+   this.isLoading = true
        const all = {
           data: this.data,
           prop: this.checkboxStatus
@@ -575,17 +633,27 @@ export default {
        axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/create", {
           all
        }).then((res)=>{
-                 this.isLoading = false
-                 var text = JSON.stringify(res.data);
+                this.isLoading = false
+                var msg;
+                if(res.data.identify == 1){
+                  msg = 'error'
+                }else{
+                  msg = 'success'
+                }
+                var text = JSON.stringify(res.data);
                 this.$swal('Sync!',
                 ''+text+'',
-                'success');
-                this.refresh();
-                this.getFields()
+                ''+msg+'');
+                if(res.data.identify !== 1){
+                    this.refresh();
+                    this.getFields()
+                } 
+               
           })
     },
     saveProperty(query,index){
-      this.checkboxStatus[index] = {query: query, status: !this.checkboxStatus[index] };
+      this.checkboxStatus[index] = {query: query, status: this.chek[index] };
+      
       console.log(this.checkboxStatus)
     },
     properties(){
@@ -672,11 +740,11 @@ export default {
           srp: row.U_srp,
           regnetcost: row.U_RegNC,
           prenetcost: row.U_PresentNC,
-          sizename: '',
-          specs1: '',
-          specs2: '',
-          specs3: '',
-          type: '',
+          sizename: row.U_rSubCat,
+          specs1: row.U_cPanel,
+          specs2: row.U_cContent,
+          specs3: row.U_cTransmission,
+          type: row.U_cType,
           sizes: row.U_cSizes,
           instsubamp: row.U_SubsidyAmt,
       }
@@ -689,6 +757,12 @@ export default {
        {ItmsGrpNam: 'Items Property 6' , value: row.QryGroup6 == 'Y'? 'checked':''},
        {ItmsGrpNam: 'Items Property 7', value: row.QryGroup7 == 'Y'? 'checked':''},
        {ItmsGrpNam: 'Items Property 8' , value: row.QryGroup8 == 'Y'? 'checked':''}]
+      this.properties1.forEach((item, index) => {
+        this.chek[index] = item.value == 'checked'? true:false;
+      });
+
+      
+ 
       // Perform your custom action here
     },
     onButtonClick(id) {
