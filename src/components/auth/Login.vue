@@ -1,9 +1,9 @@
 <template>
-  <v-container fluid fill-height>
+  <v-container fluid fill-height style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); " >
     <v-layout align-center justify-center>
       <v-flex xs12 sm8 md5>
         <v-card class="elevation-12">
-          <v-toolbar dark color="red">
+          <v-toolbar dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); " >
             <v-img
               src="/addessa_logo.png"
               max-width="50"
@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       form: {
-        email: "guimba_branch@webportal.test",
+        email: "",
         password: "",
       },
     };

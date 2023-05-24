@@ -24,7 +24,8 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 Vue.use(VueSweetalert2);
- 
+import VUppercase from 'v-uppercase'
+Vue.use(VUppercase)
 AOS.init();
 /* Establish Connection */
 // const socketConnection = SocketIO('http://192.168.1.19:3378');

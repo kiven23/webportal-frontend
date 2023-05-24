@@ -58,7 +58,7 @@
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <!-- :disabled="allError"   -->
-            <v-btn  dark  text @click="save()"> Save </v-btn>
+            <v-btn  dark :disabled="allError"  text @click="save()"> Save </v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <v-list three-line subheader style="background: #E9F0F6">
@@ -74,6 +74,7 @@
                           v-model="data.model"
                           dense
                           :disabled="identify == 1"
+                          v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -85,6 +86,7 @@
                           v-model="data.prodcat"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>  
@@ -181,6 +183,7 @@
                           placeholder="UNIT"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -193,6 +196,7 @@
                            v-model="data.inventoryoum"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -231,6 +235,7 @@
                            v-model="data.subcat1"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -242,6 +247,7 @@
                           v-model="data.subcat2"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -289,6 +295,7 @@
                           v-model="data.sizename"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -300,6 +307,7 @@
                           v-model="data.specs1"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -311,6 +319,7 @@
                           v-model="data.specs2"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -322,6 +331,7 @@
                           v-model="data.specs3"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -333,6 +343,7 @@
                           v-model="data.type"
                           dense
                            :disabled="identify == 1"
+                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -381,7 +392,7 @@
               class="elevation-1"
             >
              <template v-slot:item.action="{ item , index }">
-             
+             {{chek[index]}}
              <v-checkbox
              v-model="chek[index]"
              @click="saveProperty(item.ItmsTypCod, index)"
@@ -427,11 +438,16 @@
           </v-card>
               <v-card-text>
                 {{ animatedText }}
-                <v-progress-linear
-                  indeterminate
-                  color="white"
-                  class="mb-0"
-                ></v-progress-linear>
+                 <v-progress-linear
+                  v-model="progStatus"
+                  color="blue-grey"
+                  height="25"
+                >
+                   
+                    <strong>{{ progStatus }}</strong>
+                 
+                </v-progress-linear>
+                 
               </v-card-text>
             
           </v-dialog>
@@ -482,6 +498,8 @@ export default {
         itemcode: '',
         identify: 0,
         isLoading: false,
+        progStatus: 0,
+        clearInterval: '',
        //FIELDS
        data: {
           model: '',
@@ -508,6 +526,7 @@ export default {
           type: '',
           sizes: '00.0',
           instsubamp: "00.0",
+          uniqueID: ''
        },
        checkboxStatus: [],
        ItmsTypCod: false,
@@ -578,6 +597,7 @@ export default {
     }
 
   },
+   
    created() {
     this.animateText();
   },
@@ -623,9 +643,10 @@ export default {
       
     },
     save(){
-      
-     
-   this.isLoading = true
+       this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
+       this.progress(this.data.uniqueID)
+       this.isLoading = true
+        
        const all = {
           data: this.data,
           prop: this.checkboxStatus
@@ -633,10 +654,12 @@ export default {
        axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/create", {
           all
        }).then((res)=>{
+                 
                 this.isLoading = false
                 var msg;
                 if(res.data.identify == 1){
                   msg = 'error'
+                  clearInterval(this.interval)
                 }else{
                   msg = 'success'
                 }
@@ -645,11 +668,25 @@ export default {
                 ''+text+'',
                 ''+msg+'');
                 if(res.data.identify !== 1){
-                    this.refresh();
-                    this.getFields()
+                  this.refresh();
+                  this.getFields()
+                  this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
                 } 
                
           })
+    },
+    progress(uniqueID){
+      this.interval = setInterval(() => {
+         axios.get("http://192.168.1.19:7771/api/itemmasterdata/oitm/progress?uniqueid="+uniqueID).then((res)=>{
+           this.progStatus = res.data.status +' %'
+           if(res.data.status === "100"){
+               clearInterval(this.interval)
+           }
+           
+           
+        })
+      }, 1000);
+      
     },
     saveProperty(query,index){
       this.checkboxStatus[index] = {query: query, status: this.chek[index] };
@@ -760,6 +797,7 @@ export default {
       this.properties1.forEach((item, index) => {
         this.chek[index] = item.value == 'checked'? true:false;
       });
+      console.log(this.properties1)
 
       
  
