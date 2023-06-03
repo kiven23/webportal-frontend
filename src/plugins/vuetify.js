@@ -9,7 +9,7 @@ import '@mdi/font/css/materialdesignicons.css'
 
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 var colors = false;
-Axios.get('http://192.168.1.19:8009/api/change/background').then((res)=>{
+Axios.get('http://appletronics.com.ph:8009/api/change/background').then((res)=>{
    colors = true;
 
 })

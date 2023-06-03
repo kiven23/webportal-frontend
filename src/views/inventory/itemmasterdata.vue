@@ -8,16 +8,29 @@
          
         <v-row justify="end">
           <v-col cols="12" sm="2">
+                    <v-autocomplete
+                      v-model="sortBrand"
+                      :items="manufacturer"
+                      item-text="FirmName"
+                      item-value="FirmCode"
+                      dense
+                      label="Sort Brand"
+                      style="margin-top: 10px"
+                      @change="sort()"
+                  ></v-autocomplete>
+          </v-col>
+          <!-- <v-col cols="12" sm="2">
              
             <vs-input
               v-model="searchTerm"
               @input="onSearch"
-              placeholder="Search ItemCode"
+              placeholder="Search Brand"
             />
-          </v-col>
+          </v-col> -->
+            
           <v-col cols="12" sm="2">
             <vs-button style="margin-left: 10px" @click="addItem()">
-               <span  >CREATE ITEM MASTER</span>
+               <span  >CREATE ITEM MASTER </span>
             </vs-button>
           </v-col>
         </v-row>
@@ -34,8 +47,11 @@
         :responsive="true"
       >
         <template slot="table-row" slot-scope="props">
-              <span v-if="props.column.field == 'action'">
-                <button @click="customAction(props.row)" >  <span style="color: blue; text-decoration: underline;">View</span></button>
+              <span v-if="props.column.field == 'mod'">
+                <button @click="customAction(props.row)" >   <span style="color: blue; text-decoration: underline;">{{props.row.ItemName}}</span></button>
+              </span>
+              <span v-if="props.column.field == 'brand'">
+                {{brand}}
               </span>
               <span v-else>
                 {{ props.formattedRow[props.column.field] }}
@@ -223,7 +239,8 @@
                            v-model="data.sellout"
                           dense
                           @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                          @keypress="onlyNumber"
+                       
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -234,7 +251,7 @@
                           solo
                            v-model="data.subcat1"
                           dense
-                           :disabled="identify == 1"
+                         
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -246,8 +263,21 @@
                           solo
                           v-model="data.subcat2"
                           dense
-                           :disabled="identify == 1"
+                         
                            v-uppercase
+                        ></v-text-field
+                      ></v-list-item-subtitle>
+                 </v-col>
+                  <v-col cols="12" sm="2">
+                    <v-list-item-title>Gross Dealer Price</v-list-item-title>
+                      <v-list-item-subtitle>
+                        <v-text-field
+                          solo
+                          v-model="data.grossdealerprice"
+                          @input="restrictToNumbers"
+                          @keypress="onlyNumber"
+                          dense
+                         
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -259,7 +289,8 @@
                           v-model="data.srp"
                           dense
                           @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                          @keypress="onlyNumber"
+                        
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -267,11 +298,12 @@
                   <v-list-item-title>Regular Net Cost</v-list-item-title>
                       <v-list-item-subtitle>
                         <v-text-field
-                          solo
-                          v-model="data.regnetcost"
-                          dense
-                          @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                           solo
+                           v-model="data.regnetcost"
+                           dense
+                           @input="restrictToNumbers"
+                           @keypress="onlyNumber"
+                       
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -279,11 +311,23 @@
                   <v-list-item-title>Present Net Cost</v-list-item-title>
                       <v-list-item-subtitle>
                         <v-text-field
+                           solo
+                           v-model="data.prenetcost"
+                           dense
+                           @input="restrictToNumbers"
+                           @keypress="onlyNumber"
+                          
+                        ></v-text-field
+                      ></v-list-item-subtitle>
+                 </v-col>
+                  <v-col cols="12" sm="2">
+                  <v-list-item-title>Freebies</v-list-item-title>
+                      <v-list-item-subtitle>
+                        <v-text-field
                           solo
-                          v-model="data.prenetcost"
+                          v-model="data.freebies"
                           dense
-                          @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                           
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -291,10 +335,10 @@
                   <v-list-item-title>Size Name</v-list-item-title>
                       <v-list-item-subtitle>
                         <v-text-field
-                          solo
-                          v-model="data.sizename"
-                          dense
-                           :disabled="identify == 1"
+                           solo
+                           v-model="data.sizename"
+                           dense
+                           
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -306,7 +350,7 @@
                           solo
                           v-model="data.specs1"
                           dense
-                           :disabled="identify == 1"
+                            
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -318,7 +362,7 @@
                           solo
                           v-model="data.specs2"
                           dense
-                           :disabled="identify == 1"
+                            
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -330,7 +374,7 @@
                           solo
                           v-model="data.specs3"
                           dense
-                           :disabled="identify == 1"
+                           
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -342,7 +386,7 @@
                           solo
                           v-model="data.type"
                           dense
-                           :disabled="identify == 1"
+                           
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -354,8 +398,9 @@
                           solo
                           v-model="data.sizes"
                           dense
-                          @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                           @input="restrictToNumbers"
+                           @keypress="onlyNumber"
+                            
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -363,14 +408,20 @@
                   <v-list-item-title>Inst. Subsidy Amt.</v-list-item-title>
                       <v-list-item-subtitle>
                         <v-text-field
-                          solo
-                          v-model="data.instsubamp"
-                          dense
-                          @input="restrictToNumbers"
-                           :disabled="identify == 1"
+                           solo
+                           v-model="data.instsubamp"
+                           dense
+                           @input="restrictToNumbers"
+                           @keypress="onlyNumber"
+                           
                         ></v-text-field>
                         </v-list-item-subtitle>
                  </v-col>
+                  <v-col cols="12" sm="2">
+                    <vs-button v-if="identify == 1" style="margin-left: 10px" @click="updateItem()">
+                      <span>Update Item</span>
+                    </vs-button>
+                  </v-col>
               </v-list-item-content>
            </v-list-item>
       </v-card>
@@ -500,8 +551,11 @@ export default {
         isLoading: false,
         progStatus: 0,
         clearInterval: '',
+        brand: '',
+        sortBrand: '',
        //FIELDS
        data: {
+          sortBrand: '',
           model: '',
           prodcat: '',
           itmgroup: '',
@@ -516,9 +570,11 @@ export default {
           sellout: '00.0',
           subcat1: '',
           subcat2: '',
+          grossdealerprice: '00.0',
           srp: '00.0',
           regnetcost: '00.0',
           prenetcost: '00.0',
+          freebies: '',
           sizename: '',
           specs1: '',
           specs2: '',
@@ -551,8 +607,13 @@ export default {
       columns: [
         {
           label: "Model",
-          field: "ItemName",
+          field: "mod",
         },
+        {
+          label: "Brand",
+          field: "brand",
+        },
+        
         {
           label: "Item Code",
           field: "ItemCode",
@@ -562,8 +623,8 @@ export default {
           field: "FrgnName",
         },
         {
-          label: "Action",
-          field: "action",
+          label: "Srp",
+          field: "U_srp",
         },
         
       ],
@@ -602,6 +663,55 @@ export default {
     this.animateText();
   },
   methods: {
+    updateItem(){
+       this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
+       this.progress(this.data.uniqueID)
+       this.isLoading = true
+       const all = {
+          data: this.data,
+          prop: this.checkboxStatus
+       }
+       axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/update", {
+          all
+       }).then((res)=>{
+                
+                this.isLoading = false
+                var msg;
+                if(res.data.identify == 1){
+                  msg = 'error'
+                  clearInterval(this.interval)
+                }else{
+                  msg = 'success'
+                }
+                var text = JSON.stringify(res.data);
+                this.$swal('Sync!',
+                ''+text+'',
+                ''+msg+'');
+                if(res.data.identify !== 1){
+                  this.refresh();
+                  this.getFields()
+                  this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
+                } 
+               
+          })
+    },
+    sort(){
+        axios
+        .get(
+          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
+            this.currentPage +
+            "&search=" +
+            this.sortBrand
+        )
+        .then((response) => {
+          this.brand = response.data.brand
+          this.rows = response.data.data.data;
+          this.totalRows = response.data.data.total;
+          this.currentPage = response.data.data.current_page;
+          this.perPage = response.data.data.per_page;
+        });
+      return "";
+    },
     animateText() {
       setInterval(() => {
         this.dots += "*";
@@ -639,6 +749,9 @@ export default {
       }
       if(this.data.sellout == ""){
             this.data.sellout = "00.0"
+      }
+       if(this.data.grossdealerprice == ""){
+            this.data.grossdealerprice = "00.0"
       }
       
     },
@@ -679,13 +792,11 @@ export default {
       this.interval = setInterval(() => {
          axios.get("http://192.168.1.19:7771/api/itemmasterdata/oitm/progress?uniqueid="+uniqueID).then((res)=>{
            this.progStatus = res.data.status +' %'
-           if(res.data.status === "100"){
+           if(Math.round(res.data.status) === 100){
                clearInterval(this.interval)
            }
-           
-           
         })
-      }, 1000);
+      }, 2000);
       
     },
     saveProperty(query,index){
@@ -726,9 +837,11 @@ export default {
           sellout: '00.0',
           subcat1: '',
           subcat2: '',
+          grossdealerprice: '00.0',
           srp: '00.0',
           regnetcost: '00.0',
           prenetcost: '00.0',
+          freebies: '',
           sizename: '',
           specs1: '',
           specs2: '',
@@ -749,10 +862,10 @@ export default {
             this.searchTerm
         )
         .then((response) => {
-          this.rows = response.data.data;
-          this.totalRows = response.data.total;
-          this.currentPage = response.data.current_page;
-          this.perPage = response.data.per_page;
+          this.rows = response.data.data.data;
+          this.totalRows = response.data.data.total;
+          this.currentPage = response.data.data.current_page;
+          this.perPage = response.data.data.per_page;
         });
       return "";
     },
@@ -761,6 +874,8 @@ export default {
       this.identify = 1
       this.dialog = true
       this.data = {
+          grossdealerprice:  row.U_GDP,
+          freebies: row.U_Freebies,
           model: row.ItemName,
           prodcat: row.FrgnName,
           itmgroup: parseInt(row.ItmsGrpCod),
@@ -811,15 +926,25 @@ export default {
       // make a request to the server for the data
       axios
         .get(
-          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
-            pageInfo.currentPage
+          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand
         )
         .then((response) => {
-          this.rows = response.data.data;
-          this.totalRows = response.data.total;
+          this.rows = response.data.data.data;
+          this.totalRows = response.data.data.total;
           this.currentPage = pageInfo.current_page;
           this.perPage = pageInfo.per_page;
         });
+    },
+       onlyNumber($event) {
+     
+       
+      //console.log($event.keyCode); //keyCodes value
+      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+      if ((keyCode < 48 || keyCode > 57)) {
+        // 46 is dot
+        $event.preventDefault();
+      }
+
     },
   },
   mounted() {
