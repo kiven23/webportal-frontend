@@ -8,7 +8,8 @@
          
         <v-row justify="end">
           <v-col cols="12" sm="2">
-                    <v-autocomplete
+               
+                   <v-autocomplete
                       v-model="sortBrand"
                       :items="manufacturer"
                       item-text="FirmName"
@@ -16,8 +17,12 @@
                       dense
                       label="Sort Brand"
                       style="margin-top: 10px"
+                      
                       @change="sort()"
                   ></v-autocomplete>
+
+              
+                     
           </v-col>
           <!-- <v-col cols="12" sm="2">
              
@@ -36,8 +41,12 @@
         </v-row>
       </template>
       <!-- <input type="text" v-model="searchTerm" @input="onSearch" >   -->
+      <v-skeleton-loader
+      class="mx-auto"
+       type="table-heading, list-item-two-line, image, table-tfoot"
+      :loading="loadingForTable"
+      >
       <vue-good-table
-      
         :columns="columns"
         :rows="rows"
         :totalRows="totalRows"
@@ -58,6 +67,7 @@
               </span>
             </template>
       </vue-good-table>
+      </v-skeleton-loader>
     </v-card>
     <v-dialog
       v-model="dialog"
@@ -82,6 +92,64 @@
            <v-subheader>Item Master Data</v-subheader>
           <v-list-item>
             <v-list-item-content>
+                  <v-col cols="12" sm="2" v-if="identify == 0">
+                  <v-list-item-title>Database</v-list-item-title>
+                      <v-list-item-subtitle>
+                      <v-container fluid style="display: flex; flex-direction: column; gap: 0; ">
+                       
+                      <v-checkbox
+                        style="margin: -12px;"
+                        v-model="databases"
+                        label="ReportsOptn"
+                        dense
+                        value="ReportsOptn"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="SteadfordReports"
+                        value="SteadfordReports"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="OutexcelReports"
+                        value="OutexcelReports"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="AppliantechReports"
+                        value="AppliantechReports"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="ElectroloopReports"
+                        value="ElectroloopReports"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="ThreathonsReports"
+                        value="ThreathonsReports"
+                      ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="PanApplianceReports"
+                        value="PanApplianceReports"
+                      ></v-checkbox>
+
+                    </v-container>
+                    </v-list-item-subtitle>
+                  </v-col>
                  <v-col cols="12" sm="2">
                   <v-list-item-title>Model</v-list-item-title>
                       <v-list-item-subtitle>
@@ -536,6 +604,8 @@ export default {
   },
   data() {
     return {
+         loadingForTable: false,
+         databases: [],
          chek: [],
          text: "Connecting to SAP B1 Integration",
          dots: "",
@@ -664,6 +734,7 @@ export default {
   },
   methods: {
     updateItem(){
+        
        this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
        this.progress(this.data.uniqueID)
        this.isLoading = true
@@ -674,28 +745,30 @@ export default {
        axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/update", {
           all
        }).then((res)=>{
-                
+                clearInterval(this.interval)
+                this.data.uniqueID = ''
                 this.isLoading = false
                 var msg;
                 if(res.data.identify == 1){
                   msg = 'error'
-                  clearInterval(this.interval)
                 }else{
                   msg = 'success'
                 }
                 var text = JSON.stringify(res.data);
-                this.$swal('Sync!',
+                this.$swal('Update Sync!',
                 ''+text+'',
                 ''+msg+'');
                 if(res.data.identify !== 1){
                   this.refresh();
                   this.getFields()
                   this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
+                  this.dialog = false;
                 } 
                
           })
     },
     sort(){
+        this.loadingForTable = true
         axios
         .get(
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
@@ -709,6 +782,7 @@ export default {
           this.totalRows = response.data.data.total;
           this.currentPage = response.data.data.current_page;
           this.perPage = response.data.data.per_page;
+          this.loadingForTable = false
         });
       return "";
     },
@@ -756,23 +830,29 @@ export default {
       
     },
     save(){
-       this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
+      if(this.databases.length == 0){
+                this.$swal("No Database selected", "Please select database", "error");
+
+       }else{
+         this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
        this.progress(this.data.uniqueID)
        this.isLoading = true
         
        const all = {
           data: this.data,
-          prop: this.checkboxStatus
+          prop: this.checkboxStatus,
+          database: this.databases
        }
        axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/create", {
           all
        }).then((res)=>{
-                 
+                clearInterval(this.interval)
+                this.data.uniqueID = ''
                 this.isLoading = false
                 var msg;
                 if(res.data.identify == 1){
                   msg = 'error'
-                  clearInterval(this.interval)
+                  
                 }else{
                   msg = 'success'
                 }
@@ -781,12 +861,15 @@ export default {
                 ''+text+'',
                 ''+msg+'');
                 if(res.data.identify !== 1){
+                  
                   this.refresh();
                   this.getFields()
                   this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
                 } 
                
           })
+       }
+       
     },
     progress(uniqueID){
       this.interval = setInterval(() => {
