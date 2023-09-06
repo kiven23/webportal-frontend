@@ -933,12 +933,12 @@ export default {
       this.$v.$touch();
       if (this.editedIndex === -1) {
         this.$store.dispatch("digitized/storeCDR", this.uploadData);
-        this.refreshData();
+        
       } else {
         this.$store.dispatch("digitized/updateCDR", this.uploadData);
-        this.refreshData();
+        
       }
-      this.refreshData();
+       
       console.log(this.uploadData)
     },
   },

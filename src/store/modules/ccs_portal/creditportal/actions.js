@@ -6,11 +6,12 @@ import rootUrl from "../../../rootUrl";
 const fetchUrl = rootUrl + "/api/public/credit/standing/index";
 const generateUrl = rootUrl + "/api/public/credit/standing/generate";
 const actions = {
-  fetchCreditStanding(context) {
-      context.commit("LOADING_STATUS", true, { root: true }); // start loading
-        axios.get(fetchUrl).then(response => {
-          context.commit("GET_CREDITSTANDING", response.data);
-          context.commit("LOADING_STATUS", false, { root: true });
+  fetchCreditStanding(context ,data) {
+      
+     return   axios.get(fetchUrl+'?page='+data.page+'&search='+data.search).then(response => {
+                return response
+          //context.commit("GET_CREDITSTANDING", response.data);
+         // context.commit("LOADING_STATUS", false, { root: true });
         });
   },
   GenerateCreditStanding(context, data){

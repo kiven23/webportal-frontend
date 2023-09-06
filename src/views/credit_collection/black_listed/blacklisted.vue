@@ -1,27 +1,29 @@
 <template>
   <div>
     <v-container grid-list-md text-xs-center>
+ 
       <v-data-table
         v-model="selected"
         :headers="headers"
-        :items="blacklisted_data"
+        :items="blacklisted_data.customer"
         :search="search"
         :loading="loadingStatus"
         class="elevation-1"
       >
+     
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>Black Listed Customer</v-toolbar-title>
+            <v-toolbar-title>Black Listed Customer  {{blacklisted_data.fromto}}</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
 
-            <v-tooltip bottom>
+            <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn text icon v-on="on" @click="openDialog"
                   ><v-icon>mdi-plus-circle</v-icon></v-btn
                 >
               </template>
               <span>Add</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -55,14 +57,14 @@
               <span>Export</span>
             </v-tooltip>  -->
 
-            <v-tooltip bottom>
+            <!-- <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn text icon v-on="on" @click="refreshData">
                   <v-icon>mdi-refresh</v-icon>
                 </v-btn>
               </template>
               <span>Refresh</span>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
             <v-text-field
@@ -105,7 +107,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog> -->
-      <v-dialog v-model="create" width="800">
+      <v-dialog v-model="create" width="600">
         <v-card>
           <v-card-title class="text-h5 dark lighten-2">
             Select Branch and Date
@@ -130,14 +132,14 @@
               <v-date-picker v-model="dates_regular" class="ma-4" range>
               </v-date-picker>
             </v-col>
-            <v-col cols="12" sm="6">
+            <!-- <v-col cols="12" sm="6">
                
               <v-autocomplete
                 v-model="branch"
                 :loading="loadingStatus"
                 :items="branches"
-                item-value="Name"
-                item-text="Name"
+                item-value="U_Series2"
+                item-text="U_Series2"
                 return-object
                 dense
                 label="Select Branch"
@@ -147,13 +149,13 @@
                 solo
                 class="mt-10 mr-5"
               ></v-autocomplete>
-            </v-col>
+            </v-col> -->
           </v-row>
           <v-divider></v-divider>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="generate"> Generate </v-btn>
+            <v-btn color="primary" text @click="generate"> Sync </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -178,7 +180,7 @@ export default {
   data() {
     return {
       branch: '',
-      dates_regular: ["2019-09-10", "2019-09-20"],
+      dates_regular: ["2023-01-01", "2024-01-01"],
       create: false,
       reveal: false,
       search: "",
@@ -187,10 +189,10 @@ export default {
       loading: false,
       submitDisable: true,
       headers: [
-         { text: "BRANCH", align: "left", value: "Branch" },
-        { text: "CUSTOMER NAME", align: "left", value: "Customer Name" },
-        { text: "ADDRESS", align: "left", value: "Address" },
-        { text: "UNPAID BALANCE", align: "left", value: "Balance" },
+         { text: "BRANCH", align: "left", value: "branch" },
+        { text: "CUSTOMER NAME", align: "left", value: "customername" },
+        { text: "ADDRESS", align: "left", value: "address" },
+        { text: "UNPAID BALANCE", align: "left", value: "balance" },
         // { text: "Actions", align: "center", value: "action", sortable: false },
       ],
     };
@@ -199,7 +201,7 @@ export default {
     ...mapGetters({
         blacklisted_data: "blacklisted/getBlackListed",
         permissions: "userPermissions/getPermission",
-        branches: "blacklisted/getBranchSegment",
+        branches: "blacklisted/getBranchSeries",
     }),
     // deleteAll() {
     //   return this.permissions.includes("Delete Agencies File");
@@ -230,7 +232,7 @@ export default {
   },
   created() {
     this.$store.dispatch("blacklisted/fetchBlackListed");
-    this.$store.dispatch("blacklisted/fetchBranchSegment");
+    this.$store.dispatch("blacklisted/fetchBranchSeries");
     this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {

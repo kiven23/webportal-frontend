@@ -2,7 +2,9 @@ import actions from "./actions";
 
 const state = {
   blacklisted_data: [],
-  segment_data: []
+  segment_data: [],
+  series_data: [],
+ 
 };
 
 const getters = {
@@ -12,6 +14,10 @@ const getters = {
   getBranchSegment(state) {
     return state.segment_data
   },
+  getBranchSeries(state) {
+    return state.series_data
+  },
+ 
  
 };
 const mutations = {
@@ -20,6 +26,9 @@ const mutations = {
   },
   GET_SEGMENT(state, payload) {
     state.segment_data = payload;
+  },
+  GET_SERIES(state, payload) {
+    state.series_data = payload;
   },
  
 };

@@ -58,13 +58,14 @@ const actions = {
           let payload = [
             {
               status: true,
-              message: "New Agencies Land Docs successfully added.",
+              message: "New Customer Requirement successfully added.",
               timeout: 3000
             }
           ];
          context.commit("SNACKBAR_STATUS", payload, { root: true }); // show snackbar
         })
         .catch(error => {
+          alert("All fields are required. Please fill up all fields.")
           context.commit("PERM_ERROR", error.response.data); // get error from backend
           context.commit("LOADING_STATUS", false, { root: true }); // stop loading
         });

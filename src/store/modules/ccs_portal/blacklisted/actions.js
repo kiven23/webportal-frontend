@@ -4,13 +4,31 @@ import rootUrl from "../../../rootUrl";
 const uploadUrl = rootUrl + "/api/blacklisted/upload";
 
 const segment = rootUrl + "/api/public/branch/segment";
+
+const series = rootUrl + "/api/public/branch/series";
 const search = rootUrl + "/api/blacklisted/search";
+const blacklisted = rootUrl + "/api/blacklisted/index";
 const actions = {
  
   fetchBranchSegment(context) {
     context.commit("LOADING_STATUS", true, { root: true }); // start loading
     axios.get(segment).then(response => {
       context.commit("GET_SEGMENT", response.data);
+      context.commit("LOADING_STATUS", false, { root: true });
+    });
+  },
+  fetchBranchSeries(context) {
+    context.commit("LOADING_STATUS", true, { root: true }); // start loading
+    axios.get(series).then(response => {
+      context.commit("GET_SERIES", response.data);
+      context.commit("LOADING_STATUS", false, { root: true });
+    });
+  },
+  fetchBlackListed(context, data) {
+    
+    context.commit("LOADING_STATUS", true, { root: true }); // start loading
+    axios.get(blacklisted).then(response => {
+      context.commit("GET_BLACKLISTED", response.data);
       context.commit("LOADING_STATUS", false, { root: true });
     });
   },

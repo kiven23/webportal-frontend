@@ -1,85 +1,34 @@
 <template>
   <div>
     <v-container grid-list-md text-xs-center>
-      <v-data-table
-        v-model="selected"
-        :headers="headers"
-        :items="creditstanding_data"
-        :search="search"
-        :loading="loadingStatus"
-        class="elevation-1"
-      >
-        <template v-slot:top>
-          <v-toolbar flat>
-            <v-toolbar-title>Credit Standing</v-toolbar-title>
-            <v-divider class="mx-4" inset vertical></v-divider>
-
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn text icon v-on="on" @click="openDialog"
-                  ><v-icon>mdi-plus-circle</v-icon></v-btn
-                >
-              </template>
-              <span>Add</span>
-            </v-tooltip>
-
-
-            <!-- <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  :disabled="!selected.length > 0"
-                  text
-                  icon
-                  v-on="on"
-                  @click="deleteAgency"
-                  ><v-icon>delete</v-icon></v-btn
-                >
-              </template>
-              <span>Delete</span>
-            </v-tooltip> -->
-
-            <!-- <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn text icon v-on="on"><v-icon>print</v-icon></v-btn>
-              </template>
-              <span>Print</span>
-            </v-tooltip> -->
-
-            <!-- <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <json-excel :data="providers">
-                  <v-btn text icon v-on="on"
-                    ><v-icon>mdi-file-export</v-icon></v-btn
-                  >
-                </json-excel>
-              </template>
-              <span>Export</span>
-            </v-tooltip>  -->
-
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn text icon v-on="on" @click="refreshData">
-                  <v-icon>mdi-refresh</v-icon>
-                </v-btn>
-              </template>
-              <span>Refresh</span>
-            </v-tooltip>
-        
-                 <h6>REGULAR CUSTOMER: <i  style="color: green;"> {{dates_regular[0]}} from {{dates_regular[1]}}</i> <br>LEGAL CUSTOMER: <i  style="color: green;">{{dates_legal[0]}} from {{dates_legal[1]}}</i> </h6> 
+       <template>
+ 
+          <v-col cols="12" sm="2">
              
-    
-
-            <v-spacer></v-spacer>
-            <v-text-field
+            <vs-input
               v-model="search"
-              append-icon="search"
-              label="Search"
-              single-line
-              hide-details
-            ></v-text-field>
-          </v-toolbar>
-        </template>
-      </v-data-table>
+              @input="onSearch"
+              placeholder="Customer Name"
+            />
+          </v-col>
+            
+          <!-- <v-col cols="12" sm="2">
+            <vs-button style="margin-left: 10px" @click="addItem()">
+               <span  >CREATE ITEM MASTER </span>
+            </vs-button>
+          </v-col> -->
+        
+      </template>
+    <vue-good-table
+      :columns="columns"
+      :rows="rows"
+      :totalRows="totalRows"
+      :pagination-options="{ enabled: true, perPage: perPage }"
+      :mode="'server'"
+      @on-page-change="onPageChange"
+      :responsive="true"
+      class="custom-table"
+    ></vue-good-table>
       <v-dialog v-model="create" width="800">
         <v-card>
           <v-card-title class="text-h5 dark lighten-2">
@@ -116,7 +65,7 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="generate"> Generate </v-btn>
+            <v-btn color="primary" text @click="generate" > Generate </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -140,29 +89,36 @@ export default {
 
   data() {
     return {
-      dates_regular: ["2019-09-10", "2019-09-20"],
-      dates_legal: ["2019-09-10", "2019-09-20"],
+       columns: [
+        { label: "CATEGORY", field: "category" },
+        { label: "BRANCH", field: "branch" },
+        { label: "CUSTOMER NAME", field: "cardname" },
+        { label: "BIRTHDAY", field: "bday" },
+        { label: "REBATE", field: "rebate" },
+        { label: "TERMS", field: "terms" },
+        { label: "PAID MOUNT", field: "paidamoun" },
+        { label: "DOC TOTAL", field: "doctotal" },
+        { label: "BALANCE", field: "balance" },
+        { label: "CRITERIA", field: "criteria" },
+        // { text: "Actions", align: "center", value: "action", sortable: false },
+      ],
+      rows: [],
+      totalRows: 0,
+      currentPage: 1,
+      perPage:7,
+      search: '',
+
+      dates_regular: ["2022-01-01", "2019-09-20"],
+      dates_legal: ["2022-01-01", "2019-09-20"],
       creditstandingData: [],
       create: false,
       reveal: false,
-      search: "",
+       
       selected: [],
       loader: null,
       loading: false,
       submitDisable: true,
-      headers: [
-        { text: "CATEGORY", align: "left", value: "Category" },
-        { text: "BRANCH", align: "left", value: "Branch" },
-        { text: "CUSTOMER NAME", align: "left", value: "Cardname" },
-        { text: "BIRTHDAY", align: "left", value: "Bday" },
-        { text: "REBATE", align: "left", value: "Rebate" },
-        { text: "TERMS", align: "left", value: "Terms" },
-        { text: "PAID MOUNT", align: "left", value: "Paid Amoun" },
-        { text: "DOC TOTAL", align: "left", value: "DocTotal" },
-        { text: "BALANCE", align: "left", value: "Balance" },
-        { text: "CRITERIA", align: "left", value: "Criteria" },
-        // { text: "Actions", align: "center", value: "action", sortable: false },
-      ],
+ 
     };
   },
   computed: {
@@ -191,6 +147,7 @@ export default {
     loadingStatus() {
       return this.$store.state.loading;
     },
+ 
   },
   watch: {
     providers() {
@@ -199,27 +156,53 @@ export default {
   },
   created() {
     this.$store.dispatch("userPermissions/fetchPermission");
+        // Parse the dates in the array to JavaScript Date objects
+    const parsedDates = this.dates_regular.map((date) => new Date(date));
+    // Findthe latest date from the array
+    const latestDate = new Date();
+ 
+    // Convert the latest date back to "yyyy-MM-dd" format
+    const latestDateString = latestDate.toISOString().slice(0, 10);
+    
+    // Find the index of "2019-09-20" in the array and update it with the latest date
+    const indexOfOldDate = this.dates_regular.indexOf("2019-09-20");
+    if (indexOfOldDate !== -1) {
+      this.dates_regular.splice(indexOfOldDate, 1, latestDateString);
+      this.dates_legal.splice(indexOfOldDate, 1, latestDateString)
+    }
+
+    this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
   },
   methods: {
-    refreshData() {
-      let dates = {
-        regular: this.dates_regular,
-        legal: this.dates_legal,
-      };
 
-      this.$store.dispatch("creditstanding/GenerateCreditStanding", dates);
+     onPageChange(pageInfo) {
+         var data = {
+          page: pageInfo.currentPage,
+          search:  this.search
+        }
+        this.$store.dispatch("creditstanding/fetchCreditStanding", data).then((response)=>{
+            this.rows = response.data.data.data;
+            this.totalRows = response.data.data.total;
+         
+            this.currentPage = pageInfo.current_page;
+            this.perPage = pageInfo.per_page;
+        })
+        
+     
     },
-    openDialog() {
-      this.create = true;
-    },
-    generate() {
-      let dates = {
-        regular: this.dates_regular,
-        legal: this.dates_legal,
-      };
-      this.$store.dispatch("creditstanding/GenerateCreditStanding", dates);
-      this.create = false;
-    },
+    onSearch(){
+        var data = {
+          page: this.currentPage,
+          search:  this.search
+        }
+        this.$store.dispatch("creditstanding/fetchCreditStanding", data).then((response)=>{
+          this.rows = response.data.data.data;
+          this.totalRows = response.data.data.total;
+          this.currentPage = response.data.data.current_page;
+          this.perPage = response.data.data.per_page;
+         
+        })
+    }
   },
 };
 </script>
@@ -260,4 +243,35 @@ export default {
     transform: rotate(360deg);
   }
 }
+  .custom-table {
+    font-family: Nunito, sans-serif; /* Use the desired font */
+    font-size: 2px; /* Customize the font size */
+   
+    /* Add any other custom styling you want, such as background colors, etc. */
+  }
+   /* Style the table header (th) */
+  .custom-table thead th  {
+    
+    font-size: 15px;
+    padding: 1px; /* Add padding to the header cells */
+    text-align: left; /* Align the header text to the left */
+  }
+
+  /* Style the table body (td) */
+  .custom-table tbody tr  {
+    border: 2px solid #b19c9c; /* Add a border to the body cells */
+    padding: 1px; /* Add padding to the body cells */
+    font-size: 10px;
+    font-family: Nunito, sans-serif;
+  }
+  div .vgt-clearfix{
+    padding: 2px; /* Add padding to the body cells */
+    font-size: 5px;
+     
+  }
+ .vs-input{
+     padding: 2px; /* Add padding to the body cells */
+    font-size: 10px;
+      
+  }
 </style>

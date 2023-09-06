@@ -3,7 +3,11 @@
      <v-breadcrumbs :items="breadcrumbs"></v-breadcrumbs>
            
     <v-card class="mx-auto">
-      
+        <v-skeleton-loader
+      class="mx-auto"
+       type="table-heading, list-item-two-line, image, table-tfoot"
+      :loading="loadingForTable"
+      >
       <template>
          
         <v-row justify="end">
@@ -24,14 +28,14 @@
               
                      
           </v-col>
-          <!-- <v-col cols="12" sm="2">
+          <v-col cols="12" sm="2">
              
             <vs-input
-              v-model="searchTerm"
+              v-model="searchTerm2"
               @input="onSearch"
               placeholder="Search Brand"
             />
-          </v-col> -->
+          </v-col>
             
           <v-col cols="12" sm="2">
             <vs-button style="margin-left: 10px" @click="addItem()">
@@ -41,11 +45,7 @@
         </v-row>
       </template>
       <!-- <input type="text" v-model="searchTerm" @input="onSearch" >   -->
-      <v-skeleton-loader
-      class="mx-auto"
-       type="table-heading, list-item-two-line, image, table-tfoot"
-      :loading="loadingForTable"
-      >
+    
       <vue-good-table
         :columns="columns"
         :rows="rows"
@@ -146,6 +146,13 @@
                         label="PanApplianceReports"
                         value="PanApplianceReports"
                       ></v-checkbox>
+                       <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="EasyToOwnReports"
+                        value="EasyToOwnReports"
+                      ></v-checkbox>
 
                     </v-container>
                     </v-list-item-subtitle>
@@ -157,7 +164,7 @@
                           solo
                           v-model="data.model"
                           dense
-                          :disabled="identify == 1"
+                           
                           v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -169,7 +176,7 @@
                           solo
                           v-model="data.prodcat"
                           dense
-                           :disabled="identify == 1"
+                           
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -185,7 +192,7 @@
                             dense
                             filled
                             label="Filled"
-                             :disabled="identify == 1"
+                              
                           ></v-autocomplete>
                         </v-list-item-subtitle>
                  </v-col>
@@ -195,7 +202,7 @@
                          <v-checkbox
                           v-model="data.withHtaxt"
                           style="margin-left: 20px;"
-                           :disabled="identify == 1"
+                           
                         ></v-checkbox>
                          </v-list-item-subtitle>
                  </v-col>
@@ -210,7 +217,7 @@
                             dense
                             filled
                             label="Filled"
-                             :disabled="identify == 1"
+                             
                           ></v-autocomplete>
                          </v-list-item-subtitle>
                  </v-col>
@@ -223,7 +230,7 @@
                                 label="Select"
                                 solo
                                 dense
-                                 :disabled="identify == 1"
+                                  
                               ></v-select>
                          </v-list-item-subtitle>
                  </v-col>
@@ -238,7 +245,7 @@
                             dense
                             filled
                             label="Filled"
-                             :disabled="identify == 1 || managebyserial !== true"
+                             :disabled="managebyserial !== true"
                           ></v-autocomplete>
                         </v-list-item-subtitle>
                  </v-col>
@@ -253,8 +260,7 @@
                             dense
                             filled
                             label="Filled"
-                             :disabled="identify == 1"
-                               @change="handleAutocompleteChange"
+                            @change="handleAutocompleteChange"
                           ></v-autocomplete>
                        </v-list-item-subtitle>
                  </v-col>
@@ -266,7 +272,7 @@
                           v-model="data.purchaseuom"
                           placeholder="UNIT"
                           dense
-                           :disabled="identify == 1"
+                            
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -279,7 +285,20 @@
                            placeholder="UNIT"
                            v-model="data.inventoryoum"
                           dense
-                           :disabled="identify == 1"
+                           
+                           v-uppercase
+                        ></v-text-field
+                      ></v-list-item-subtitle>
+                 </v-col>
+                                  <v-col cols="12" sm="2">
+                  <v-list-item-title>Sales UoM</v-list-item-title>
+                      <v-list-item-subtitle>
+                        <v-text-field
+                          solo
+                           placeholder="UNIT"
+                           v-model="data.salesoum"
+                          dense
+                           
                            v-uppercase
                         ></v-text-field
                       ></v-list-item-subtitle>
@@ -371,8 +390,8 @@
                            dense
                            @input="restrictToNumbers"
                            @keypress="onlyNumber"
-                       
-                        ></v-text-field
+                            
+                        > </v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
                  <v-col cols="12" sm="2">
@@ -511,7 +530,7 @@
               class="elevation-1"
             >
              <template v-slot:item.action="{ item , index }">
-             {{chek[index]}}
+             <!-- {{chek[index]}} -->
              <v-checkbox
              v-model="chek[index]"
              @click="saveProperty(item.ItmsTypCod, index)"
@@ -575,6 +594,7 @@
 </template>
 
 <script>
+var oldmodel;
 import { validationMixin } from "vuelidate";
 import {
   required,
@@ -604,7 +624,7 @@ export default {
   },
   data() {
     return {
-         loadingForTable: false,
+         loadingForTable: true,
          databases: [],
          chek: [],
          text: "Connecting to SAP B1 Integration",
@@ -625,6 +645,7 @@ export default {
         sortBrand: '',
        //FIELDS
        data: {
+          oldmodels:  '',
           sortBrand: '',
           model: '',
           prodcat: '',
@@ -637,6 +658,7 @@ export default {
           prevendor: '',
           purchaseuom: '',
           inventoryoum: '',
+          salesoum: '',
           sellout: '00.0',
           subcat1: '',
           subcat2: '',
@@ -696,6 +718,18 @@ export default {
           label: "Srp",
           field: "U_srp",
         },
+        {
+          label: "GDP",
+          field: "U_GDP",
+        },
+         {
+          label: "RNC",
+          field: "U_RegNC",
+        },
+         {
+          label: "PNC",
+          field: "U_PresentNC",
+        },
         
       ],
       rows: [],
@@ -703,9 +737,10 @@ export default {
       currentPage: 1,
       perPage:7,
       searchTerm: "",
+      searchTerm2: ""
     };
   },
-
+ 
   computed: {
     animatedText() {
       return this.text + this.dots;
@@ -734,7 +769,7 @@ export default {
   },
   methods: {
     updateItem(){
-        
+       
        this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
        this.progress(this.data.uniqueID)
        this.isLoading = true
@@ -774,7 +809,7 @@ export default {
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
             this.currentPage +
             "&search=" +
-            this.sortBrand
+            this.sortBrand + "&search2=2"
         )
         .then((response) => {
           this.brand = response.data.brand
@@ -794,7 +829,7 @@ export default {
         }
       }, 500); // Adjust the interval as needed
     },
-        handleAutocompleteChange() {
+    handleAutocompleteChange() {
       const selectedValue = this.data.preferredvendor;
       const selectedVendor = this.preferredv.find(
         (vendor) => vendor.CardCode === selectedValue
@@ -891,13 +926,17 @@ export default {
       this.itempropr = true;
     },
     getFields(){
+      this.loadingForTable = true
       axios.get("http://192.168.1.19:7771/api/itemmasterdata/oitm/fields").then((res)=>{
           this.manufacturer = res.data.firmcode
           this.preferredv = res.data.preferredv
           this.itemgroup = res.data.oitb
           this.warrantyT = res.data.warrantyt
           this.properties1 = res.data.oitg
-      })
+          this.loadingForTable = false
+      }).catch((error) => {
+           this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
+  });
     },
     addItem() {
       this.identify = 0
@@ -937,12 +976,13 @@ export default {
       this.itemcode = ''
     },
     onSearch() {
+     
       axios
         .get(
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
             this.currentPage +
             "&search=" +
-            this.searchTerm
+             this.sortBrand + "&search2=" + this.searchTerm2
         )
         .then((response) => {
           this.rows = response.data.data.data;
@@ -953,10 +993,14 @@ export default {
       return "";
     },
     customAction(row) {
+      
+      oldmodel = row.ItemName
+      
       this.itemcode = 'ITEMCODE: '+row.ItemCode
       this.identify = 1
       this.dialog = true
       this.data = {
+          oldmodels: oldmodel,
           grossdealerprice:  row.U_GDP,
           freebies: row.U_Freebies,
           model: row.ItemName,
@@ -969,6 +1013,7 @@ export default {
           preferredvendor: row.CardCode,
           purchaseuom: row.BuyUnitMsr,
           inventoryoum: row.InvntryUom,
+          salesoum: row.SalUnitMsr,
           sellout: row.U_BA_LVAFrom,
           subcat1: row.U_U_Subcat1,
           subcat2: row.U_U_Subcat2,
@@ -995,8 +1040,9 @@ export default {
       this.properties1.forEach((item, index) => {
         this.chek[index] = item.value == 'checked'? true:false;
       });
-      console.log(this.properties1)
-
+       
+      this.handleAutocompleteChange()
+      
       
  
       // Perform your custom action here
@@ -1009,7 +1055,7 @@ export default {
       // make a request to the server for the data
       axios
         .get(
-          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand
+          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand + "&search2=" + this.searchTerm2
         )
         .then((response) => {
           this.rows = response.data.data.data;
@@ -1022,11 +1068,11 @@ export default {
      
        
       //console.log($event.keyCode); //keyCodes value
-      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
-      if ((keyCode < 48 || keyCode > 57)) {
-        // 46 is dot
-        $event.preventDefault();
-      }
+     let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+        if ((keyCode < 48 || keyCode > 57) && keyCode !== 44 && keyCode !== 46) {
+          // 46 is dot, 44 is comma
+          $event.preventDefault();
+        }
 
     },
   },
