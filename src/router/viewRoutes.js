@@ -83,6 +83,10 @@ import sapreports_incoming_payment_openbalance from "../views/sap_reports/incomi
 import itemmasterdata from "../views/inventory/itemmasterdata.vue";
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
+//Motorpool 
+  //TOLLWAYS MONITORING
+  import monitoring from "../views/motorpool/tollway/monitoring.vue";
+  import tollwaysupload from "../views/motorpool/tollway/upload.vue";
 
 
 const viewRoutes = [
@@ -488,6 +492,24 @@ const viewRoutes = [
     }
   },
   
+  //MOTORPOOL MONITORING TOLLWAYS
+  {
+    path: "/expressway/monitoring",
+    component: monitoring,
+    name: "tollwaysmonitoring",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/expressway/upload",
+    component: tollwaysupload,
+    name: "tollwaysupload",
+    meta: {
+      requiresAuth: true
+    }
+  },
+
 
 ];
 export default viewRoutes;
