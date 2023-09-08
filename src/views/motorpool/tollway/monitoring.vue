@@ -17,20 +17,59 @@
             :search="search"
             >
             <template v-slot:item.action="{ item }">
-                           <div class="my-2">
-                                <v-btn
-                                x-small
-                                color="secondary"
-                                dark
-                                @click="view(item.uid)"
-                                >
-                               View
-                                </v-btn>
-                            </div>
+                <div class="my-2">
+                <v-btn
+                    x-small
+                    color="secondary"
+                    dark
+                    @click="view(item.uid, item.asof)"
+                    >
+                    View
+                </v-btn>
+                </div>
              </template>
             
             </v-data-table>
         </v-card>
+        <v-dialog
+              v-model="printDialog"
+              fullscreen
+              hide-overlay
+              transition="dialog-bottom-transition"
+            >
+
+              <v-card>
+                <v-toolbar
+                  dark
+                  style="background-color: #1b4475"
+                >
+                  <v-btn
+                    icon
+                    dark
+                    @click="printDialog = false"
+                  >
+                    <v-icon style="color: white">mdi-close</v-icon>
+                  </v-btn>
+                  <v-toolbar-title style="color: white">ExpressWay Usage Print Preview</v-toolbar-title>
+                  <v-spacer></v-spacer>
+        
+                </v-toolbar>
+        
+                <v-divider></v-divider>
+                <iframe  :src="link"  ref="myiframe"  style="width: 100%; height: 1000px;" title="Searching of Vehicle Parts PrintPreview">
+                
+                
+
+                </iframe> 
+                <v-skeleton-loader
+                    v-if="iden == 0"
+                    max-height="100%"
+                    max-width="100%"
+                    
+                    type="card"
+                ></v-skeleton-loader>
+      </v-card>
+    </v-dialog>
     </v-container>
   </div>
 </template>
@@ -41,13 +80,15 @@ import { mapGetters } from "vuex";
 
 import { validationMixin } from "vuelidate";
 import { required } from "vuelidate/lib/validators";
- 
+
 
 export default {
  
   data() {
-    return {
-      search: '',
+    return { 
+        printDialog: false,
+        search: '',
+        link: '',
         headers: [
           {
             text: 'UID',
@@ -61,24 +102,26 @@ export default {
           { text: 'ACTION', value: 'action' },
           
         ],
-        data: [
-            {   "id": 1,
-                "uid": "5a6acf1b7eca9535f3d0755f3963ff57",
-                "pdfname": "sample.pdf",
-                "path": "local/path/sample.pdf",
-                "asof": "2023-08-02 -> 2023-08-16",
-                "created_at": "2023-09-07 11:11:48",
-                "updated_at": "2023-09-07 11:11:48"}
+        data: [  
         ]
     };
   },
 
   
   created() {
-  
+      this.$store.dispatch("motorpool_expressway/monitoring").then((res)=>{
+          this.data = res.data
+      })
   },
 
   methods: { 
+    view(map, asof){
+       const date = btoa(asof)
+       this.link = 'http://192.168.1.19:7771/api/expressway/monitoring/view?map='+map+'&query='+date
+      
+       this.printDialog = true
+        
+    }
 
   }
 };
