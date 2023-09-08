@@ -1,6 +1,14 @@
 <template>
   <div>
     <v-container grid-list-md text-xs-center>
+        <v-btn
+          color="primary"
+          dark
+          @click="openUploadDialog()"
+          style="margin: 10px;"
+        >
+         UPLOAD
+        </v-btn>
        <v-card>
             <v-card-title>
             <v-text-field
@@ -70,6 +78,44 @@
                 ></v-skeleton-loader>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="uploadDialog"
+      persistent
+      max-width="290"
+    >
+     
+      <v-card>
+        <v-card-title class="text-h5">
+          Upload PDF 
+        </v-card-title>
+        <v-card-text>
+
+           <v-file-input
+              label="PDF"
+              outlined
+              dense
+              v-model="files"
+             ></v-file-input>  
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="uploadDialog = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="upload()"
+          >
+            Upload
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     </v-container>
   </div>
 </template>
@@ -80,15 +126,18 @@ import { mapGetters } from "vuex";
 
 import { validationMixin } from "vuelidate";
 import { required } from "vuelidate/lib/validators";
-
+import Axios from 'axios';
+ 
 
 export default {
  
   data() {
     return { 
+        uploadDialog: false,
         printDialog: false,
         search: '',
         link: '',
+        files: '',
         headers: [
           {
             text: 'UID',
@@ -121,6 +170,15 @@ export default {
       
        this.printDialog = true
         
+    },
+    openUploadDialog(){
+      this.uploadDialog = true;
+    }
+    ,
+    upload(){
+       this.$store.dispatch("motorpool_expressway/upload", this.files) 
+   
+
     }
 
   }
