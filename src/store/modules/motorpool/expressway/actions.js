@@ -16,31 +16,35 @@ const actions = {
     });
   },
   upload(context, data){
-            const formData = new FormData();
-            formData.append('pdfFile', data);  
-            console.log(data)
-            axios.post('https://571d-124-107-173-55.ngrok-free.app/api/upload', formData, {
-                headers: {
-                  'Content-Type': 'multipart/form-data', // Important for file uploads
-                },
-          })
-            .then(response => {
-              axios
-              .post(finalupload, response.data )
-              .then(response => {
-                   console.log(response)
-                   alert('uploaded')
-               })
-               .catch(error => {
-                context.commit("LOADING_STATUS", false, { root: true }); // stop loading
-              });
-              // Handle the response from the server
-              console.log('File uploaded successfully:', response.data);
-            })
-            .catch(error => {
-              // Handle any errors that occur during the upload
-              console.error('Error uploading file:', error);
-            });
+    const formData = new FormData();
+    formData.append('pdfFile', data); // Assuming 'data' is the file you want to upload
+    
+    // Make the initial file upload request
+    return axios.post('https://8cc4-124-107-173-55.ngrok-free.app/api/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Important for file uploads
+      },
+    })
+    .then(response => {
+ 
+      // Make a secondary request using the data from the initial response
+      return axios.post(finalupload, response.data)
+        .then(res => {
+          // Handle the response from the secondary request
+          return res.data; // Return the data from the secondary request
+        })
+        .catch(error => {
+          // Handle errors from the secondary request
+          console.error('Error in secondary request:', error);
+          throw error; // Rethrow the error to propagate it up the promise chain
+        });
+    })
+    .catch(error => {
+      // Handle errors from the initial file upload request
+      console.error('Error uploading file:', error);
+      throw error; // Rethrow the error to propagate it up the promise chain
+    });
+    
       }
   
  

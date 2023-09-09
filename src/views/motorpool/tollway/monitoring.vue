@@ -19,7 +19,12 @@
                 hide-details
             ></v-text-field>
             </v-card-title>
-            <v-data-table
+        <v-skeleton-loader
+          :loading="skeleton"
+          type="table-heading, list-item-two-line, image, table-tfoot"
+        >
+          
+          <v-data-table
             :headers="headers"
             :items="data"
             :search="search"
@@ -30,14 +35,31 @@
                     x-small
                     color="secondary"
                     dark
+                    dense
                     @click="view(item.uid, item.asof)"
                     >
                     View
+                </v-btn>
+                <v-btn
+                    x-small
+                    color="secondary"
+                    dark
+                    style="margin: 2px;"
+ 
+                    @click="view(item.uid, item.asof)"
+                    >
+                    <v-icon  color="green"
+                                      >mdi-download</v-icon
+                                    > 
                 </v-btn>
                 </div>
              </template>
             
             </v-data-table>
+          
+       
+        </v-skeleton-loader>
+             
         </v-card>
         <v-dialog
               v-model="printDialog"
@@ -84,7 +106,7 @@
       max-width="290"
     >
      
-      <v-card>
+      <!-- <v-card>
         <v-card-title class="text-h5">
           Upload PDF 
         </v-card-title>
@@ -114,7 +136,67 @@
             Upload
           </v-btn>
         </v-card-actions>
-      </v-card>
+      </v-card> -->
+
+       <v-card
+    class="mx-auto mt-6"
+    width="344"
+  >
+    <v-system-bar>
+      <v-spacer></v-spacer>
+      <v-icon>mdi-square</v-icon>
+      <v-icon>mdi-circle</v-icon>
+      <v-icon>mdi-triangle</v-icon>
+    </v-system-bar>
+
+    <v-toolbar>
+      <v-btn icon @click="uploadDialog = false">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+
+      <v-toolbar-title>Upload PDF </v-toolbar-title>
+
+      <v-progress-linear
+        :active="loading"
+        :indeterminate="loading"
+        absolute
+        bottom
+        color="deep-purple accent-4"
+      ></v-progress-linear>
+
+      <v-spacer></v-spacer>
+ 
+    </v-toolbar>
+
+    <v-container style="height: 282px;">
+      <v-row
+        class="fill-height"
+        align="center"
+        justify="center"
+      >
+        <v-scale-transition>
+          <div
+            v-if="!loading"
+            class="text-center"
+          >
+             
+
+           <v-file-input
+              label="PDF"
+              v-model="files"
+             ></v-file-input>  
+        
+            <v-btn
+              color="primary"
+               @click="upload()"
+            >
+              Proceed 
+            </v-btn>
+          </div>
+        </v-scale-transition>
+      </v-row>
+    </v-container>
+  </v-card>
     </v-dialog>
     </v-container>
   </div>
@@ -133,6 +215,8 @@ export default {
  
   data() {
     return { 
+        skeleton: false,
+        loading: false,
         uploadDialog: false,
         printDialog: false,
         search: '',
@@ -167,7 +251,6 @@ export default {
     view(map, asof){
        const date = btoa(asof)
        this.link = 'http://192.168.1.19:7771/api/expressway/monitoring/view?map='+map+'&query='+date
-      
        this.printDialog = true
         
     },
@@ -176,9 +259,30 @@ export default {
     }
     ,
     upload(){
-       this.$store.dispatch("motorpool_expressway/upload", this.files) 
-   
+      this.loading = true
+      this.$store.dispatch("motorpool_expressway/upload", this.files)
+        .then(response => {
+         if(response == 0){
+            this.loading = false
+            alert("Uploaded..!")
+            this.refresh()
+         }else{
+            this.loading = false
+            alert("File Already Exists")
+         }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+ 
 
+    },
+    refresh(){
+          this.skeleton = true
+          this.$store.dispatch("motorpool_expressway/monitoring").then((res)=>{
+          this.data = res.data
+          this.skeleton = false
+          })
     }
 
   }
