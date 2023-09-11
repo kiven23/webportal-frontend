@@ -33,23 +33,25 @@
                 <div class="my-2">
                 <v-btn
                     x-small
-                    color="secondary"
+                    color="white"
                     dark
                     dense
                     @click="view(item.uid, item.asof)"
                     >
-                    View
+                     <v-icon  color="green" small
+                                      >mdi-eye-arrow-right-outline</v-icon
+                                    > 
                 </v-btn>
                 <v-btn
                     x-small
-                    color="secondary"
+                    color="white"
                     dark
                     style="margin: 2px;"
  
-                    @click="view(item.uid, item.asof)"
+                    @click="trash(item.uid)"
                     >
-                    <v-icon  color="green"
-                                      >mdi-download</v-icon
+                    <v-icon  color="red" small
+                                      >mdi-trash-can-outline</v-icon
                                     > 
                 </v-btn>
                 </div>
@@ -262,9 +264,15 @@ export default {
       this.loading = true
       this.$store.dispatch("motorpool_expressway/upload", this.files)
         .then(response => {
+           
          if(response == 0){
+             
             this.loading = false
             alert("Uploaded..!")
+            this.refresh()
+         }else if(response == 2){
+           this.loading = false
+            alert("The file is not supported. Please try using another document as recommended by the developers.")
             this.refresh()
          }else{
             this.loading = false
@@ -275,7 +283,31 @@ export default {
           console.error(error);
         });
  
+    },
+    trash(id){
+        this.$swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+              this.$store.dispatch("motorpool_expressway/trash", id)
+              this.$swal.fire(
+                  'Deleted!',
+                  'Your file has been deleted.',
+                  'success'
+                )
+                this.refresh();  
+              
+           
+        }
+      })
 
+      
     },
     refresh(){
           this.skeleton = true
