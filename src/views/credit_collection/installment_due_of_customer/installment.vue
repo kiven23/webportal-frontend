@@ -61,7 +61,7 @@
             <v-dialog
               scrollable
               :value="dialog"
-              width="700"
+              width="900"
               hide-overlay
               transition="dialog-bottom-transition"
               persistent
@@ -221,6 +221,7 @@ export default {
         { text: "OVERDUEDAYS", align: "left", value: "OverDueDays" },
         { text: "TOTAL", align: "left", value: "Total" },
         { text: "INTEREST", align: "left", value: "Interest" },
+         { text: "OR-INFO", align: "left", value: "OR" },
         
       ],
       editedIndex: -1,
