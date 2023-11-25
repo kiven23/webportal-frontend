@@ -26,10 +26,11 @@ const actions = {
   },
   fetchBlackListed(context, data) {
     
-    context.commit("LOADING_STATUS", true, { root: true }); // start loading
+    context.commit("LOADING_STATUS2", true, { root: true }); // start loading
     axios.get(blacklisted).then(response => {
       context.commit("GET_BLACKLISTED", response.data);
-      context.commit("LOADING_STATUS", false, { root: true });
+      context.commit("LOADING_STATUS2", false, { root: true });
+     
     });
   },
   searchBlacklisted(context, data)

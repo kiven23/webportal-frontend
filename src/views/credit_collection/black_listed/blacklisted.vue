@@ -1,12 +1,19 @@
 <template>
   <div>
     <v-container grid-list-md text-xs-center>
- 
+     <v-skeleton-loader
+    class="mx-auto"
+    elevation="12"
+    
+    type="table-heading, list-item-two-line, image, table-tfoot"
+    :loading='loadingStatus'
+  >
+   
       <v-data-table
         v-model="selected"
         :headers="headers"
         :items="blacklisted_data.customer"
-        :search="search"
+         
         :loading="loadingStatus"
         class="elevation-1"
       >
@@ -69,14 +76,17 @@
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
-              append-icon="search"
               label="Search"
               single-line
               hide-details
             ></v-text-field>
+             <v-btn text icon v-on="on" @click="Search">
+                  <v-icon>search</v-icon>
+                </v-btn>
           </v-toolbar>
         </template>
       </v-data-table>
+      </v-skeleton-loader>
       <!-- <v-dialog v-model="create" width="500">
         <v-card>
           <v-card-title class="text-h5 dark lighten-2">
@@ -222,7 +232,7 @@ export default {
       return this.$store.state.dialog;
     },
     loadingStatus() {
-      return this.$store.state.loading;
+      return this.$store.state.loading2;
     },
   },
   watch: {
@@ -231,11 +241,18 @@ export default {
     },
   },
   created() {
+    
     this.$store.dispatch("blacklisted/fetchBlackListed");
     this.$store.dispatch("blacklisted/fetchBranchSeries");
     this.$store.dispatch("userPermissions/fetchPermission");
   },
   methods: {
+    Search(){
+       const data = {
+          'search': this.search
+       }
+       this.$store.dispatch("blacklisted/searchBlacklisted", data);
+    },
     generate(){
       let data = {
         date: this.dates_regular,

@@ -5,6 +5,9 @@ import rootUrl from "../../../rootUrl";
 const indexUrl = rootUrl + "/api/expressway/monitoring/index";
 const finalupload = rootUrl+ "/api/expressway/upload/index";
 const trash = rootUrl+ "/api/expressway/monitoring/bin";
+const drivers = rootUrl+ "/api/expressway/monitoring/drivers"
+const newruf = rootUrl+ "/api/expressway/monitoring/new"
+
 const actions = {
   monitoring(context, data){
    return axios
@@ -15,6 +18,31 @@ const actions = {
      .catch(error => {
       alert("Error")
     });
+  },
+  drivers(context, data){
+    return axios
+     .get(drivers,  data )
+     .then(response => {
+         return response
+      })
+      .catch(error => {
+       alert("Error")
+     });
+   },
+  newruf(context,data){
+     
+       // Make a secondary request using the data from the initial response
+       return axios.post(newruf, data)
+       .then(res => {
+         // Handle the response from the secondary request
+         return res.data; // Return the data from the secondary request
+       })
+       .catch(error => {
+         // Handle errors from the secondary request
+         console.error('Error in secondary request:', error);
+         throw error; // Rethrow the error to propagate it up the promise chain
+       });
+    
   },
   upload(context, data){
     const formData = new FormData();

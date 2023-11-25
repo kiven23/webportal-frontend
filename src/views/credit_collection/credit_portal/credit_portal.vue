@@ -19,6 +19,13 @@
           </v-col> -->
         
       </template>
+      <v-skeleton-loader
+    class="mx-auto"
+    elevation="12"
+    
+    type="table-heading, list-item-two-line, image, table-tfoot"
+    :loading='skeletonsk'
+  >
     <vue-good-table
       :columns="columns"
       :rows="rows"
@@ -29,6 +36,7 @@
       :responsive="true"
       class="custom-table"
     ></vue-good-table>
+    </v-skeleton-loader>
       <v-dialog v-model="create" width="800">
         <v-card>
           <v-card-title class="text-h5 dark lighten-2">
@@ -118,7 +126,9 @@ export default {
       loader: null,
       loading: false,
       submitDisable: true,
- 
+
+      skeletonsk: false
+       
     };
   },
   computed: {
@@ -180,12 +190,14 @@ export default {
           page: pageInfo.currentPage,
           search:  this.search
         }
+       
         this.$store.dispatch("creditstanding/fetchCreditStanding", data).then((response)=>{
             this.rows = response.data.data.data;
             this.totalRows = response.data.data.total;
          
             this.currentPage = pageInfo.current_page;
             this.perPage = pageInfo.per_page;
+            this.skeletonsk = false
         })
         
      

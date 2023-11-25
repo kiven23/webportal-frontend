@@ -100,58 +100,58 @@
                       <v-checkbox
                         style="margin: -12px;"
                         v-model="databases"
-                        label="ReportsOptn"
+                        label="ADDESSA_NEWPROD"
                         dense
-                        value="ReportsOptn"
+                        value="ADDESSA_NEWPROD"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="SteadfordReports"
-                        value="SteadfordReports"
+                        label="STEADFORD"
+                        value="STEADFORD"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="OutexcelReports"
-                        value="OutexcelReports"
+                        label="OUTEXCEL"
+                        value="OUTEXCEL"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="AppliantechReports"
-                        value="AppliantechReports"
+                        label="APPLIANTECH"
+                        value="APPLIANTECH"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="ElectroloopReports"
-                        value="ElectroloopReports"
+                        label="ELECTROLOOP"
+                        value="ELECTROLOOP"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="ThreathonsReports"
-                        value="ThreathonsReports"
+                        label="THREATHONS"
+                        value="THREATHONS"
                       ></v-checkbox>
                       <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="PanApplianceReports"
-                        value="PanApplianceReports"
+                        label="PANAPPLIANCE"
+                        value="PANAPPLIANCE"
                       ></v-checkbox>
                        <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
-                        label="EasyToOwnReports"
-                        value="EasyToOwnReports"
+                        label="EASYOWN"
+                        value="EASYOWN"
                       ></v-checkbox>
 
                     </v-container>

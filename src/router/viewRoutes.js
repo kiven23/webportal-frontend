@@ -86,7 +86,7 @@ import databaseconfigure from "../views/settings/database/configure.vue";
 //Motorpool 
   //TOLLWAYS MONITORING
   import monitoring from "../views/motorpool/tollway/monitoring.vue";
-  import tollwaysupload from "../views/motorpool/tollway/upload.vue";
+ 
 
 
 const viewRoutes = [
@@ -501,14 +501,7 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
-  {
-    path: "/expressway/upload",
-    component: tollwaysupload,
-    name: "tollwaysupload",
-    meta: {
-      requiresAuth: true
-    }
-  },
+ 
 
 
 ];
