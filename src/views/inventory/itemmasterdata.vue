@@ -71,11 +71,19 @@
     </v-card>
     <v-dialog
       v-model="dialog"
-     
+      persistent 
       hide-overlay
       transition="dialog-bottom-transition"
     >
       <v-card >
+        <v-toolbar dense dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); "  v-if="identify != 0">
+          <v-btn icon dark @click="dialog = false" >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title dark >Update Item</v-toolbar-title>
+           
+           
+        </v-toolbar>
         <v-toolbar dense dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); "  v-if="identify == 0">
           <v-btn icon dark @click="dialog = false" >
             <v-icon>mdi-close</v-icon>
@@ -594,6 +602,17 @@
 </template>
 
 <script>
+function getName(firmcode,manufacturer){
+              var name;
+              manufacturer.forEach((value, index)=>{
+                      if(value.FirmCode == firmcode){
+                       
+                        return  name = value.FirmName
+                      }
+                      
+              })
+              return name
+         }
 var oldmodel;
 import { validationMixin } from "vuelidate";
 import {
@@ -803,13 +822,15 @@ export default {
           })
     },
     sort(){
+          
+         
         this.loadingForTable = true
         axios
         .get(
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
             this.currentPage +
             "&search=" +
-            this.sortBrand + "&search2=2"
+            this.sortBrand + "&search2=2" + "&brand=" + getName(this.sortBrand, this.manufacturer)
         )
         .then((response) => {
           this.brand = response.data.brand
@@ -982,7 +1003,7 @@ export default {
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" +
             this.currentPage +
             "&search=" +
-             this.sortBrand + "&search2=" + this.searchTerm2
+             this.sortBrand + "&search2=" + this.searchTerm2 + "&brand=" + getName(this.sortBrand, this.manufacturer)
         )
         .then((response) => {
           this.rows = response.data.data.data;
@@ -999,6 +1020,7 @@ export default {
       this.itemcode = 'ITEMCODE: '+row.ItemCode
       this.identify = 1
       this.dialog = true
+       
       this.data = {
           oldmodels: oldmodel,
           grossdealerprice:  row.U_GDP,
@@ -1007,7 +1029,7 @@ export default {
           prodcat: row.FrgnName,
           itmgroup: parseInt(row.ItmsGrpCod),
           withHtaxt: row.WTLiable == 'Y'? true:false,
-          brand: parseInt(row.FirmCode),
+          brand:  {FirmCode: row.FirmCode },
           batchserial: row.ManSerNum == 'Y'? 'Serial Number':row.ManBtchNum == 'N' && row.ManSerNum == 'N'? 'None':'Batches',
           warrantytemp: row.WarrntTmpl,
           preferredvendor: row.CardCode,
@@ -1055,7 +1077,7 @@ export default {
       // make a request to the server for the data
       axios
         .get(
-          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand + "&search2=" + this.searchTerm2
+          "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand + "&search2=" + this.searchTerm2 + "&brand=" + getName(this.sortBrand, this.manufacturer)
         )
         .then((response) => {
           this.rows = response.data.data.data;

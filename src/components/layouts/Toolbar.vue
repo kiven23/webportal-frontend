@@ -2,7 +2,7 @@
   <nav>
     <v-app-bar app  dark clipped-left  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); border-radius: 10px;">
       <!-- <v-app-bar-nav-icon @click.stop="drawer"></v-app-bar-nav-icon> -->
-      <v-btn icon @click.stop="drawer">
+      <v-btn icon @click.stop="drawer" v-if="!isMobile">
         <v-icon>{{ toggleDrawer ? "mdi-menu" : "mdi-menu-open" }}</v-icon>
       </v-btn>
       <v-img
@@ -10,12 +10,12 @@
         max-width="40"
         max-height="40"
         style="margin: 5px"
-      ></v-img>
-      <v-toolbar-title> <strong>Addessa Portal  </strong></v-toolbar-title>
+     v-if="!isMobile" ></v-img>
+      <v-toolbar-title v-if="!isMobile"> <strong> Addessa Portal  </strong></v-toolbar-title>
 
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
+      <v-spacer v-if="!isMobile"></v-spacer>
+      <v-spacer v-if="!isMobile"></v-spacer>
+      <v-spacer v-if="!isMobile"></v-spacer>
     
  
                   <v-select
@@ -34,9 +34,9 @@
       
     
       <v-tooltip-title >
-        <strong style="text-align: center">Addessa {{currentUser.branch == null? '': currentUser.branch.name}}</strong>
+        <strong style="text-align: center" v-if="!isMobile">Addessa {{currentUser.branch == null? '': currentUser.branch.name}}</strong>
       </v-tooltip-title>
-
+<!-- 
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="goDark">
@@ -46,7 +46,7 @@
           </v-btn>
         </template>
         <span>{{ isDark ? "Go Dark" : "Go Light" }}</span>
-      </v-tooltip>
+      </v-tooltip> -->
      
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
@@ -64,8 +64,18 @@
 import { mapGetters } from 'vuex';
  
 export default {
- 
+  data(){
+      return {
+        isMobile: false,
+      }
+  },
   methods: {
+   
+    checkMobile() {
+      // This is a simple check; adjust the breakpoint as needed
+      this.isMobile = window.innerWidth <= 768;
+    },
+  
     change(){
       const data = {'id': this.connections.connection}
       this.$store.dispatch("updateDB", data);
@@ -87,11 +97,16 @@ export default {
   },
 
  created() {
+    
     console.log(this.$store.getters.currentUser);
     this.$store.dispatch("fetchDatabase");
+     this.checkMobile();
+    window.addEventListener('resize', this.checkMobile);
    
   },
-
+ destroyed() {
+    window.removeEventListener('resize', this.checkMobile);
+  },
   computed: {
     connections(){
      return  this.$store.state.connections;

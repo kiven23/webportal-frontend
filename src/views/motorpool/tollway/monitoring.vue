@@ -9,6 +9,37 @@
       >
         create
       </v-btn>
+      <v-dialog v-model="generateD" persistent max-width="290">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn color="primary" dark v-bind="attrs" v-on="on">
+            GENERATE
+          </v-btn>
+        </template>
+        <v-card>
+          <v-row>
+            <v-col cols="12" sm="12">
+              <v-date-picker v-model="dates" range></v-date-picker>
+                <v-select
+                        :items="rfidtype"
+                        label="RFID TYPE"
+                        solo
+                        v-model="gentype"
+                      ></v-select>
+            </v-col>
+            
+          </v-row>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="generateD = false">
+              Close
+            </v-btn>
+            <v-btn color="green darken-1" text @click="generate()">
+              Generate
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-chip filter label link outlined  color="green" style="margin: 10px"> {{dateRangeText}}</v-chip>
       <v-card>
         <v-card-title>
           <v-text-field
@@ -51,9 +82,12 @@
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item v-for="(itemA, index) in itemsA" :key="index">
-                      <v-btn @click="view(item.id, itemA.val)">
-                        {{ itemA.title }}
+                    <v-list-item
+                      v-for="(rfid, index) in item.rfid"
+                      :key="index"
+                    >
+                      <v-btn @click="view(item.id, rfid)">
+                        {{ rfid == 1 ? "EASYTRIP" : "AUTOSWEEP" }}
                       </v-btn>
                     </v-list-item>
                   </v-list>
@@ -104,7 +138,7 @@
       >
         <v-card tile>
           <v-toolbar flat dark color="primary">
-            <v-btn icon dark @click="dialog = false">
+            <v-btn icon dark @click="createDialog = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title>RUF USAGE FORM</v-toolbar-title>
@@ -324,6 +358,9 @@ import Axios from "axios";
 export default {
   data() {
     return {
+      gentype: "AutoSweep",
+      generateD: false,
+      dates: ["2024-01-01", "2024-01-01"],
       driver: "",
       driversdata: [],
       tabledata: [],
@@ -382,7 +419,11 @@ export default {
       data: [],
     };
   },
-
+  computed: {
+    dateRangeText() {
+      return this.dates.join(" ~ ");
+    },
+  },
   created() {
     this.$store.dispatch("motorpool_expressway/monitoring").then((res) => {
       this.data = res.data;
@@ -393,12 +434,10 @@ export default {
   },
 
   methods: {
-   
-     removeItem(index){
-            this.tabledata.splice(index, 1);
-      },
+    removeItem(index) {
+      this.tabledata.splice(index, 1);
+    },
     expressways() {
-     
       if (this.rufdata.exptype == "TPLEX") {
         this.entrylist = [
           "La Paz, Tarlac",
@@ -494,40 +533,39 @@ export default {
       }
     },
     add() {
-      if(this.driver !==""){
-// Your new object
-      var newElement = {
-        destination: this.rufdata.destination,
-        purpose: this.rufdata.purpose,
-        rfidtype: this.rufdata.rfidtype,
-        exptype: this.rufdata.exptype,
-        entry: this.rufdata.entry,
-        exit: this.rufdata.exit,
-        amount: this.rufdata.amount,
-      };
+      if (this.driver !== "") {
+        // Your new object
+        var newElement = {
+          destination: this.rufdata.destination,
+          purpose: this.rufdata.purpose,
+          rfidtype: this.rufdata.rfidtype,
+          exptype: this.rufdata.exptype,
+          entry: this.rufdata.entry,
+          exit: this.rufdata.exit,
+          amount: this.rufdata.amount,
+        };
 
-      // Check if the object already exists in the array
-      var exists = this.tabledata.some(
-        (item) =>
-          item.destination === newElement.destination &&
-          item.purpose === newElement.purpose &&
-          item.rfidtype === newElement.rfidtype &&
-          item.exptype === newElement.exptype &&
-          item.entry === newElement.entry &&
-          item.exit === newElement.exit &&
-          item.amount === newElement.amount
-      );
+        // Check if the object already exists in the array
+        var exists = this.tabledata.some(
+          (item) =>
+            item.destination === newElement.destination &&
+            item.purpose === newElement.purpose &&
+            item.rfidtype === newElement.rfidtype &&
+            item.exptype === newElement.exptype &&
+            item.entry === newElement.entry &&
+            item.exit === newElement.exit &&
+            item.amount === newElement.amount
+        );
 
-      // If the object doesn't exist, push it into the array
-      if (!exists) {
-        this.tabledata.push(newElement);
+        // If the object doesn't exist, push it into the array
+        if (!exists) {
+          this.tabledata.push(newElement);
+        } else {
+          console.log("Object already exists in the array.");
+        }
       } else {
-        console.log("Object already exists in the array.");
+        alert("Please Select Driver");
       }
-      }else{
-        alert("Please Select Driver")
-      }
-       
     },
     view(id, val) {
       this.link =
@@ -537,17 +575,51 @@ export default {
         val;
       this.printDialog = true;
     },
+     generate() {
+      
+      var type = 1;
+      if(this.gentype == 'AutoSweep'){
+          type = 0;
+      }else{
+          type = 1;
+      }
+        
+       this.link =
+        "http://192.168.1.19:7771/api/expressway/monitoring/generates/reports?date=" +
+          this.dates+'&type='+type ;
+      this.printDialog = true;
+    },
     openUploadDialog() {
       this.createDialog = true;
     },
     save() {
-      const data = {
-        driver:  this.driver,
-        ruf: this.tabledata,
-        date: this.date
+      if (this.tabledata.length !== 0) {
+        this.$swal
+          .fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, save it!",
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+              const data = {
+                driver: this.driver,
+                ruf: this.tabledata,
+                date: this.date,
+              };
+              this.$store.dispatch("motorpool_expressway/newruf", data);
+              this.refresh();
+              this.$swal.fire("Save!", "Your file has been save.", "success");
+              this.createDialog = false;
+            }
+          });
+      } else {
+        alert("No Entry Please add");
       }
-      this.$store.dispatch("motorpool_expressway/newruf", data)
-      
     },
     upload() {
       this.loading = true;

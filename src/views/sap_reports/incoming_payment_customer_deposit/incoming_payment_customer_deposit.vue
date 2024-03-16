@@ -236,7 +236,7 @@ export default {
         //    this.iden = 1; 
         // })
         async function getSrc(token, series) {
-              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+series, {
+              const res = await fetch(''+this.$URLs.backend+'/api/public/reports/queries/incomingpaymentcustomerdeposit?q=printing&series='+series, {
               method: 'GET',
               headers: {
                 'Authorization' : `Bearer ${ token }`

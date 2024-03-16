@@ -268,7 +268,7 @@ export default {
            
         // })
         async function getSrc(token, dates_regular1,dates_regular2, series) {
-              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/adjustmentsalesdiscount?q=printing&datefrom='+dates_regular1+'&dateto='+dates_regular2+'&series='+series+'', {
+              const res = await fetch(''+this.$URLs.backend+'/api/public/reports/queries/adjustmentsalesdiscount?q=printing&datefrom='+dates_regular1+'&dateto='+dates_regular2+'&series='+series+'', {
               method: 'GET',
               headers: {
                 'Authorization' : `Bearer ${ token }`

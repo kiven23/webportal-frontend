@@ -87,7 +87,7 @@ const actions = {
         return response
      })
      .catch(error => {
-      alert("Error")
+     
     });
   }
   

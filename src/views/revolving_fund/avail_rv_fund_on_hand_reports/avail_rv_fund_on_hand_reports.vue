@@ -604,6 +604,7 @@
                     :headers="headers2"
                     :items="historyData"
                     :search="search"
+                    
                   >
                     <!-- <template v-slot:item.tin="{ item }">
                    
@@ -694,6 +695,7 @@ export default {
   },
   data() {
     return {
+      selected: [],
       headers: [
         {
           text: "BRANCH",

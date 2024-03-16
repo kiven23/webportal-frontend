@@ -208,7 +208,7 @@ export default {
         //    this.iden = 1; 
         // })
         async function getSrc(token, vpart, vtype) {
-              const res = await fetch('http://192.168.1.19:7771/api/public/reports/queries/searchofvehicleparts?q=printing&part='+vpart+'&type='+vtype+'', {
+              const res = await fetch(''+this.$URLs.backend+'/api/public/reports/queries/searchofvehicleparts?q=printing&part='+vpart+'&type='+vtype+'', {
               method: 'GET',
               headers: {
                 'Authorization' : `Bearer ${ token }`

@@ -4,6 +4,7 @@ import rootUrl from "../../../rootUrl";
 //Revolving fund prefix
 const prefix = rootUrl + "/api/revolving-fund"
 const Printbir = prefix + "/preparation/history"
+const TOPRINT = prefix + "/preparation/toprint"
 //Rv Fund Check Voucher Verification
 const chkVoucherVeriPrefix = prefix + "/check-voucher-verification";
 
@@ -91,6 +92,24 @@ const actions = {
     //         return data   
     //     })
     // },
+    PrintTransmittal(context, payload) {
+        axios.get(Printbir + "/print?b="+payload+"&iden=1", { responseType: 'blob'})
+        .then(response => {
+            
+            // let blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+            // let link = document.createElement('a')
+            // link.href = window.URL.createObjectURL(blob)
+            // link.download = response.headers['content-disposition'].split("filename=")[1].replace(/"/g, '')
+            // link.click()
+
+            window.open(URL.createObjectURL(response.data));
+            const file = new Blob([response.data], {
+                type: "application/pdf",
+              });
+            const fileURL = URL.createObjectURL(file);
+            window.open(fileURL);
+        })
+    },
     PrintBIR(context, payload) {
         axios.get(Printbir + "/print?id=" + payload.tin+"&date="+payload.date+"&b="+payload.branch, { responseType: 'blob'})
         .then(response => {
@@ -247,6 +266,15 @@ const actions = {
     },
     replenishExpenses(context, payload) {
         return axios.post(expensesForChkPreparationPrefix + "/replenish", payload) 
+        .then(res => {
+            return res
+        })
+        .catch(err => {
+            return err.response
+        })
+    },
+    toprint(context, payload) {
+        return axios.post(TOPRINT, payload) 
         .then(res => {
             return res
         })

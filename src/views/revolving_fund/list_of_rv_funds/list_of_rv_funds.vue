@@ -455,8 +455,12 @@
                   <div
                     class="ml-auto align-self-center"
                     style="margin-right: 6.5em"
-                  >    <v-btn @click="ckHistory()" style="margin: 5px"
+                  >    
+                  <v-btn @click="ckHistory()" style="margin: 5px"
                       >History</v-btn
+                    >
+                   <v-btn @click="Transmittal()" style="margin: 5px"
+                      >Print Transmittal</v-btn
                     >
                     <span class="mr-1"> Total : </span>
                     <money-format
@@ -530,6 +534,11 @@
                       >
                         <td>
                           {{ moment(item.date_transmitted).format("MM/DD/YY") }}
+                               <v-checkbox
+                                v-model="toprintstat[item.id]"
+                                @change="updatevalue(item.id)"
+                                label="Print"
+                              ></v-checkbox> 
                         </td>
                         <td>{{ item.ck_no }}</td>
                         <td>
@@ -542,6 +551,7 @@
                             ><v-icon small>mdi-pencil</v-icon></v-btn
                           >
                         </td>
+                        
                         <td>
                           <money-format
                             :value="parseFloat(item.amount)"
@@ -1612,6 +1622,7 @@ export default {
   },
   data() {
     return {
+      toprintstat: [],
       date: new Date().toISOString().substr(0, 7),
       menu: false,
       modal: false,
@@ -1761,6 +1772,17 @@ export default {
       ).then((res)=>{
         this.historyDATA = res
       });
+    },
+    updatevalue(id){
+        var data = {
+          "id": id,
+          "stat": this.toprintstat[id]
+        }
+        this.$store.dispatch("revolving_fund_list/toprint", data);
+    },
+    Transmittal(){
+       
+      this.$store.dispatch("revolving_fund_list/PrintTransmittal", this.rv_fund_with_expense_items.branch);
     },
     //PRINT BIR
     printBIR() {

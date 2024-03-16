@@ -12,7 +12,9 @@ import 'vuesax/dist/vuesax.css' //Vuesax styles
 import VueSocketIO from 'vue-socket.io'
 import SocketIO from 'socket.io-client'
  
- 
+import { URLs } from '../src/globalurl'
+Vue.prototype.$URLs = URLs;
+
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 import VueGoodTable from 'vue-good-table';

@@ -330,7 +330,7 @@ export default {
            
         // })
         async function getSrc(token,  branch, dates) {
-              const res = await fetch('http://192.168.1.19:7771/api/reports/printview?branch='+branch+'&date='+dates+'', {
+              const res = await fetch(''+this.$URLs.backend+'/api/reports/printview?branch='+branch+'&date='+dates+'', {
               method: 'GET',
               headers: {
                 'Authorization' : `Bearer ${ token }`

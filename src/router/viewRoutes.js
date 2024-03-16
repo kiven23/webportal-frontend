@@ -81,11 +81,13 @@ import sapreports_incoming_payment_openbalance from "../views/sap_reports/incomi
 
 //Item Master Data
 import itemmasterdata from "../views/inventory/itemmasterdata.vue";
+//GRPO SAP barcoding
+import grpo from "../views/inventory/grpo.vue";
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
 //Motorpool 
-  //TOLLWAYS MONITORING
-  import monitoring from "../views/motorpool/tollway/monitoring.vue";
+//TOLLWAYS MONITORING
+import monitoring from "../views/motorpool/tollway/monitoring.vue";
  
 
 
@@ -481,6 +483,17 @@ const viewRoutes = [
         requiresAuth: true
       }
     },
+  
+  //GRPO
+   {
+    path: "/sapb1/grpo/po",
+    component: grpo,
+    name: "grpo",
+    meta: {
+      requiresAuth: true
+    }
+  },
+
   
   //DATABASE SETTING CONFIGURE
   {
