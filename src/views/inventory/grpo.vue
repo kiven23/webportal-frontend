@@ -17,8 +17,10 @@
       <v-card-actions>
  
         <v-spacer></v-spacer>
+        <v-btn @click="viewpo()" dense  > POs </v-btn>
         <v-btn @click="createAtion()" dense v-if="!ccheckbox"> CREATE  </v-btn
-        ><v-btn @click="searchpo()" dense> SEARCH PO # </v-btn>
+        >
+        <!-- <v-btn @click="searchpo()" dense> SEARCH PO # </v-btn> -->
       </v-card-actions>
       <v-divider></v-divider>
     
@@ -33,9 +35,20 @@
             <v-checkbox
               v-model="selected"
               :value="item.LineNum"
-              v-if="item.LineStatus == 'O'"
+              v-if="!checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) "
+              :disabled="item.LineStatus == 'C'"
               dense
             ></v-checkbox>
+          </template>
+          <template v-slot:item.Quantity="{ item }">
+              
+              <vs-input
+              type="number"
+              v-model="item.Quantity"
+              max="5"
+              v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
+            /> 
+ 
           </template>
           <template v-slot:item.Status="{ item }">
             {{ item.LineStatus == "C" ? "Closed" : "Open" }}
@@ -45,16 +58,77 @@
             <v-btn
               x-small
               color="blue-grey"
-               v-if="item.LineStatus !== 'O'"
+              v-if="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum || item.LineStatus == 'C')"
               @click="handleDocEntryClick(item)"
+             
             >
-              <strong> MANAGE SERIAL  </strong>
+          
+            <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
+              <!-- v-if="item.LineStatus !== 'O'" -->
+              <strong> MANAGE SERIAL    </strong>
+              <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
+            
             </v-btn>
           </template>
         </v-data-table>
       </v-card-actions>
       <v-divider></v-divider>
     </v-card>
+     <v-dialog
+      v-model="pos"
+      width="500"
+    >
+       <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+           
+      <v-text-field
+        v-model="searchPOs"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+   
+        </v-card-title>
+
+        <v-card-text>
+          <v-data-table
+            :headers="poheaders"
+            :items="allpos"
+            :search="searchPOs"
+          >
+          <template v-slot:item.DocEntry="{ item }">
+             
+             <v-btn
+              x-small
+              color="blue-grey"
+              @click="getDocEntry(item.DocEntry)"
+               
+              >
+              {{item.DocEntry}}
+             </v-btn>
+          </template>
+          
+          </v-data-table>
+
+         </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="pos = false"
+          >
+            close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
+      
+    </v-dialog>
     <v-dialog
       v-model="serialmanageDialog"
       fullscreen
@@ -73,7 +147,13 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-toolbar-title  
-            >Serial Manager
+            > <v-text-field
+                v-model="vendorref"
+                label="Vendor Ref No"
+                dense
+                solo
+                style="margin-top: 25px "
+          ></v-text-field>
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
@@ -81,15 +161,17 @@
           </v-toolbar-items>
         </v-toolbar>
         <v-list three-line subheader>
+          
           <v-subheader dense>
-            <strong> Purchased Order Number#: {{ listing.po }} </strong>
+            <strong><br> Purchased Order Number#: {{ listing.po }} <br> Quantity: {{ listing.quantity }} <br>Line#: {{ listing.linenum }}
+            <br>
+            </strong> 
+            
           </v-subheader>
-          <v-subheader dense>
-            <strong>Quantity: {{ listing.quantity }} </strong>
-          </v-subheader>
-          <v-subheader dense>
-            <strong>Line#: {{ listing.linenum }}</strong>
-          </v-subheader>
+        <v-spacer></v-spacer>
+         
+           
+
 
           <div v-for="index in generateRange(listing.quantity)" :key="index">
             <v-col cols="12">
@@ -98,6 +180,7 @@
                 :label="'SN' + index"
                 v-model="sn[index - 1]"
               ></v-text-field>
+            {{index - 1}}
             </v-col>
           </div>
         </v-list>
@@ -129,10 +212,12 @@
         </v-progress-linear>
       </v-card-text>
     </v-dialog>
+       
   </v-container>
 </template>
 
 <script>
+ 
 var oldmodel;
 import { validationMixin } from "vuelidate";
 import {
@@ -161,6 +246,13 @@ export default {
   },
   data() {
     return {
+      sndata: [],
+      qoutes: '',
+      pos: false,
+      qty: 1,
+      qtydialog: false,
+      checker: [],
+      key: [],
       selected: [],
       breadcrums: [
         {
@@ -199,14 +291,20 @@ export default {
         { text: "WhsCode", value: "WhsCode" },
         { text: "ItemCode", value: "ItemCode" },
         { text: "Dscription", value: "Dscription" },
-        // { text: "Quantity", value: "Quantity" },
-        // { text: "ShipDate", value: "ShipDate" },
-        // { text: "Price", value: "Price" },
-        // { text: "Status", value: "Status" },
+        { text: "Quantity", value: "Quantity" },
+        { text: "Status", value: "Status" },
       ],
+      poheaders: [
+          
+         { text: "CardCode", value: "CardCode" },
+         { text: "CardName", value: "CardName" },
+         { text: "PO#", value: "DocEntry" }
+      ],
+      allpos: [],
+      searchPOs: ''
     };
   },
-
+ 
   computed: {
     animatedText() {
       return this.text + this.dots;
@@ -214,11 +312,60 @@ export default {
     ccheckbox(){
       return this.selected.length === 0? true:false; 
     }
+     
   },
   created() {},
 
   methods: {
+    
+    checkerifexist(data){
+      var dd;
+       this.key.forEach((i, index)=>{
+           if(i == data){
+             dd =  true
+           }
+        })
+       return dd == true? true:false;
+    },
+    ifsn(data){
+      var dd;
+        this.checker.forEach((i, index)=>{
+          
+           if(i.key == data){
+             
+             dd =  i.sn;
+           }
+        })
+        return dd?dd:false
+    },
+    getqty(data){
+      var dd;
+        this.checker.forEach((i, index)=>{
+          
+           if(i.key == data){
+             
+             dd =  i.qty;
+           }
+        })
+        return dd?dd:0
+    },
+    getDocEntry(data){
+      this.pos = false
+       
+      this.searchpo(data)
+    },
+    viewpo(){
+      this.pos = true
+      axios
+          .get(
+            this.$URLs.backend + "/api/inventory/grpo/viewpos"
+          )
+          .then((res) => {
+               this.allpos = res.data
+          });
+    },
     progress(uniqueID) {
+      console.log(uniqueID)
       this.interval = setInterval(() => {
         axios
           .get(
@@ -264,9 +411,10 @@ export default {
           this.$swal("Sync!", "" + text + "", "success");
         });
     },
-    searchpo() {
+    searchpo(po) {
+      this.searchPO = po
       this.loading = true;
-      const data = this.searchPO;
+      const data = po;
       axios
         .post(this.$URLs.backend + "/api/inventory/grpo/search", {
           data,
@@ -274,20 +422,43 @@ export default {
         .then((res) => {
           this.podata = res.data.data;
           this.loading = false;
+ 
+          this.key = [];
+          this.checker = [];
+          res.data.key.forEach((keying, index)=>{
+            this.key.push(keying[3])
+            this.checker.push({key: keying[3], sn: keying[7], qty: keying[8]})
+          })
+         
         });
     },
+     
     handleDocEntryClick(data) {
       this.listing = {
         po: data.DocEntry,
-        quantity: data.Quantity,
+        quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum),
         linenum: data.LineNum,
         itemcode: data.ItemCode,
         uniqueid: data.DocEntry + data.ItemCode + data.LineNum
-         
       };
-      
-      this.systemID = this.listing.uniqueid;
-      this.serialmanageDialog = true;
+      axios
+          .get(
+            this.$URLs.backend + "/api/inventory/grpo/getlines?data=" + data.DocEntry+'-'+parseInt(this.getqty(data.DocEntry + data.ItemCode + data.LineNum))+'-'+data.LineNum
+          )
+          .then((res) => {
+            console.log(this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum))
+            if(this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum) == true){
+                  this.systemID = this.listing.uniqueid;
+                  this.sn = []
+                  this.sndata = res.data
+                  this.serialmanageDialog = true;
+                  res.data.forEach((data, index)=>{
+                    this.sn[data[2]] = data[3]
+                  })
+            }else{
+                  alert('@Stevefox_Linux 404');
+            }
+          });
     },
  
     createAtion() {
@@ -304,10 +475,11 @@ export default {
       this.podata.forEach((data, index) => {
         this.selected.forEach((selected, index) => {
           if (selected == data.LineNum) {
-            INFO.push({  ItemCode: data.ItemCode, LineNum: data.LineNum, DocEntry: data.DocEntry });
+            INFO.push({  ItemCode: data.ItemCode, LineNum: data.LineNum, DocEntry: data.DocEntry , qty: data.Quantity});
           }
         });
       });
+    
       var systemID2 = btoa( JSON.stringify(INFO)) ;
       var data = { hash: systemID2, line: this.selected}
          axios
@@ -331,11 +503,23 @@ export default {
       this.isProgress = false;
       this.serialmanageDialog = false;
       this.selected = [];
-      this.searchpo();
+      this.searchpo(this.searchPO);
+      this.$socket.emit("refresh", this.searchPO); 
     },
   },
   mounted() {
     //this.creategrpo();
+    this.sockets.subscribe("refresh", (res) => {
+      if(this.searchPO == res){
+            this.listing = {};
+            this.systemID = "";
+            this.isProgress = false;
+            this.serialmanageDialog = false;
+            this.selected = [];
+            this.searchpo(this.searchPO);
+      }
+       
+    })
   },
 };
 </script>

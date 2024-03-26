@@ -30,12 +30,12 @@ import VUppercase from 'v-uppercase'
 Vue.use(VUppercase)
 AOS.init();
 /* Establish Connection */
-// const socketConnection = SocketIO('http://192.168.1.19:3378');
-// Vue.use(new VueSocketIO({
-//     debug: false,
-//     connection:socketConnection 
-//   })
-// );
+const socketConnection = SocketIO('https://socket2.appletronics.com.ph:85');
+Vue.use(new VueSocketIO({
+    debug: false,
+    connection:socketConnection 
+  })
+);
 var vueAwesomeCountdown = require('vue-awesome-countdown').default;
 
 Vue.use(vueAwesomeCountdown);
