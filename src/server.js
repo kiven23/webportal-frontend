@@ -9,5 +9,7 @@ io.on('connection', function (socket) {
       socket.on('refresh', function (data) {
         socket.broadcast.emit("refresh", data);
       });
-     
+      socket.on('serialized', function (data) {
+        socket.broadcast.emit("serialized", data);
+      });
 });

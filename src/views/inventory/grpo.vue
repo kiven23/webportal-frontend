@@ -2,9 +2,10 @@
   <v-container grid-list-md text-xs-center>
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1 </v-card-title>
-      <v-card-text> Ultimate SAP GRPO & Barcode Integration </v-card-text>
+      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1  </v-card-title>
+      <v-card-text> Ultimate SAP GRPO & Barcode Integration    </v-card-text>
       <v-card-text>
+         
         <v-text-field
           placeholder="SEARCH PO #"
           v-model="searchPO"
@@ -60,15 +61,28 @@
               color="blue-grey"
               v-if="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum || item.LineStatus == 'C')"
               @click="handleDocEntryClick(item)"
-             
+              class="mr-2"
             >
           
             <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
               <!-- v-if="item.LineStatus !== 'O'" -->
-              <strong> MANAGE SERIAL    </strong>
+              <strong> MANUAL SERIAL    </strong>
               <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
             
             </v-btn>
+              <v-btn
+              x-small
+              color="orange"
+              v-if="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum || item.LineStatus == 'C')"
+              @click="handleDocEntryClick(item,1)"
+             
+            >
+          
+            
+              <strong> AUTOSN   </strong>
+             
+            </v-btn>
+            
           </template>
         </v-data-table>
       </v-card-actions>
@@ -152,35 +166,49 @@
                 label="Vendor Ref No"
                 dense
                 solo
-                style="margin-top: 25px "
+                style="margin-top: 19px "
+                @input="inforeset"
+                :error-messages="errorvendor"
           ></v-text-field>
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-btn  text @click="send()" dense> GRPO SAVE </v-btn>
+            <v-btn  text @click="send()" dense v-if="this.errorSN.filter(item => item).length == 0? true: false" > GRPO SAVE    </v-btn>
           </v-toolbar-items>
         </v-toolbar>
-        <v-list three-line subheader>
-          
-          <v-subheader dense>
-            <strong><br> Purchased Order Number#: {{ listing.po }} <br> Quantity: {{ listing.quantity }} <br>Line#: {{ listing.linenum }}
-            <br>
-            </strong> 
-            
-          </v-subheader>
-        <v-spacer></v-spacer>
-         
+        <v-list three-line >
+          <v-list-item-content class="ml-2">
            
-
-
+             <br> Purchased Order Number#: {{ listing.po }} <br> Quantity: {{ listing.quantity }} <br>Line#: {{ listing.linenum }}<br>Model: {{ listing.model }}
+            
+           
+              
+             </v-list-item-content>
+         
+        <v-spacer></v-spacer>
+          <v-textarea
+            v-model="remarks"
+            outlined
+            label="Remarks"
+            class="ml-2 mr-2"
+            :error-messages="errorremarks"
+            @input="inforeset"
+          ></v-textarea>
+          <v-card-title>Serial
+            &nbsp;&nbsp;   <v-icon @click="print()" dense color="black">mdi-printer</v-icon> 
+          </v-card-title>
           <div v-for="index in generateRange(listing.quantity)" :key="index">
             <v-col cols="12">
+
               <v-text-field
                 dense
-                :label="'SN' + index"
+                 :label="'SN' + index + (br[index - 1] ? ' BARCODER: ' + br[index - 1] : '')"
                 v-model="sn[index - 1]"
+                @input="validateField(index - 1)"
+                color="green"
+                :error-messages="errorSN[index - 1]"
               ></v-text-field>
-            {{index - 1}}
+           
             </v-col>
           </div>
         </v-list>
@@ -212,7 +240,45 @@
         </v-progress-linear>
       </v-card-text>
     </v-dialog>
+    
+
+     <v-dialog
+      v-model="printdialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      
+      <v-card>
+         <v-toolbar
+          dense
+          color="white"
+        >
+          <v-btn
+            icon
+           
+            @click="printdialog = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Print Barcode</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-card-actions>
+         
+          <v-btn
+            color="primary"
+            text
+            @click="download()"
+          >
+            Print
+          </v-btn>
+        </v-card-actions>
+        </v-toolbar>
+           <iframe :src="printlink"   width="100%" height="650"></iframe>
+         
+      </v-card>
        
+    </v-dialog>
   </v-container>
 </template>
 
@@ -232,6 +298,8 @@ export default {
   mixins: [validationMixin],
   validations: {
     data: {
+      
+      color: '',
       model: { required },
       prodcat: { required },
       itmgroup: { required },
@@ -246,6 +314,17 @@ export default {
   },
   data() {
     return {
+      br:[],
+      barcoder: '',
+      printlink: '',
+      printdialog: false,
+      realdata: [],
+      errorremarks: '',
+      errorvendor: '',
+      sndisable: [],
+      errorSN: [],
+      vendorref: '',
+      remarks: '',
       sndata: [],
       qoutes: '',
       pos: false,
@@ -311,13 +390,45 @@ export default {
     },
     ccheckbox(){
       return this.selected.length === 0? true:false; 
-    }
-     
+    },
+    checkerror(){
+      return this.errorSN;
+    },
+    
   },
   created() {},
 
   methods: {
-    
+    validateField(key) {
+       
+      if (this.hasDuplicates(this.sn)) {
+ 
+          this.errorSN[key] = 'Duplicate entries are not allowed.'
+          
+          
+      }else{
+     
+        this.errorSN[key] = ''
+      }
+       var data = {
+          key: key,
+          sn: this.sn[key],
+          id: this.listing.po,
+          uniqueid: this.listing.uniqueid,
+          barcoder: this.barcoder
+       }
+       this.$socket.emit("serialized", data);
+    },
+    hasDuplicates(array) {
+      
+      if(array.filter(item => item !== null && item !== undefined && item !== '').length !== 1){
+          var d = array.filter(Boolean)
+        return new Set(d).size !== d.length;
+      }else{
+        return false;
+      }
+      
+    },
     checkerifexist(data){
       var dd;
        this.key.forEach((i, index)=>{
@@ -380,7 +491,12 @@ export default {
       }, 2000);
     },
     send() {
-      this.isProgress = true;
+      if(this.vendorref.length == 0 || this.remarks.length == 0){
+        this.errorvendor = "Required"
+        this.errorremarks = "Required"
+        
+      }else{
+         this.isProgress = true;
       console.log(this.sn);
       var serial = [];
       var data;
@@ -390,10 +506,14 @@ export default {
       data = {
         listing: this.listing,
         serial: serial,
+        vendorref: this.vendorref,
+        remarks: this.remarks
       };
 
       this.creategrpo(data);
       this.progress(this.systemID);
+      }
+      
     },
     generateRange(quantity) {
       return Array.from({ length: quantity }, (v, k) => k + 1);
@@ -406,7 +526,7 @@ export default {
         })
         .then((res) => {
           console.log(res.data);
-          this.refresh();
+          this.refresh2();
           var text = JSON.stringify(res.data);
           this.$swal("Sync!", "" + text + "", "success");
         });
@@ -420,6 +540,7 @@ export default {
           data,
         })
         .then((res) => {
+          this.barcoder = res.data.barcoder
           this.podata = res.data.data;
           this.loading = false;
  
@@ -432,33 +553,86 @@ export default {
          
         });
     },
-     
-    handleDocEntryClick(data) {
-      this.listing = {
-        po: data.DocEntry,
-        quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum),
-        linenum: data.LineNum,
-        itemcode: data.ItemCode,
-        uniqueid: data.DocEntry + data.ItemCode + data.LineNum
-      };
+    inforeset(){
+      if(this.remarks.length !== 0){
+          this.errorremarks  = ''
+         
+      }else{
+         this.errorremarks  = 'Required'
+      }
+      if(this.vendorref.length !== 0){
+          this.errorvendor = ''
+      }else{
+          this.errorvendor  = 'Required'
+      }
+       
+       this.$socket.emit("serialized", this.remarks);
+          var data = {
+          vendor: this.vendorref,
+          remark: this.remarks,
+          id: this.listing.po,
+          uniqueid: this.listing.uniqueid
+       }
+       this.$socket.emit("serialized", data);
+    },
+    handleDocEntryClick(data, i) {
+        
+       const whs = data.WhsCode.split("-");
+       this.listing = {
+            po: data.DocEntry,
+            quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum),
+            linenum: data.LineNum,
+            itemcode: data.ItemCode,
+            uniqueid: data.DocEntry + data.ItemCode + data.LineNum,
+            whs: whs[0],
+            model: data.Dscription,
+            brand: data.FirmName
+          };
+          
+      if(i == 1){
+        
+        const autoserial = new Date()
+        const month = (autoserial.getMonth() + 1).toString().padStart(2, '0'); 
+        const day = autoserial.getDate().toString().padStart(2, '0'); 
+        const year = autoserial.getFullYear().toString();
+        const hour = autoserial.getHours();
+        const minute = autoserial.getMinutes();  
+    
+        const m = year.slice(-2)+''+month+''+day+''+hour+''+minute+this.listing.whs;
+        this.sn = []
+        this.generateRange(this.listing.quantity).forEach((data, index)=>{
+          this.sn[index] = m+data
+        })
+        this.systemID = this.listing.uniqueid;
+        this.serialmanageDialog = true;
+        
+      }else{
+         
       axios
           .get(
             this.$URLs.backend + "/api/inventory/grpo/getlines?data=" + data.DocEntry+'-'+parseInt(this.getqty(data.DocEntry + data.ItemCode + data.LineNum))+'-'+data.LineNum
           )
           .then((res) => {
+            this.remarks = ''
+            this.vendorref = ''
             console.log(this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum))
             if(this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum) == true){
                   this.systemID = this.listing.uniqueid;
                   this.sn = []
                   this.sndata = res.data
                   this.serialmanageDialog = true;
-                  res.data.forEach((data, index)=>{
+                  res.data['sn'].forEach((data, index)=>{
                     this.sn[data[2]] = data[3]
                   })
+                  this.remarks = res.data['info'][3]
+                  this.vendorref = res.data['info'][2]
+
             }else{
                   alert('@Stevefox_Linux 404');
             }
           });
+      }
+      
     },
  
     createAtion() {
@@ -496,7 +670,14 @@ export default {
           this.$swal("Sync!", "" + text + "", "success");
         });
     },
-
+    refresh2() {
+      this.listing = {};
+      this.systemID = "";
+      this.isProgress = false;
+      this.serialmanageDialog = false;
+      this.selected = [];
+      this.searchpo(this.searchPO);
+    },
     refresh() {
       this.listing = {};
       this.systemID = "";
@@ -506,8 +687,24 @@ export default {
       this.searchpo(this.searchPO);
       this.$socket.emit("refresh", this.searchPO); 
     },
+    print(){
+     this.printlink = '';  
+     this.printdialog = true
+
+     
+
+     this.printlink = this.$URLs.backend +'/api/grpo/print?id='+btoa( JSON.stringify(this.sn))+'&brand='+this.listing.brand+'&model='+this.listing.model
+    },
+    download(){
+     this.$store.dispatch('printgrpobarcode/download', this.sn).then((res)=>{
+         var url =  res;
+         window.open(url, '_blank');
+      })
+    }
   },
   mounted() {
+ 
+ 
     //this.creategrpo();
     this.sockets.subscribe("refresh", (res) => {
       if(this.searchPO == res){
@@ -519,6 +716,23 @@ export default {
             this.searchpo(this.searchPO);
       }
        
+    })
+    
+    this.sockets.subscribe("serialized", (res) => {
+      if(res.uniqueid == this.listing.uniqueid){
+          if(res.id == this.listing.po){
+                        this.sn = [
+                              ...this.sn.slice(0, res.key),
+                              res.sn,
+                              ...this.sn.slice(res.key + 1)
+                          ];
+                        this.br[res.key] = res.barcoder
+                        this.remarks = res.remark
+                        this.vendorref = res.vendor
+                }
+      }
+        
+     
     })
   },
 };

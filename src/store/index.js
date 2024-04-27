@@ -109,7 +109,9 @@ import summary_of_customer_depostiapplied from "./modules/sap_reports/summary_of
 
 //MOTORPOOL EXPRESSWAY
 import motorpoolindex from "./modules/motorpool/expressway/index";
- 
+
+//PRINT BARCODE
+import printbarcode from "./modules/inventory/index";
 
 Vue.use(Vuex);
 
@@ -182,7 +184,8 @@ export default new Vuex.Store({
      searching_of_vehicles_parts: searching_of_vehicles_parts,
      summary_of_customer_depostiapplied: summary_of_customer_depostiapplied,
      //motorpool expressway toll
-     motorpool_expressway: motorpoolindex
+     motorpool_expressway: motorpoolindex,
+     printgrpobarcode: printbarcode
 
   },
   state: {
