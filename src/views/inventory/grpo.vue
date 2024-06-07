@@ -265,13 +265,13 @@
           <v-spacer></v-spacer>
           <v-card-actions>
          
-          <v-btn
+          <!-- <v-btn
             color="primary"
             text
             @click="download()"
           >
             Print
-          </v-btn>
+          </v-btn> -->
         </v-card-actions>
         </v-toolbar>
            <iframe :src="printlink"   width="100%" height="650"></iframe>
@@ -488,7 +488,7 @@ export default {
               clearInterval(this.interval);
             }
           });
-      }, 2000);
+      }, 20000);
     },
     send() {
       if(this.vendorref.length == 0 || this.remarks.length == 0){

@@ -83,6 +83,8 @@ import sapreports_incoming_payment_openbalance from "../views/sap_reports/incomi
 import itemmasterdata from "../views/inventory/itemmasterdata.vue";
 //GRPO SAP barcoding
 import grpo from "../views/inventory/grpo.vue";
+import barcodeprint from "../views/inventory/barcodeprint.vue";
+
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
 //Motorpool 
@@ -489,6 +491,15 @@ const viewRoutes = [
     path: "/sapb1/grpo/po",
     component: grpo,
     name: "grpo",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //INVENTORY BARCODEPRINT
+  {
+    path: "/sapb1/barcode/printing",
+    component: barcodeprint,
+    name: "barcodeprinting",
     meta: {
       requiresAuth: true
     }

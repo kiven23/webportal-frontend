@@ -21,6 +21,18 @@
           <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
         </template>
       </vs-button>
+         <vs-button
+        style="background-color: white; min-width: 70px; color: black"
+        to="/sapb1/barcode/printing"
+        animation-type="scale"
+        >
+        <v-img src="/sap.png" style="width: 100px"> </v-img
+        ><strong>SAP BARCODE</strong>
+        <template #animate>
+          <strong style="margin-left: 10px">BARCODE PRINT &#9881;</strong>
+          <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
+        </template>
+      </vs-button>
       </v-layout>
     </v-container>
   </div>
