@@ -26,6 +26,10 @@
       <v-divider></v-divider>
     
       <v-card-actions>
+        <v-skeleton-loader
+            :loading="loadingPosList"
+            type="table-heading, list-item-two-line, image, table-tfoot"
+          >
         <v-data-table
           dense
           :headers="headers"
@@ -77,14 +81,11 @@
               @click="handleDocEntryClick(item,1)"
              
             >
-          
-            
               <strong> AUTOSN   </strong>
-             
             </v-btn>
-            
           </template>
         </v-data-table>
+        </v-skeleton-loader>
       </v-card-actions>
       <v-divider></v-divider>
     </v-card>
@@ -106,6 +107,10 @@
         </v-card-title>
 
         <v-card-text>
+          <v-skeleton-loader
+            :loading="loadingPos"
+            type="table-heading, list-item-two-line, image, table-tfoot"
+          >
           <v-data-table
             :headers="poheaders"
             :items="allpos"
@@ -124,6 +129,7 @@
           </template>
           
           </v-data-table>
+           </v-skeleton-loader>
 
          </v-card-text>
 
@@ -314,6 +320,8 @@ export default {
   },
   data() {
     return {
+      loadingPos: false,
+      loadingPosList: false,
       br:[],
       barcoder: '',
       printlink: '',
@@ -466,6 +474,7 @@ export default {
       this.searchpo(data)
     },
     viewpo(){
+      this.loadingPos = true
       this.pos = true
       axios
           .get(
@@ -473,6 +482,7 @@ export default {
           )
           .then((res) => {
                this.allpos = res.data
+               this.loadingPos = false
           });
     },
     progress(uniqueID) {
@@ -532,6 +542,7 @@ export default {
         });
     },
     searchpo(po) {
+      this.loadingPosList = true
       this.searchPO = po
       this.loading = true;
       const data = po;
@@ -543,7 +554,7 @@ export default {
           this.barcoder = res.data.barcoder
           this.podata = res.data.data;
           this.loading = false;
- 
+          this.loadingPosList = false
           this.key = [];
           this.checker = [];
           res.data.key.forEach((keying, index)=>{
