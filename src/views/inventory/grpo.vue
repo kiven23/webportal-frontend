@@ -106,7 +106,7 @@
                 "
                 @click="handleDocEntryClick(item, 1)"
               >
-                <strong> AUTOSN </strong>
+                  <v-icon>mdi-file-document</v-icon> 
               </v-btn>
               <v-btn
                 :loading="reportsloading"
