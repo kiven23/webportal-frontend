@@ -2,7 +2,7 @@
   <v-container grid-list-md text-xs-center>
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1 </v-card-title>
+      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1  </v-card-title>
       <v-card-text>
         Ultimate SAP GRPO & Barcode Integration {{ creator }}
       </v-card-text>
@@ -14,6 +14,12 @@
           dense
         >
         </v-text-field>
+         <v-card-text>
+      <a @click="historyclick(ponumber)" v-for="(ponumber, index) in history" :key="index">
+        {{ ponumber }}
+        <span v-if="index < history.length - 1">, </span>
+      </a>
+    </v-card-text>
         <div class="d-flex justify-end">
           <v-chip
             class="ma-2"
@@ -103,7 +109,7 @@
                 <strong> AUTOSN </strong>
               </v-btn>
               <v-btn
-               
+                :loading="reportsloading"
                 x-small
                 icon
                 class="ml-2"
@@ -399,7 +405,9 @@ export default {
   },
   data() {
     return {
-      
+      reportsloading: false,
+      companies: '',
+      history: [],
       q: '',
       countserial: '',
       verifiedSerial: [],
@@ -408,6 +416,7 @@ export default {
       loadingPos: false,
       loadingPosList: false,
       br: [],
+      reportsdata: '',
       barcoder: "",
       printlink: "",
       printdialog: false,
@@ -499,8 +508,13 @@ export default {
   created() {},
 
   methods: {
+    historyclick(po){
+      this.searchPO = po
+      this.searchpo()
+    },
     //REPORTS
     reports(data){
+       this.reportsloading = true
        const basemap = data.DocEntry +
               "-" +
               parseInt(
@@ -511,17 +525,27 @@ export default {
       axios
           .get(
             this.$URLs.backend +
-              "/api/test/grporeports?data=" +
+              "/api/gen/grporeceiving?data=" +
               data.DocEntry +
               "-" +
               parseInt(
                 this.getqty(data.DocEntry + data.ItemCode + data.LineNum)
               ) +
               "-" +
-              data.LineNum
+              data.LineNum,
+              { responseType: 'blob' }
           )
           .then((res) => {
-             console.log(res)
+           
+             this.reportsdata = window.URL.createObjectURL(new Blob([res.data]));
+             const link = document.createElement('a');
+            link.href =  this.reportsdata ;
+            link.setAttribute('download', 'receivingreports.pdf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.reportsloading = false
+                 
           });
 
     },
@@ -662,6 +686,7 @@ export default {
       return Array.from({ length: quantity }, (v, k) => k + 1);
     },
     creategrpo(data) {
+       
       axios
         .post(this.$URLs.backend + "/api/inventory/grpo/create", {
           data,
@@ -672,9 +697,11 @@ export default {
           var text = JSON.stringify(res.data);
           this.$swal("Sync!", "" + res.data.message + "", res.data.status);
           this.Verifysync = false
+           
         });
     },
     searchpo(po) {
+      this.$socket.emit("history", this.companies);
       var data = po;
       if (!po) {
         data = this.searchPO;
@@ -840,6 +867,7 @@ export default {
           this.progress = 0;
           var text = JSON.stringify(res.data);
           this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
+          this.$socket.emit("history", {"company": this.companies, "po": this.searchPO});
         });
     },
     refresh2() {
@@ -880,6 +908,8 @@ export default {
     },
   },
   mounted() {
+    var user = localStorage.getItem('user');
+    this.companies = JSON.parse(user).branch.companies
     this.verifiedSerial = {
       listing: {
         po: "",
@@ -920,8 +950,21 @@ export default {
           this.br[res.key] = res.barcoder;
           this.remarks = res.remark;
           this.vendorref = res.vendor;
+       
+          this.focusNextEmptyField()
         }
+          
       }
+     
+    });
+    this.sockets.subscribe("history", (res) => {
+      console.log(res.company+'-'+this.companies)
+      if(res.company == this.companies){
+        if (!this.history.includes(res.po)) {
+            this.history.push(res.po)
+          }
+      }
+       
     });
   },
 };
