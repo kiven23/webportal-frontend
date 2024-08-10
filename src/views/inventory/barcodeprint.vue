@@ -13,21 +13,20 @@
           class="mx-4"
           dense
         ></v-text-field> 
-      <v-card-actions>
+      <v-card-text >
          
-         <v-btn @click="searchfunction()" dense> SEARCH </v-btn>
-         <v-btn @click="searchfunction(1)" dense  > ALL </v-btn>
-         <v-btn @click="modulesativator(1)" dense :style="'color: ' + (invtymap == 1 ? 'red' : '')"> Invty Transfer </v-btn>
-        <v-btn @click="modulesativator(2)" dense :style="'color: ' + (invtymap == 2 ? 'red' : '')">  A/R Invoice </v-btn>
-        <v-btn @click="modulesativator(3)" dense :style="'color: ' + (invtymap == 3 ? 'red' : '')">  Goods Receipt </v-btn>
+         <v-btn x-small @click="searchfunction()" dense> SEARCH </v-btn>
+         <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn>
+         <v-btn x-small @click="modulesativator(1)" dense :style="'color: ' + (invtymap == 1 ? 'red' : '')"> Invty Transfer </v-btn>
+         <v-btn x-small @click="modulesativator(2)" dense :style="'color: ' + (invtymap == 2 ? 'red' : '')">  A/R Invoice </v-btn>
+         <v-btn x-small @click="modulesativator(3)" dense :style="'color: ' + (invtymap == 3 ? 'red' : '')">  Goods Receipt </v-btn>
 
-        <v-spacer></v-spacer>
-         
-        <v-btn @click="prev()" dense> PREV </v-btn>
-        <v-btn @click="next()" dense> NEXT </v-btn>
-      </v-card-actions>
+ 
+        <v-btn  x-small @click="prev()" dense> PREV </v-btn>
+        <v-btn  x-small @click="next()" dense> NEXT </v-btn>
+      </v-card-text>
       
-      <v-divider></v-divider>
+     
       
       <v-card-actions>
         

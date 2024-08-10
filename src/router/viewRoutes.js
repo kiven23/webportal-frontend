@@ -84,6 +84,9 @@ import itemmasterdata from "../views/inventory/itemmasterdata.vue";
 //GRPO SAP barcoding
 import grpo from "../views/inventory/grpo.vue";
 import barcodeprint from "../views/inventory/barcodeprint.vue";
+//INVENTORY TRANSACTION
+import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
+
 
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
@@ -504,6 +507,16 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
+  //INVENTORY TRANSACTION 
+  {
+    path: "/sapb1/invt/transactions/goodsissue",
+    component: goodsissue,
+    name: "goodsissue",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  
 
   
   //DATABASE SETTING CONFIGURE

@@ -15,6 +15,7 @@
         >
         </v-text-field>
          <v-card-text>
+      Recent PO's:<br>
       <a @click="historyclick(ponumber)" v-for="(ponumber, index) in history" :key="index">
         {{ ponumber }}
         <span v-if="index < history.length - 1">, </span>
@@ -106,7 +107,7 @@
                 "
                 @click="handleDocEntryClick(item, 1)"
               >
-                  <v-icon>mdi-file-document</v-icon> 
+                <strong> AUTO SN </strong>
               </v-btn>
               <v-btn
                 :loading="reportsloading"
@@ -537,9 +538,11 @@ export default {
           )
           .then((res) => {
            
-             this.reportsdata = window.URL.createObjectURL(new Blob([res.data]));
+             this.reportsdata = window.URL.createObjectURL(new Blob([res.data],  { type: 'application/pdf' }));
+        
              const link = document.createElement('a');
             link.href =  this.reportsdata ;
+            link.target = '_blank';
             link.setAttribute('download', 'receivingreports.pdf');
             document.body.appendChild(link);
             link.click();
@@ -626,15 +629,22 @@ export default {
 
       this.searchpo(data);
     },
-    viewpo() {
-      this.loadingPos = true;
-      this.pos = true;
-      axios
+  async  viewpo() {
+      //this.loadingPos = true;
+    // this.pos = true;
+      await  axios
         .get(this.$URLs.backend + "/api/inventory/grpo/viewpos")
         .then((res) => {
-          this.allpos = res.data;
-          this.loadingPos = false;
+         this.allpos = res.data;
+         // this.loadingPos = false;
         });
+  
+  await   this.allpos.forEach((value,index)=>{
+           if (!this.history.includes(this.history)) {
+            this.history.push(value.DocEntry)
+            console.log(value.DocEntry)
+          }
+      })
     },
     progress(uniqueID) {
       console.log(uniqueID);
@@ -908,6 +918,7 @@ export default {
     },
   },
   mounted() {
+    this.viewpo()
     var user = localStorage.getItem('user');
     this.companies = JSON.parse(user).branch.companies
     this.verifiedSerial = {
