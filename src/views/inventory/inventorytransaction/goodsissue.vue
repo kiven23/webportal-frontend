@@ -29,13 +29,18 @@
           item-key="ItemCode"
           hide-default-footer
           class="elevation-1"
+          :key="componentKey"
         >
         <template v-slot:item.Quantity="{item, index}">
           <v-text-field
-            :label="index"
+            
             placeholder="Quantity"
             dense
-          >{{item}}</v-text-field>
+             v-model="qtyModel[index]"
+            :key="componentKey"
+          >{{index}}
+          {{qtyModel}}
+          </v-text-field>
         </template>
      
        <template v-slot:item.whse="{item, index}">
@@ -48,33 +53,35 @@
          
         </template>
         <template v-slot:item.serial="{item, index}">
-        <v-text-field
+        <!-- <v-text-field
           :label="index"
           placeholder="Serial"
           dense
           @click="getsn(item, index)"
         >{{item}}
-        </v-text-field>
+        </v-text-field> -->
+
            <v-select
-      v-model="selectedSerial"
-      :items="sn"
-      label="Serial"
-      multiple
-    >
+            v-model="selectedSerial[index]"
+            :items="sn[index]"
+            label="Serial"
+            multiple
+            :key="componentKey"
+            @change="getQty(index)"
+          >
+          
       <template v-slot:prepend-item>
         <v-list-item
-          ripple
-          @mousedown.prevent
-          @click="toggle"
         >
-          <v-list-item-action>
-            <v-icon :color="selectedSerial.length > 0 ? 'indigo darken-4' : ''">
-              {{ icon }}
-            </v-icon>
-          </v-list-item-action>
+           
           <v-list-item-content>
             <v-list-item-title>
-              Select All
+                <v-checkbox
+                v-model="selectall[index]"
+                label="Select All"
+                :key="componentKey"
+                 @click="toggle(index)"
+              ></v-checkbox>  
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -171,7 +178,7 @@
           hide-default-footer
           class="elevation-1"
         >
-        <template v-slot:item.Action="{ item }">
+        <template v-slot:item.Action="{ item}">
              <v-btn
               x-small
               color="blue-grey"
@@ -219,10 +226,7 @@ export default {
   },
   data() {
     return {
-      fruits: [
-        'Apples',
-        'Apricots'],
-       selectedFruits: [],
+      selectall: [],
       activewhsfields: 0,
       activeModal: 0,
       activevalue: 0,
@@ -244,6 +248,7 @@ export default {
       selectedSerial: [],
       
       warehouseModel: [],
+      qtyModel: [],
 
       breadcrums: [
         {
@@ -306,13 +311,15 @@ export default {
          { text: "Sizes", value: "U_cSizes" },
          { text: "Action", value: "Action" }
 
-      ]
+      ],
+      componentKey: 0,
+      selectedIndex: -1,
     
     };
   },
  
   computed: {
-    
+     
   },
   created() {},
 
@@ -408,11 +415,13 @@ export default {
 
  },
  getItemData(data){
-   this.goodsissue.push(data)
-   console.log(data)
+   this.goodsissue.push(data);
+   this.selectall.push(false);  
+   this.QuantityModel.push(null)
+   
  },
  async getwhs(itemcode, index){
-    
+    this.selectedIndex = index;
     this.activewhsfields = index
     this.search = ''
     this.activeModal = 1
@@ -424,8 +433,11 @@ export default {
       this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+itemcode
     }
     console.log(this.activeRouteBase)
+    this.oitm = []
+    this.oitw = []
     try {
         const data = await this.controller(this.Getactivemodals(this.activeModal),1,itemcode);
+        
         this.oitw = data.data
          
         this.nextt = data.next_page_url + this.activeRouteBase
@@ -439,29 +451,61 @@ export default {
    }
  },
  async getWarehouse(data){
-  this.$set(this.warehouseModel, this.activewhsfields, data.WhsCode);
-  this.warehouseModel[this.activewhsfields] = data.WhsCode
+  
+  await this.$set(this.warehouseModel, this.activewhsfields, data.WhsCode);
+  this.warehouseModel[this.activewhsfields] = await data.WhsCode
+  await this.getsn(data, this.selectedIndex);
+  this.componentKey += await 1;
    
  },
 async getsn(item,i){
+    
+  
+
     this.activeModal = 2
     this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ this.warehouseModel[i]
     this.serialDialog = true
    try {
         const data = await this.controller(this.Getactivemodals(this.activeModal),1);
-        
-        this.sn = [];
+   
+        this.sn[i] = [];
         data.forEach((res) => {
            console.log(res.IntrSerial)
-           this.sn.push(res.IntrSerial)
+           this.sn[i].push(res.IntrSerial)
+          
+        
         });
-      console.log(this.sn)
+     
+      console.log(this.sn[i])
+     
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
+  
+
   },
- 
- 
+  toggle (i) {
+        
+          if(this.selectall[i] == true){
+            this.selectedSerial[i] = this.sn[i].slice()
+            console.log(this.selectedSerial[i])
+            this.componentKey += 1;
+          }else{
+            this.selectedSerial[i] = []
+            this.componentKey += 1;
+          }
+
+          console.log(this.selectedSerial[i]);
+          
+    
+  },
+  async getQty(index){
+      
+      
+      this.qtyModel[index] =  this.selectedSerial[index].length
+    
+    
+  }
   },
   mounted() {
     
