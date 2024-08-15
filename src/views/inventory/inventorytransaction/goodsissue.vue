@@ -3,26 +3,28 @@
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
       <v-card-title class="text-h5 lighten-3">Goods Issue</v-card-title>
-      <v-card-text>
-        
+       <v-card-text>
+        <v-row>
+          <v-col class="d-flex justify-start">
+            <v-btn @click="previous()" dense> PREVIOUS </v-btn>
+          </v-col>
+          <v-col class="d-flex justify-end">
+            <v-btn @click="nextline()" dense> NEXT </v-btn>
+          </v-col>
+        </v-row>
       </v-card-text>
-  
+      
       <v-card-text >
          
          <v-btn x-small @click="selectitem()" dense> SELECT ITEM </v-btn>
-           <v-btn x-small @click="submit()" dense> SUBMIT ITEM </v-btn>
-         
-         <!-- <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn>
-         
- 
-        <v-btn  x-small @click="prev()" dense> PREV </v-btn>
-        <v-btn  x-small @click="next()" dense> NEXT </v-btn> -->
+         <v-btn x-small @click="submit()" dense> SUBMIT ITEM </v-btn>
+          <!-- <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn> -->
       </v-card-text>
       
      
       
       <v-card-actions>
-        
+        {{goodsissuelist}}
         <v-data-table
           dense
           :headers="headers"
@@ -103,10 +105,40 @@
           </template>
 
         </v-data-table>
-
+        
       </v-card-actions>
       
       <v-divider></v-divider>
+       <v-row>
+        <v-col
+          cols="6"
+          md="3"
+          style="margin: 5px;"
+        >
+        <v-textarea
+          outlined
+          name="input-7-4"
+          label="Remarks"
+          :value="listgoodsissue.Comments"
+          :disabled="true"
+        > </v-textarea> 
+       
+      </v-col>
+       <v-col
+          cols="6"
+          md="3"
+          style="margin: 5px;"
+        >
+        <v-textarea
+          :disabled="true"
+          outlined
+          name="input-7-4"
+          label="Journal Remarks"
+          :value="listgoodsissue.JrnlMemo"
+        > </v-textarea> 
+       
+      </v-col>
+      </v-row>
     </v-card>
       
      <v-dialog
@@ -253,8 +285,11 @@ export default {
       getItem: false,
       warehouseDialog: false,
       serialDialog: false,
-      
-      dialogs: ['items','itembywarehouse','availablesn','gl'],
+      nextpages: '',
+      prevpages: '',
+      lastpages: '',
+
+      dialogs: ['items','itembywarehouse','availablesn','gl','goodsissuelist'],
       activeRouteBase: '',
       oitm: [],
       oitw: [],
@@ -265,6 +300,7 @@ export default {
       glModel: [],
       warehouseModel: [],
       qtyModel: [],
+      listgoodsissue: {},
       
 
       breadcrums: [
@@ -341,7 +377,7 @@ export default {
   created() {},
 
   methods: {
-   async controller(data,i,itemcode) {
+   async controller(data,i,docentry) {
     try {
         var baselink;
         if(i == 1){
@@ -352,6 +388,8 @@ export default {
           baselink = this.prevtt
         }else if(i == 4){
           baselink = 'http://192.168.1.19:7771/api/inventory/goodsissue/getters?get=' + data +'&search='+this.search;
+        } else if(i == 5){
+          baselink = 'http://192.168.1.19:7771/api/inventory/goodsissue/getters?get=' + data +'&docentry='+docentry;
         } 
         const res = await axios.get(baselink);
         return res.data;
@@ -364,8 +402,8 @@ export default {
     return this.dialogs[i];
   },
   async selectitem() {
-   
-     
+    
+    this.refresh() 
     this.activevalue = 0
     this.getItem = true; 
     this.activeModal = 0
@@ -389,11 +427,15 @@ export default {
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),2);
         this.oitm = data2.data
         this.oitw = data2.data
+        this.listgoodsissue = await data2.data[0]
+        console.log(this.listgoodsissue)
         this.nextt = data2.next_page_url + this.activeRouteBase
         this.prevtt = data2.prev_page_url + this.activeRouteBase
          this.currentpage = data2.current_page
         this.topage = data2.to
         this.totalpage = data2.total
+    
+        this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
@@ -404,11 +446,13 @@ export default {
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),3);
         this.oitm = data2.data
         this.oitw = data2.data
+        this.listgoodsissue = await data2.data[0]
         this.nextt = data2.next_page_url +  this.activeRouteBase
         this.prevtt = data2.prev_page_url +  this.activeRouteBase
         this.currentpage = data2.current_page
         this.topage = data2.to
         this.totalpage = data2.total
+        this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
@@ -487,18 +531,17 @@ async getsn(item,i){
         data.forEach((res) => {
         
            this.sn[i].push(res.IntrSerial)
-          
-        
         });
-     
-    
-     
     } catch (error) {
         console.error('Error in selectitem:', error);  
-   }
-  
+    }
+ 
 
   },
+async getItemData2(docentry){
+
+
+},
   toggle (i) {
           
           if(this.selectall[i] == true){
@@ -516,8 +559,29 @@ async getsn(item,i){
       this.qtyModel[index] =  this.selectedSerial[index].length
   },
   async getGL(){
-         const gl = await this.controller(this.activeRouteBase, 1);
-         return this.glAccount = gl
+      const gl = await this.controller(this.activeRouteBase, 1);
+      return this.glAccount = gl
+  },
+  async getGoodsIssue(i){
+     if(!this.nextt){
+      const data = await this.controller(this.activeRouteBase, 1);
+      this.listgoodsissue = data.data[0]
+      
+      this.nextt = data.next_page_url +  this.activeRouteBase
+      this.prevtt = data.prev_page_url +  this.activeRouteBase
+      this.lastpages = data.last_page_url
+      const getItemKey = await this.controller('index',5,data.data[0].DocEntry);
+      this.goodsissue = getItemKey
+     }
+     else{
+      if(i == 1){
+        this.next()
+      }else{
+        this.prev()
+      }
+      
+     }
+     
   },
   arrange(myserialnumber,warehouse, MyItemCode, Quantity, GL,Model){
      const arr = {
@@ -545,7 +609,17 @@ async getsn(item,i){
                 this.refresh()
             })
 
-    }
+     }
+  },
+ async nextline(){
+   this.activeModal = await  4
+   this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal,1)
+   this.getGoodsIssue(1)
+  },
+ async previous(){
+   this.activeModal = await  4
+   this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal,1)
+   this.getGoodsIssue(2)
   },
   refresh(){
       this.search=''
@@ -570,12 +644,15 @@ async getsn(item,i){
       this.glModel=[]
       this.warehouseModel=[]
       this.qtyModel=[]
+      this.listgoodsissue={}
   }
   },
   async mounted() {
     this.activeModal = await  3
     this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal)
     this.getGL()
+
+  
      
    
   },
