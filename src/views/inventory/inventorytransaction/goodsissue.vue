@@ -2,7 +2,7 @@
   <v-container grid-list-md text-xs-center>
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3">Goods Issue</v-card-title>
+      <v-card-title class="text-h5 lighten-3">Goods Issue </v-card-title>
        <v-card-text>
         <v-row>
           <v-col class="d-flex justify-start">
@@ -57,7 +57,7 @@
         </template>
         <template v-slot:item.serial="{item, index}">
   
-
+           <v-btn x-small color="success" v-if="creation == 1" @click="viewSerial(item)">Serial</v-btn>
            <v-select
             v-model="selectedSerial[index]"
             :items="sn[index]"
@@ -65,7 +65,7 @@
             multiple
             :key="componentKey"
             @change="getQty(index)"
-            v-if="sn[index]"
+            v-if="sn[index] && creation == 0"
           >
           
               <template v-slot:prepend-item>
@@ -85,7 +85,7 @@
                 </v-list-item>
                 <v-divider class="mt-2"></v-divider>
               </template>
-                </v-select>
+         </v-select>
       </template>
          <template v-slot:item.glaccount="{item, index}">
             <v-autocomplete
@@ -120,7 +120,7 @@
           name="input-7-4"
           label="Remarks"
           :value="listgoodsissue.Comments"
-          :disabled="true"
+          v-model="remarksModel"
         > </v-textarea> 
        
       </v-col>
@@ -148,7 +148,7 @@
     >
       <v-card>
          <v-card-title >
-          List of Items
+          List of Items 
            </v-card-title > 
          <v-card-title >   
         <v-text-field
@@ -246,7 +246,29 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-     
+      <v-dialog
+      v-model="viewSerialNumbers"
+      max-width="290"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Serial
+        </v-card-title>
+
+        <v-card-text  v-for="(sn, index) in closeserial" :key="index"  >
+      
+   
+       <strong>    <p>{{sn.IntrSerial}}</p></strong>
+
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+         
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -271,11 +293,11 @@ export default {
   },
   data() {
     return {
-      
+      creation: 0,
       search: '',
       selectall: [],
       activewhsfields: 0,
-      activeModal: 0,
+      activeModal: 4,
       activevalue: 0,
       currentpage: '',
       topage: '',
@@ -285,6 +307,7 @@ export default {
       getItem: false,
       warehouseDialog: false,
       serialDialog: false,
+      viewSerialNumbers: false,
       nextpages: '',
       prevpages: '',
       lastpages: '',
@@ -300,7 +323,9 @@ export default {
       glModel: [],
       warehouseModel: [],
       qtyModel: [],
+      remarksModel: [],
       listgoodsissue: {},
+      closeserial: [],
       
 
       breadcrums: [
@@ -367,6 +392,7 @@ export default {
       ],
       componentKey: 0,
       selectedIndex: -1,
+      page: 0,
     
     };
   },
@@ -404,6 +430,7 @@ export default {
   async selectitem() {
     
     this.refresh() 
+    this.creation = 0
     this.activevalue = 0
     this.getItem = true; 
     this.activeModal = 0
@@ -436,6 +463,11 @@ export default {
         this.totalpage = data2.total
     
         this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
+        await this.goodsissue.forEach((res,index)=>{
+        this.qtyModel[index] = res.Quantity
+        this.warehouseModel[index] = res.WhsCode
+        this.glModel[index] = res.AcctCode
+      })
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
@@ -453,6 +485,12 @@ export default {
         this.topage = data2.to
         this.totalpage = data2.total
         this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
+        await this.goodsissue.forEach((res,index)=>{
+        this.qtyModel[index] = res.Quantity
+        this.warehouseModel[index] = res.WhsCode
+        this.glModel[index] = res.AcctCode
+      })
+     
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
@@ -522,7 +560,7 @@ export default {
  },
 async getsn(item,i){
     this.activeModal = 2
-    this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ this.warehouseModel[i]
+    this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ this.warehouseModel[i]
     this.serialDialog = true
    try {
         const data = await this.controller(this.Getactivemodals(this.activeModal),1);
@@ -563,34 +601,45 @@ async getItemData2(docentry){
       return this.glAccount = gl
   },
   async getGoodsIssue(i){
-     if(!this.nextt){
+      
+     if(!this.page){
+       alert('dito')
       const data = await this.controller(this.activeRouteBase, 1);
       this.listgoodsissue = data.data[0]
       
       this.nextt = data.next_page_url +  this.activeRouteBase
       this.prevtt = data.prev_page_url +  this.activeRouteBase
       this.lastpages = data.last_page_url
-      const getItemKey = await this.controller('index',5,data.data[0].DocEntry);
-      this.goodsissue = getItemKey
+      this.goodsissue = await this.controller('index',5,data.data[0].DocEntry);
+      this.goodsissue.forEach((res,index)=>{
+        this.qtyModel[index] = res.Quantity
+        this.warehouseModel[index] = res.WhsCode
+        this.glModel[index] = res.AcctCode
+      })
      }
      else{
+      alert('dito na sa next')
       if(i == 1){
+        
         this.next()
+        
       }else{
         this.prev()
+        
       }
       
      }
      
   },
-  arrange(myserialnumber,warehouse, MyItemCode, Quantity, GL,Model){
+  arrange(myserialnumber,warehouse, MyItemCode, Quantity, GL,Model, Remarks){
      const arr = {
                     myserialnumber:  myserialnumber,
                     warehouse:  warehouse,
                     MyItemCode: MyItemCode,
                     Quantity:  Quantity,
                     GL: GL,
-                    Model:  Model
+                    Model:  Model,
+                    Remarks: Remarks
                   }
       return arr
   },
@@ -600,7 +649,7 @@ async getItemData2(docentry){
       });
       var data = []
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.glModel[index],value.ItemName))
+            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.glModel[index],value.ItemName,this.remarksModel))
         });
         if(data){
             await axios.post('http://192.168.1.19:7771/api/inventory/goodsissue/submit', data).then((res)=>{
@@ -611,21 +660,41 @@ async getItemData2(docentry){
 
      }
   },
- async nextline(){
-   this.activeModal = await  4
-   this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal,1)
+  nextline(){
+   
+   this.activeModal = 4
+   this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal,1)
    this.getGoodsIssue(1)
+   console.log(this.activeRouteBase)
+   this.creation = 1;
+   this.page += 1;
   },
- async previous(){
-   this.activeModal = await  4
-   this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal,1)
+  previous(){
+   this.activeModal = 4
+   this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal,1)
    this.getGoodsIssue(2)
+    
+   this.creation = 1
+   this.page -= 1;
+  },
+  async viewSerial(i){
+    this.activeModal = 2
+    this.activeRouteBase = '&status=1&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+i.ItemCode+'&warehouse='+ i.WhsCode
+    this.viewSerialNumbers = true
+   try {
+        const data = await this.controller(this.Getactivemodals(this.activeModal),1);
+        this.closeserial = data
+    } catch (error) {
+        console.error('Error in selectitem:', error);  
+    }
+   
   },
   refresh(){
+      this.page = 0
       this.search=''
       this.selectall=[]
       this.activewhsfields=0
-      this.activeModal=0
+      this.activeModal=4
       this.activevalue=0,
       this.currentpage=''
       this.topage=''
@@ -645,6 +714,7 @@ async getItemData2(docentry){
       this.warehouseModel=[]
       this.qtyModel=[]
       this.listgoodsissue={}
+      
   }
   },
   async mounted() {
