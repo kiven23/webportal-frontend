@@ -2,7 +2,7 @@
   <v-container grid-list-md text-xs-center>
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3">Goods Issue </v-card-title>
+      <v-card-title class="text-h5 lighten-3">Goods Receipt </v-card-title>
        <v-card-text>
         <v-row> 
           <v-col class="d-flex justify-start">
@@ -29,7 +29,7 @@
      
       
       <v-card-actions>
-        {{goodsissuelist}}
+        {{goodsreceiptlist}}
         <v-data-table
           dense
           :headers="headers"
@@ -41,7 +41,6 @@
         >
         <template v-slot:item.Quantity="{item, index}">
           <v-text-field
-            :disabled="true"
             placeholder="Quantity"
             dense
              v-model="qtyModel[index]"
@@ -61,36 +60,10 @@
          
         </template>
         <template v-slot:item.serial="{item, index}">
-  
            <v-btn x-small color="success" v-if="creation == 1" @click="viewSerial(item)">Serial</v-btn>
-           <v-select
-            v-model="selectedSerial[index]"
-            :items="sn[index]"
-            label="Serial"
-            multiple
-            :key="componentKey"
-            @change="getQty(index)"
-            v-if="sn[index] && creation == 0"
-          >
-          
-              <template v-slot:prepend-item>
-                <v-list-item
-                >
-                  
-                  <v-list-item-content>
-                    <v-list-item-title>
-                        <v-checkbox
-                        v-model="selectall[index]"
-                        label="Select All"
-                        :key="componentKey"
-                        @click="toggle(index)"
-                      ></v-checkbox>  
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider class="mt-2"></v-divider>
-              </template>
-         </v-select>
+          <div v-if="creation !== 1"> 
+           <v-btn x-small color="success"   v-if="warehouseModel[index]" @click="CreateSerial(item, index) ">Serial</v-btn>
+          </div>
       </template>
          <template v-slot:item.glaccount="{item, index}">
             <v-autocomplete
@@ -280,6 +253,47 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+       <v-dialog
+      v-model="createserialDialog"
+      persistent
+      max-width="290"
+    >
+      
+      <v-card>
+        <v-card-title class="text-h7">
+          Create Serial
+        </v-card-title>
+        <div v-if="qtyModel[activewhsfields]" >
+        <div  v-for="(n,index) in Number(qtyModel[activewhsfields])" :key="n">   
+          <v-text-field
+            v-model="serialCreationModal[activerouteserial+index]"
+            solo
+            :label="n"
+            dense
+            clearable
+             class="ml-2 mr-2"
+          > </v-text-field>
+          </div> 
+        </div>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="createserialDialog = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="submitserial(activerouteserial)"
+          >
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -309,6 +323,7 @@ export default {
       creation: 0,
       search: '',
       selectall: [],
+      activerouteserial: 0,
       activewhsfields: 0,
       activeModal: 4,
       activevalue: 0,
@@ -317,6 +332,7 @@ export default {
       totalpage: '',
       nextt: '',
       prevtt: '',
+      createserialDialog: false,
       getItem: false,
       warehouseDialog: false,
       serialDialog: false,
@@ -325,8 +341,8 @@ export default {
       prevpages: '',
       lastpages: '',
       checkbox: [],
-
-      dialogs: ['items','itembywarehouse','availablesn','gl','goodsissuelist'],
+      
+      dialogs: ['items','itembywarehouse','availablesn','gl','goodsreceiptlist'],
       activeRouteBase: '',
       oitm: [],
       oitw: [],
@@ -340,6 +356,7 @@ export default {
       remarksModel: [],
       listgoodsissue: {},
       closeserial: [],
+      serialCreationModal: [],
       
 
       breadcrums: [
@@ -431,15 +448,15 @@ export default {
     try {
         var baselink;
         if(i == 1){
-          baselink = 'http://192.168.1.19:7771/api/inventory/goodsissue/getters?' + this.activeRouteBase  
+          baselink = 'http://192.168.1.19:7771/api/inventory/goodsreceipt/getters?' + this.activeRouteBase  
         }else if(i == 2){
           baselink = this.nextt 
         }else if(i == 3){
           baselink = this.prevtt
         }else if(i == 4){
-          baselink = 'http://192.168.1.19:7771/api/inventory/goodsissue/getters?get=' + data +'&search='+this.search;
+          baselink = 'http://192.168.1.19:7771/api/inventory/goodsreceipt/getters?get=' + data +'&search='+this.search;
         } else if(i == 5){
-          baselink = 'http://192.168.1.19:7771/api/inventory/goodsissue/getters?get=' + data +'&docentry='+docentry;
+          baselink = 'http://192.168.1.19:7771/api/inventory/goodsreceipt/getters?get=' + data +'&docentry='+docentry;
         } 
         const res = await axios.get(baselink);
         return res.data;
@@ -592,8 +609,8 @@ export default {
   
   await this.$set(this.warehouseModel, this.activewhsfields, data.WhsCode);
   this.warehouseModel[this.activewhsfields] = await data.WhsCode
-  await this.getsn(data, this.selectedIndex);
-  this.componentKey += await 1;
+  //await this.getsn(data, this.selectedIndex);
+  //this.componentKey += await 1;
   this.warehouseDialog = false
  },
 async getsn(item,i){
@@ -614,10 +631,22 @@ async getsn(item,i){
  
 
   },
-async getItemData2(docentry){
+  CreateSerial(i,index){
+        this.activerouteserial = i.ItemCode
+        this.createserialDialog = true
+        this.activewhsfields = index
+      
 
+  },
+  submitserial(item){
+    //activerouteserial is a Itemcode
+    //this.qtyModel[this.activewhsfields] get quantity
+ 
+    console.log(this.serialCreationModal[this.activerouteserial+0])
+    console.log(this.serialCreationModal[this.activerouteserial+1])
+    console.log(this.serialCreationModal[this.activerouteserial+2])
+  },
 
-},
   toggle (i) {
           
           if(this.selectall[i] == true){
@@ -687,11 +716,22 @@ async getItemData2(docentry){
         progress1: 0,
       });
       var data = []
+      
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.glModel[index],value.ItemName,this.remarksModel))
+              //  this.serialCreationModal[this.activerouteserial+0]
+                var remap  = []
+                for (let i = 0; i < this.qtyModel[index]; i++) {
+                    this.serialCreationModal[value.ItemCode+i]
+                    console.log(this.serialCreationModal[value.ItemCode+i])
+                    remap.push(this.serialCreationModal[value.ItemCode+i])
+                }
+
+             data.push(this.arrange(remap, this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.glModel[index],value.ItemName,this.remarksModel))
         });
-        if(data){
-            await axios.post('http://192.168.1.19:7771/api/inventory/goodsissue/submit', data).then((res)=>{
+     console.log(data)
+
+    if(data){
+            await axios.post('http://192.168.1.19:7771/api/inventory/goodsreceipt/submit', data).then((res)=>{
                 this.$swal("Sync!", "" + res.data.message + "", res.data.status);
                 loading.close()
                 if(res.data.status !== 'warning'){
@@ -721,7 +761,7 @@ async getItemData2(docentry){
   },
   async viewSerial(i){
     this.activeModal = 2
-    this.activeRouteBase = '&status=1&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+i.ItemCode+'&warehouse='+ i.WhsCode
+    this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+i.ItemCode+'&warehouse='+ i.WhsCode
     this.viewSerialNumbers = true
    try {
         const data = await this.controller(this.Getactivemodals(this.activeModal),1);

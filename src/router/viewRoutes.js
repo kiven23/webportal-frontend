@@ -86,7 +86,7 @@ import grpo from "../views/inventory/grpo.vue";
 import barcodeprint from "../views/inventory/barcodeprint.vue";
 //INVENTORY TRANSACTION
 import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
-
+import goodsreceipt from "../views/inventory/inventorytransaction/goodsreceipt";
 
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
@@ -511,6 +511,14 @@ const viewRoutes = [
   {
     path: "/sapb1/invt/transactions/goodsissue",
     component: goodsissue,
+    name: "goodsissue",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/sapb1/invt/transactions/goodsreceipt",
+    component: goodsreceipt,
     name: "goodsissue",
     meta: {
       requiresAuth: true

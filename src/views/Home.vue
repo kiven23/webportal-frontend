@@ -45,7 +45,7 @@
         </v-flex>
         <vs-button
         style="background-color: white; min-width: 70px; color: black"
-        to="/sapb1/barcode/printing"
+        to="/sapb1/invt/transactions/goodsreceipt"
         animation-type="scale"
         >
         <v-img src="/sap.png" style="width: 100px"> </v-img
@@ -79,6 +79,29 @@
           <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
         </template>
       </vs-button>
+      </v-layout >
+      <v-layout row wrap>
+        <v-flex xs12>
+          <h3>Business Partner</h3>
+          <!-- <h2>This is the best home ever!</h2> -->
+          <p> 
+          </p>
+          
+        </v-flex>
+        <vs-button
+        style="background-color: white; min-width: 70px; color: black"
+        to="/sapb1/invt/transactions/goodsreceipt"
+        animation-type="scale"
+        >
+        <v-img src="/sap.png" style="width: 100px"> </v-img
+        ><strong>Customers/Vendor</strong>
+        <template #animate>
+          <strong style="margin-left: 10px">Business Partners &#9881;</strong>
+          <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
+        </template>
+      </vs-button>
+       
+      
       </v-layout >
     </v-container>
   </div>
