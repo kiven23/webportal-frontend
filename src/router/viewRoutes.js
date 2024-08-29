@@ -87,7 +87,8 @@ import barcodeprint from "../views/inventory/barcodeprint.vue";
 //INVENTORY TRANSACTION
 import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
 import goodsreceipt from "../views/inventory/inventorytransaction/goodsreceipt";
-
+//BUSINESS PARTNER
+import businesspartner from "../views/businesspartner/bp";
 //database configure
 import databaseconfigure from "../views/settings/database/configure.vue";
 //Motorpool 
@@ -520,6 +521,15 @@ const viewRoutes = [
     path: "/sapb1/invt/transactions/goodsreceipt",
     component: goodsreceipt,
     name: "goodsissue",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  //BUSINESS PARTNER
+  {
+    path: "/sapb1/businesspartner",
+    component: businesspartner,
+    name: "businesspartner",
     meta: {
       requiresAuth: true
     }

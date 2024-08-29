@@ -90,7 +90,7 @@
         </v-flex>
         <vs-button
         style="background-color: white; min-width: 70px; color: black"
-        to="/sapb1/invt/transactions/goodsreceipt"
+        to="/sapb1/businesspartner"
         animation-type="scale"
         >
         <v-img src="/sap.png" style="width: 100px"> </v-img
