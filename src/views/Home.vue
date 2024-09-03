@@ -35,10 +35,10 @@
       </vs-button>
        
       </v-layout>
-      <v-layout row wrap>
+        <v-layout row wrap>
         <v-flex xs12>
           <h3>Inventory Transactions</h3>
-          <!-- <h2>This is the best home ever!</h2> -->
+ 
           <p> 
           </p>
           
@@ -79,11 +79,11 @@
           <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
         </template>
       </vs-button>
-      </v-layout >
+      </v-layout > 
       <v-layout row wrap>
         <v-flex xs12>
           <h3>Business Partner</h3>
-          <!-- <h2>This is the best home ever!</h2> -->
+          
           <p> 
           </p>
           
@@ -102,7 +102,7 @@
       </vs-button>
        
       
-      </v-layout >
+      </v-layout >  
     </v-container>
   </div>
 </template>

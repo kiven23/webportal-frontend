@@ -30,7 +30,7 @@ import VUppercase from 'v-uppercase'
 Vue.use(VUppercase)
 AOS.init();
 /* Establish Connection */
-const socketConnection = SocketIO('https://socket2.appletronics.com.ph:85');
+const socketConnection = SocketIO('https://socket2.appletronics.com.ph:86');
 // https://socket2.appletronics.com.ph:85
 //const socketConnection = SocketIO('https://192.168.1.19:85');
 Vue.use(new VueSocketIO({
