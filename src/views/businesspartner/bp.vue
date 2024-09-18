@@ -29,7 +29,7 @@
           </v-col>
         </v-row>
       </v-card-text>
-      
+  
       <v-card-text >
           <v-row> 
          
@@ -39,6 +39,7 @@
              </v-row> 
           <!-- <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn> -->
       </v-card-text>
+      {{ this.bp }}
       <v-tabs-items v-model="tabs">
         <v-tab-item>
           <v-card flat>
@@ -163,6 +164,11 @@ export default {
   },
   data() {
     return {
+      next_page_url: '',
+      last_page_url: '',
+      prev_page_url: '',
+      path: '',
+      bp: [],
       summary: {},
       //MODELS
       cardtype: '',
@@ -243,12 +249,60 @@ export default {
   methods: {
     async basementUrl(item) {
       try {
-        const res = await axios.get(`http://192.168.1.19:7771/api/inventory/businesspartner/getters?${item}`);
-        return res.data;
+          if(this.path){
+            const res = await axios.get(this.route);
+            return res.data;
+          }else{
+            const res = await axios.get(`http://192.168.1.19:7771/api/inventory/businesspartner/getters?${item}`);
+            return res.data;
+ 
+          }
+         
       } catch (error) {
         console.error("Error fetching data:", error);
+          this.next_page_url = ''
+          this.prev_page_url = ''
+          this.last_page_url = ''
+          this.path = ''
+          this.route = ''
         return null;
       }
+    },
+    async nextline(){
+      
+       const data = await this.basementUrl('item=bp');
+       this.next_page_url = data.next_page_url
+       this.prev_page_url = data.prev_page_url
+       this.last_page_url = data.last_page_url
+       this.path = data.path
+       this.route = this.next_page_url + '&item=bp'
+       this.bp = data.data
+        // this.cardtype CardType
+        // this.series  Series
+        // this.group GroupCode
+        // this.fullname
+        // this.paymentterm
+        // this.pricelistdata
+        // this.salesemployee
+        // this.fullname
+        // this.streetpobox
+        // this.barangay
+        // this.city
+        // this.areacode
+        // this.bankname
+        // this.account
+        // this.branch
+        // this.mobile Cellular
+        // this.birthday
+    },
+    async previous(){
+       const data = await this.basementUrl('item=bp');
+       this.next_page_url = data.next_page_url
+       this.prev_page_url = data.prev_page_url
+       this.last_page_url = data.last_page_url
+       this.path = data.path
+       this.route = this.prev_page_url + '&item=bp'
+       this.bp = data.data
     },
     getBankDetails(){
    

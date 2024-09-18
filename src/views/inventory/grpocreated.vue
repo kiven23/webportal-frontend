@@ -1,28 +1,47 @@
 <template>
   <v-container grid-list-md text-xs-center>
-   <v-row align="center" no-gutters>
+    <v-row align="center" no-gutters>
       <v-col cols="auto">
         <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
       </v-col>
       <v-col class="text-right" >
-        <v-btn
-          color="teal"
-          dark
-          @click="createdgrpo"
-          v-if="searchPO"
-        >
-          CREATED GRPO's
-        </v-btn>
+         <v-btn
+                  v-if="mapid"
+                  color="teal"
+                  dark
+                  @click="back()"
+                >
+                 BACK
+            </v-btn>
       </v-col>
     </v-row>
+
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1  
-        </v-card-title>
-   
-      <v-card-text>
-        Ultimate SAP GRPO & Barcode Integration {{ creator }}
-          
-      </v-card-text>
+    
+        <v-card-text> 
+          <v-text-field
+              v-model="vendorref"
+              label="Vendor Ref No"
+              dense
+              solo
+              style="margin-top: 19px"
+               @input="inforeset"
+              :error-messages="errorvendor"
+            ></v-text-field>
+            <v-textarea
+            v-model="remarks"
+            outlined
+            label="Remarks"
+            class="ml-2 mr-2"
+             :error-messages="errorremarks"
+            @input="inforeset"
+            
+          ></v-textarea>
+            </v-card-text>
+         
+       
+      
+  
       
       <v-card-text>
         <v-text-field
@@ -97,10 +116,10 @@
             <template v-slot:item.Status="{ item }">
               {{ item.LineStatus == "C" ? "Closed" : "Open" }}
             </template>
-            <template v-slot:item.DocEntry="{ item }">
+            <template v-slot:item.DocEntry="{ item,index }">
               <v-btn
                 x-small
-                color="blue-grey"
+                :color="keycheckStatus(index) == true? 'success':'grey'"
                 v-if="
                   checkerifexist(
                     item.DocEntry + item.ItemCode + item.LineNum ||
@@ -109,26 +128,29 @@
                 "
                 @click="handleDocEntryClick(item)"
                 class="mr-2"
+                
               >
                 <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
                 <!-- v-if="item.LineStatus !== 'O'" -->
-                <strong> MANUAL SERIAL </strong>
+                <strong> {{keycheckStatus(index) == true? 'VIEW/PRINT':'SERIALIZED'}}   </strong>
                 <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
               </v-btn>
               <v-btn
+                :disabled="vendorref?false:true "
                 x-small
                 color="orange"
                 v-if="
                   checkerifexist(
                     item.DocEntry + item.ItemCode + item.LineNum ||
                       item.LineStatus == 'C'
-                  )
+                  ) 
                 "
                 @click="handleDocEntryClick(item, 1)"
               >
                 <strong> AUTO SN </strong>
               </v-btn>
               <v-btn
+                :disabled="vendorref?false:true "
                 :loading="reportsloading"
                 x-small
                 icon
@@ -223,21 +245,21 @@
               style="margin-top: 19px"
               @input="inforeset"
               :error-messages="errorvendor"
-              :disabled="!creator"
+              :disabled="true"
             ></v-text-field>
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items v-if="creator">
+          
             <v-btn
               text
               @click="verifydata()"
               dense
               v-if="this.errorSN.filter((item) => item).length == 0 ? true : false"
               :disabled="sncheck != parseFloat(listing.quantity).toFixed(0)"
-               
-            >
-               <v-icon color="teal">mdi-content-save-all</v-icon>
+            > <v-icon color="teal">mdi-content-save-all</v-icon>
             </v-btn>
+            
           </v-toolbar-items>
         </v-toolbar>
         <v-list three-line>
@@ -247,7 +269,19 @@
             Quantity: {{ listing.quantity }} <br />Line#: {{ listing.linenum
             }}<br />Model: {{ listing.model }}
           </v-list-item-content>
-
+          <v-list-item-content class="ml-2">
+            <v-alert
+                v-model="alert"
+                dismissible
+                color="red"
+                border="left"
+                elevation="2"
+                colored-border
+                icon="mdi-warning"
+              >
+                {{errors}}
+              </v-alert>
+          </v-list-item-content>
           <v-spacer></v-spacer>
           <v-textarea
             v-model="remarks"
@@ -256,7 +290,7 @@
             class="ml-2 mr-2"
             :error-messages="errorremarks"
             @input="inforeset"
-            :disabled="!creator"
+            :disabled="true"
             
           ></v-textarea>
           <v-card-title
@@ -425,6 +459,8 @@ export default {
   },
   data() {
     return {
+      alert: false,
+      errors: [],
       mapid: '',
       status: '',
       reportsloading: false,
@@ -467,6 +503,10 @@ export default {
           text: "GRPO",
           disabled: true,
           href: "/sapb1/grpo/po",
+        },{
+          text: "CREATED" ,
+          disabled: true,
+          href: "/sapb1/grpo/po/created/"+this.searchPO,
         },
       ],
       progress1: 0,
@@ -528,14 +568,24 @@ export default {
     }
   },
   created() {},
-
+  watch: {
+    alert(value) {
+      if (!value) {
+        this.onAlertClose(); // Function called when alert is dismissed
+      }
+    }
+  },
   methods: {
-    createdgrpo(){
-      
-      this.$router.push('/sapb1/grpo/po/created/'+this.searchPO);
+    onAlertClose() {
+          this.errors.forEach((res,i)=>{
+            if(res == this.sn[i]){
+              this.sn[i] = ''
+            }
+          })
+          this.errors = []
     },
     back(){
-      this.$router.push('/sapb1/grpo/po');
+      this.$router.push('/sapb1/grpo/po/'+this.mapid);
     },
     historyclick(po){
       this.searchPO = po
@@ -582,9 +632,12 @@ export default {
     },
 
     //END REPORTS
-    focusNextEmptyField() {
+    focusNextEmptyField(i) {
+       this.recheckSn(i)
        const emtysnIndex = this.sn.findIndex(value => value === null || value === '') +1;
        this.$refs['textField' + emtysnIndex][0].focus();
+       
+      
     },
     closedserialm(){
        this.serialmanageDialog = false
@@ -610,8 +663,8 @@ export default {
         uniqueid: this.listing.uniqueid,
         barcoder: this.barcoder,
       };
-
-      //this.$socket.emit("serialized", data);
+    
+      this.$socket.emit("serialized", data);
     },
     hasDuplicates(array) {
       if (
@@ -624,6 +677,15 @@ export default {
       } else {
         return false;
       }
+    },
+    keycheckStatus(index){
+        var w
+        this.checker.forEach((data, i) => {
+          if (index == i) {
+            
+            return w = data.status == 100 ? true:false;
+          }
+        });return w
     },
     checkerifexist(data) {
       var dd;
@@ -694,11 +756,40 @@ export default {
       const data = this.alldata();
       this.verifiedSerial = data;
     },
+    recheckSn(key){
+    
+      let value = {
+        'brand': this.listing.brand,
+        'sn': this.sn[key-1]
+      }
+      console.log(value)
+      axios
+        .get(
+          this.$URLs.backend + "/api/grpo/checkserial/getlines?sn=" + value.sn + "&brand="+ value.brand
+        )
+        .then((res) => {
+            if (!this.errors.includes(res.data[0].sn)) {
+                 this.alert = true
+                this.errors.push(res.data[0].sn);
+            } else {
+              console.log("Item already exists");
+               this.alert = true
+            }
+        });
+        
+    },
     send() {
-      this.isProgress = true;
+ 
       const data = this.alldata();
-      this.creategrpo(data);
-      this.progress(this.systemID);
+ 
+       if(this.errors.length == 0){
+        this.isProgress = true;
+        this.creategrpo(data);
+        this.progress(this.systemID);
+       }else{
+         alert('Something wrong this serial '+ this.errors+ ' is already in ' +data.listing.brand)
+       }
+    
        
     },
     alldata() {
@@ -765,7 +856,9 @@ export default {
               key: keying[3],
               sn: keying[7],
               qty: keying[8],
+              status: keying[1]
             });
+
           });
         });
     },
@@ -841,8 +934,8 @@ export default {
               data.LineNum
           )
           .then((res) => {
-            this.remarks = "";
-            this.vendorref = "";
+            //this.remarks = "";
+            //this.vendorref = "";
             console.log(
               this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum)
             );
@@ -898,16 +991,14 @@ export default {
           data,
         })
         .then((res) => {
-
           console.log(res.data);
-          //this.refresh();
+          this.refresh();
           loading.close();
           clearInterval(interval);
           this.progress = 0;
           var text = JSON.stringify(res.data);
           this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
-          //this.$socket.emit("history", {"company": this.companies, "po": this.searchPO});
-          this.createdgrpo()
+          this.$socket.emit("history", {"company": this.companies, "po": this.searchPO});
         });
     },
     refresh2() {
@@ -953,9 +1044,9 @@ export default {
     
     if(this.mapid){
        
-      this.status = 'O'
+      this.status = 'C'
       this.searchPO = this.mapid
-      this.viewpo('O')
+      this.viewpo('C')
       this.searchpo(this.searchPO)
     }else{
       this.viewpo('O')
@@ -1003,8 +1094,8 @@ export default {
             ...this.sn.slice(res.key + 1),
           ];
           this.br[res.key] = res.barcoder;
-          this.remarks = res.remark;
-          this.vendorref = res.vendor;
+         // this.remarks = res.remark;
+         //this.vendorref = res.vendor;
        
           this.focusNextEmptyField()
         }
