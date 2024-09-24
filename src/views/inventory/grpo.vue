@@ -98,7 +98,7 @@
               {{ item.LineStatus == "C" ? "Closed" : "Open" }}
             </template>
             <template v-slot:item.DocEntry="{ item }">
-              <v-btn
+              <!-- <v-btn
                 x-small
                 color="blue-grey"
                 v-if="
@@ -109,13 +109,13 @@
                 "
                 @click="handleDocEntryClick(item)"
                 class="mr-2"
-              >
+              > -->
                 <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
                 <!-- v-if="item.LineStatus !== 'O'" -->
-                <strong> MANUAL SERIAL </strong>
+                <!-- <strong> MANUAL SERIAL </strong> -->
                 <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
-              </v-btn>
-              <v-btn
+              <!-- </v-btn> -->
+              <!-- <v-btn
                 x-small
                 color="orange"
                 v-if="
@@ -127,7 +127,7 @@
                 @click="handleDocEntryClick(item, 1)"
               >
                 <strong> AUTO SN </strong>
-              </v-btn>
+              </v-btn> -->
               <v-btn
                 :loading="reportsloading"
                 x-small
@@ -494,7 +494,8 @@ export default {
         { text: "WhsCode", value: "WhsCode" },
         { text: "ItemCode", value: "ItemCode" },
         { text: "Dscription", value: "Dscription" },
-        { text: "Quantity", value: "Quantity" },
+        { text: "Original Quantity", value: "Quantity" },
+        { text: "OpenQty", value: "OpenQty" },
         { text: "Status", value: "Status" },
       ],
       poheaders: [
@@ -796,7 +797,7 @@ export default {
         quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum),
         linenum: data.LineNum,
         itemcode: data.ItemCode,
-        uniqueid: data.DocEntry + data.ItemCode + data.LineNum,
+        uniqueid: data.DocEntry + data.ItemCode + data.LineNum + data.OpenQty,
         whs: whs[0],
         model: data.Dscription,
         brand: data.FirmName,
@@ -881,18 +882,81 @@ export default {
       this.podata.forEach((data, index) => {
         this.selected.forEach((selected, index) => {
           if (selected == data.LineNum) {
+            // if(data.Remaining	== "1"){
+            // INFO.push({
+            //   ItemCode: data.ItemCode,
+            //   LineNum: data.LineNum,
+            //   DocEntry: data.DocEntry,
+            //   qty: data.Quantity,
+            // });
+            // }
+            // if(data.Remaining	== "0"){
+            // INFO.push({
+            //   ItemCode: data.ItemCode+data.OpenQty	,
+            //   LineNum: data.LineNum,
+            //   DocEntry: data.DocEntry,
+            //   qty: data.Quantity,
+            // });
+            // }
             INFO.push({
-              ItemCode: data.ItemCode,
-              LineNum: data.LineNum,
-              DocEntry: data.DocEntry,
-              qty: data.Quantity,
-            });
+                  DocEntry: data.DocEntry,
+                  LineNum: data.LineNum,
+                  TargetType: data.TargetType,
+                  TrgetEntry: data.TrgetEntry,
+                  BaseRef: data.BaseRef,
+                  BaseType: data.BaseType,
+                  BaseEntry: data.BaseEntry,
+                  BaseLine: data.BaseLine,
+                  LineStatus: data.LineStatus,
+                  ItemCode: data.ItemCode,
+                  Dscription: data.Dscription,
+                  qty: data.Quantity,
+                  ShipDate: data.ShipDate,
+                  OpenQty: data.OpenQty,
+                  Price: data.Price,
+                  Currency: data.Currency,
+                  Rate: data.Rate,
+                  DiscPrcnt: data.DiscPrcnt,
+                  LineTotal: data.LineTotal,
+                  TotalFrgn: data.TotalFrgn,
+                  OpenSum: data.OpenSum,
+                  OpenSumFC: data.OpenSumFC,
+                  VendorNum: data.VendorNum,
+                  SerialNum: data.SerialNum,
+                  WhsCode: data.WhsCode,
+                  SlpCode: data.SlpCode,
+                  Commission: data.Commission,
+                  TreeType: data.TreeType,
+                  AcctCode: data.AcctCode,
+                  TaxStatus: data.TaxStatus,
+                  GrossBuyPr: data.GrossBuyPr,
+                  PriceBefDi: data.PriceBefDi,
+                  DocDate: data.DocDate,
+                  Flags: data.Flags,
+                  OpenCreQty: data.OpenCreQty,
+                  UseBaseUn: data.UseBaseUn,
+                  SubCatNum: data.SubCatNum,
+                  BaseCard: data.BaseCard,
+                  TotalSumSy: data.TotalSumSy,
+                  OpenSumSys: data.OpenSumSys,
+                  InvntSttus: data.InvntSttus,
+                  OcrCode: data.OcrCode,
+                  Project: data.Project,
+                  CodeBars: data.CodeBars,
+                  VatPrcnt: data.VatPrcnt,
+                  VatGroup: data.VatGroup,
+                  PriceAfVAT: data.PriceAfVAT,
+                  Height1: data.Height1,
+                  FirmName: data.FirmName
+              });
+
           }
         });
       });
 
       var systemID2 = btoa(JSON.stringify(INFO));
       var data = { hash: systemID2, line: this.selected };
+      console.log(data)
       axios
         .post(this.$URLs.backend + "/api/inventory/grpo/createpo", {
           data,
@@ -908,7 +972,7 @@ export default {
           this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
           //this.$socket.emit("history", {"company": this.companies, "po": this.searchPO});
           this.createdgrpo()
-        });
+       });
     },
     refresh2() {
       this.listing = {};

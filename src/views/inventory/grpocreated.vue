@@ -94,41 +94,43 @@
             :items="podata"
             item-key="DocEntry"
           >
-            <template v-slot:item.Selection="{ item }" v-if="creator">
+            <!-- <template v-slot:item.Selection="{ item }" v-if="creator">
               <v-checkbox
                 v-model="selected"
                 :value="item.LineNum"
                 v-if="
-                  !checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)
+                  !checkerifexist(item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty)) 
                 "
                 :disabled="item.LineStatus == 'C'"
                 dense
               ></v-checkbox>
-            </template>
+            </template> -->
             <template v-slot:item.Quantity="{ item }">
               <vs-input
                 type="number"
                 v-model="item.Quantity"
                 max="5"
-                v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
+                :disabled="true"
               />
+                <!-- v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty)) == 0" -->
             </template>
             <template v-slot:item.Status="{ item }">
               {{ item.LineStatus == "C" ? "Closed" : "Open" }}
             </template>
             <template v-slot:item.DocEntry="{ item,index }">
+ 
               <v-btn
                 x-small
                 :color="keycheckStatus(index) == true? 'success':'grey'"
                 v-if="
                   checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum ||
+                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty) ||
                       item.LineStatus == 'C'
                   )
                 "
                 @click="handleDocEntryClick(item)"
                 class="mr-2"
-                
+                :disabled="vendorref?false:true "
               >
                 <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
                 <!-- v-if="item.LineStatus !== 'O'" -->
@@ -141,7 +143,7 @@
                 color="orange"
                 v-if="
                   checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum ||
+                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty)||
                       item.LineStatus == 'C'
                   ) 
                 "
@@ -158,7 +160,7 @@
                 fab
                 v-if="
                   checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum ||
+                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty) ||
                       item.LineStatus == 'C'
                   )
                 "
@@ -524,7 +526,7 @@ export default {
       progStatus: "",
       interval: "",
       headers: [
-        { text: "Selection", value: "Selection" },
+        // { text: "Selection", value: "Selection" },
         {
           text: "Action",
           align: "start",
@@ -535,7 +537,7 @@ export default {
         { text: "ItemCode", value: "ItemCode" },
         { text: "Dscription", value: "Dscription" },
         { text: "Quantity", value: "Quantity" },
-        { text: "Status", value: "Status" },
+        // { text: "Status", value: "Status" },
       ],
       poheaders: [
         { text: "CardCode", value: "CardCode" },
@@ -576,6 +578,9 @@ export default {
     }
   },
   methods: {
+    formatNumber(value) {
+      return parseFloat(value);
+    },
     onAlertClose() {
           this.errors.forEach((res,i)=>{
             if(res == this.sn[i]){
@@ -597,7 +602,7 @@ export default {
        const basemap = data.DocEntry +
               "-" +
               parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum)
+                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
               ) +
               "-" +
               data.LineNum 
@@ -608,7 +613,7 @@ export default {
               data.DocEntry +
               "-" +
               parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum)
+                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
               ) +
               "-" +
               data.LineNum,
@@ -781,11 +786,14 @@ export default {
     send() {
  
       const data = this.alldata();
- 
+      this.sn.forEach((res,index)=>{
+        this.recheckSn(index)
+      })
        if(this.errors.length == 0){
         this.isProgress = true;
         this.creategrpo(data);
         this.progress(this.systemID);
+        
        }else{
          alert('Something wrong this serial '+ this.errors+ ' is already in ' +data.listing.brand)
        }
@@ -840,7 +848,7 @@ export default {
       this.loading = true;
 
       axios
-        .post(this.$URLs.backend + "/api/inventory/grpo/search?status="+this.status, {
+        .post(this.$URLs.backend + "/api/inventory/grpo/createdgrpos?status="+this.status, {
           data,
         })
         .then((res) => {
@@ -860,6 +868,7 @@ export default {
             });
 
           });
+          console.log(this.key)
         });
     },
     inforeset() {
@@ -886,10 +895,10 @@ export default {
       const whs = data.WhsCode.split("-");
       this.listing = {
         po: data.DocEntry,
-        quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum),
+        quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty)),
         linenum: data.LineNum,
         itemcode: data.ItemCode,
-        uniqueid: data.DocEntry + data.ItemCode + data.LineNum,
+        uniqueid: data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty),
         whs: whs[0],
         model: data.Dscription,
         brand: data.FirmName,
@@ -928,7 +937,7 @@ export default {
               data.DocEntry +
               "-" +
               parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum)
+                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
               ) +
               "-" +
               data.LineNum
@@ -937,11 +946,11 @@ export default {
             //this.remarks = "";
             //this.vendorref = "";
             console.log(
-              this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum)
+              this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
             );
             if (
               this.checkerifexist(
-                data.DocEntry + data.ItemCode + data.LineNum
+                data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty)
               ) == true
             ) {
               this.systemID = this.listing.uniqueid;
