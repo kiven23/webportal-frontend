@@ -117,11 +117,11 @@
             <template v-slot:item.Status="{ item }">
               {{ item.LineStatus == "C" ? "Closed" : "Open" }}
             </template>
-            <template v-slot:item.DocEntry="{ item,index }">
+            <template v-slot:item.DocEntry="{ item }">
  
               <v-btn
                 x-small
-                :color="keycheckStatus(index) == true? 'success':'grey'"
+                :color="item.status == 0? 'grey':'success'"
                 v-if="
                   checkerifexist(
                     item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty) ||
@@ -130,41 +130,32 @@
                 "
                 @click="handleDocEntryClick(item)"
                 class="mr-2"
-                :disabled="vendorref?false:true "
-              >
+                :disabled="item.status == 0?vendorref?false:true:false "
+              >  
+            
                 <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
                 <!-- v-if="item.LineStatus !== 'O'" -->
-                <strong> {{keycheckStatus(index) == true? 'VIEW/PRINT':'SERIALIZED'}}   </strong>
+                <strong> {{item.status == 0? 'SERIALIZED':'VIEWPRINT'}}   </strong>
                 <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
               </v-btn>
               <v-btn
-                :disabled="vendorref?false:true "
+                :disabled="item.status == 0?vendorref?false:true:false  "
                 x-small
                 color="orange"
-                v-if="
-                  checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty)||
-                      item.LineStatus == 'C'
-                  ) 
-                "
+                v-if="item.status == 0"
                 @click="handleDocEntryClick(item, 1)"
               >
                 <strong> AUTO SN </strong>
               </v-btn>
               <v-btn
-                :disabled="vendorref?false:true "
+                :disabled="item.status == 0?vendorref?false:true:false "
                 :loading="reportsloading"
                 x-small
                 icon
                 class="ml-2"
                 fab
-                v-if="
-                  checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty) ||
-                      item.LineStatus == 'C'
-                  )
-                "
-                @click="reports(item)"
+              
+                @click="reports(item.mapid)"
               >
               <v-icon>mdi-file-document</v-icon> 
               </v-btn>
@@ -599,24 +590,11 @@ export default {
     //REPORTS
     reports(data){
        this.reportsloading = true
-       const basemap = data.DocEntry +
-              "-" +
-              parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
-              ) +
-              "-" +
-              data.LineNum 
+       const basemap = data 
       axios
           .get(
             this.$URLs.backend +
-              "/api/gen/grporeceiving?data=" +
-              data.DocEntry +
-              "-" +
-              parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
-              ) +
-              "-" +
-              data.LineNum,
+              "/api/gen/grporeceiving?data=" + basemap,
               { responseType: 'blob' }
           )
           .then((res) => {

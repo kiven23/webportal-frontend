@@ -86,12 +86,14 @@
                 dense
               ></v-checkbox>
             </template>
-            <template v-slot:item.Quantity="{ item }">
+            <template v-slot:item.Quantity="{ item,index }">
               <vs-input
                 type="number"
                 v-model="item.Quantity"
                 max="5"
+             
                 v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
+                @input="checkqty(item.Quantity,item.OpenQty,index)"
               />
             </template>
             <template v-slot:item.Status="{ item }">
@@ -531,6 +533,17 @@ export default {
   created() {},
 
   methods: {
+ 
+    checkqty(q,openqty,index){
+     
+      let open = parseInt(openqty)
+      let qty = parseInt(q)
+      if(qty > open){
+         
+         this.item[index] = open
+        alert('Exceed Qty in OpenQty')
+      }
+    },
     createdgrpo(){
       
       this.$router.push('/sapb1/grpo/po/created/'+this.searchPO);
