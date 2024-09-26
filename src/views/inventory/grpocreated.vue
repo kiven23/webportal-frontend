@@ -813,7 +813,13 @@ export default {
           this.$swal("Sync!", "" + res.data.message + "", res.data.status);
           this.Verifysync = false
            
-        });
+        }).catch((error) => {
+        // Handle the error here
+        console.error("An error occurred:", error);
+        this.$swal("Error!", "Failed to sync data: " + error.message, "error");
+        this.Verifysync = true; // Optionally set this to true on error
+        
+          });
     },
     searchpo(po) {
       this.$socket.emit("history", this.companies);

@@ -88,12 +88,12 @@
             </template>
             <template v-slot:item.Quantity="{ item,index }">
               <vs-input
+               
                 type="number"
-                v-model="item.Quantity"
+                v-model="items[index]"
                 max="5"
-             
-                v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
                 @input="checkqty(item.Quantity,item.OpenQty,index)"
+                v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
               />
             </template>
             <template v-slot:item.Status="{ item }">
@@ -392,6 +392,27 @@
          
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="logsDialog"
+      hide-overlay
+      persistent
+      width="300"
+    >
+      <v-card
+        color="primary"
+        dark
+      >
+        <v-card-text>
+  <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+
+  <div
+    style="max-height: 200px; overflow-y: auto; font-size: small; font-weight: bold;"
+  >
+    {{logsData}}
+  </div>
+</v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -427,6 +448,11 @@ export default {
   },
   data() {
     return {
+      intervalId: null,
+      logsData: '',
+      logsDialog: false,
+      randomID: null,
+      items: [],
       mapid: '',
       status: '',
       reportsloading: false,
@@ -507,6 +533,8 @@ export default {
       ],
       allpos: [],
       searchPOs: "",
+      opentQTY: 0,
+      liveQTY: 0
     };
   },
 
@@ -533,17 +561,24 @@ export default {
   created() {},
 
   methods: {
- 
-    checkqty(q,openqty,index){
-     
+     generateRandomNumber() {
+      this.randomID = Math.floor(1000000000 + Math.random() * 9000000000);
+     },
+     checkqty(q,openqty,index){
       let open = parseInt(openqty)
       let qty = parseInt(q)
-      if(qty > open){
-         
-         this.item[index] = open
-        alert('Exceed Qty in OpenQty')
-      }
+      this.opentQTY = open
+      this.liveQTY = qty
+      this.disableNumberInput(q,index)
     },
+    disableNumberInput(event,index) {
+       const inputRef = this.items[index];
+      if (  inputRef > this.opentQTY ) {
+        alert('Quantity exceed')
+        this.items[index] = this.opentQTY
+      }
+     },
+
     createdgrpo(){
       
       this.$router.push('/sapb1/grpo/po/created/'+this.searchPO);
@@ -880,8 +915,21 @@ export default {
           });
       }
     },
+    fetchLogs(id){
+        axios.get(this.$URLs.backend +
+              "/api/getlogs/grpo?data="+id).then((res)=>{
+                this.logsData = res.data
 
+        })
+    },
+    logsIinterVal(logid){
+      this.intervalId = setInterval(() => {
+           this.fetchLogs(logid); 
+    }, 1000);
+    },
     createAtion() {
+      this.generateRandomNumber()
+    
       const loading = this.$vs.loading({
         progress1: 0,
       });
@@ -890,27 +938,11 @@ export default {
           loading.changeProgress(this.progress++);
         }
       }, 40);
-
+      this.logsDialog =true
       const INFO = [];
       this.podata.forEach((data, index) => {
         this.selected.forEach((selected, index) => {
           if (selected == data.LineNum) {
-            // if(data.Remaining	== "1"){
-            // INFO.push({
-            //   ItemCode: data.ItemCode,
-            //   LineNum: data.LineNum,
-            //   DocEntry: data.DocEntry,
-            //   qty: data.Quantity,
-            // });
-            // }
-            // if(data.Remaining	== "0"){
-            // INFO.push({
-            //   ItemCode: data.ItemCode+data.OpenQty	,
-            //   LineNum: data.LineNum,
-            //   DocEntry: data.DocEntry,
-            //   qty: data.Quantity,
-            // });
-            // }
             INFO.push({
                   DocEntry: data.DocEntry,
                   LineNum: data.LineNum,
@@ -923,7 +955,7 @@ export default {
                   LineStatus: data.LineStatus,
                   ItemCode: data.ItemCode,
                   Dscription: data.Dscription,
-                  qty: data.Quantity,
+                  qty: this.items[index]?this.items[index]:data.Quantity,
                   ShipDate: data.ShipDate,
                   OpenQty: data.OpenQty,
                   Price: data.Price,
@@ -962,29 +994,33 @@ export default {
                   Height1: data.Height1,
                   FirmName: data.FirmName
               });
-
           }
         });
       });
-
+      this.logsIinterVal(this.randomID)
       var systemID2 = btoa(JSON.stringify(INFO));
-      var data = { hash: systemID2, line: this.selected };
+      var data = { hash: systemID2, line: this.selected, logsID: this.randomID };
       console.log(data)
       axios
         .post(this.$URLs.backend + "/api/inventory/grpo/createpo", {
           data,
         })
         .then((res) => {
-
-          console.log(res.data);
-          //this.refresh();
           loading.close();
           clearInterval(interval);
+          clearInterval(this.intervalId)
+          this.logsDialog = false
           this.progress = 0;
           var text = JSON.stringify(res.data);
           this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
-          //this.$socket.emit("history", {"company": this.companies, "po": this.searchPO});
           this.createdgrpo()
+          
+       }).catch((error) => {
+            clearInterval(this.intervalId)
+            console.error("An error occurred:", error);
+            this.$swal("Error!", "Failed to sync data: " + error.message, "error");
+            loading.close();
+            clearInterval(interval);
        });
     },
     refresh2() {
