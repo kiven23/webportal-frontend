@@ -940,9 +940,12 @@ export default {
       }, 40);
       this.logsDialog =true
       const INFO = [];
+      const itempo = this.items.filter(item => item !== '');
+      console.log(itempo)
       this.podata.forEach((data, index) => {
         this.selected.forEach((selected, index) => {
           if (selected == data.LineNum) {
+            console.log(itempo[index])
             INFO.push({
                   DocEntry: data.DocEntry,
                   LineNum: data.LineNum,
@@ -955,7 +958,7 @@ export default {
                   LineStatus: data.LineStatus,
                   ItemCode: data.ItemCode,
                   Dscription: data.Dscription,
-                  qty: this.items[index]?this.items[index]:data.Quantity,
+                  qty: itempo[index]?itempo[index]:data.OpenQty,
                   ShipDate: data.ShipDate,
                   OpenQty: data.OpenQty,
                   Price: data.Price,
