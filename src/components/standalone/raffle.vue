@@ -188,7 +188,7 @@ export default {
  
   methods: {},
   mounted() {
-
+ 
  this.sockets.subscribe("check", (res) => {
       this.timer = res.status;
       console.log(res);

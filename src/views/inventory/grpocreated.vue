@@ -271,6 +271,7 @@
                 elevation="2"
                 colored-border
                 icon="mdi-warning"
+                label="Please Dont used the following serial"
               >
                 {{errors}}
               </v-alert>
@@ -735,20 +736,26 @@ export default {
       }, 20000);
     },
     verifydata() {
+      this.sn.forEach((res,index)=>{
+        this.recheckSn(index, this.listing.uniqueid)
+      })
       this.Verifysync = true;
       const data = this.alldata();
       this.verifiedSerial = data;
+      
     },
-    recheckSn(key){
-    
+    recheckSn(key,uid){
+      console.log(this.listing)
       let value = {
         'brand': this.listing.brand,
-        'sn': this.sn[key-1]
+        'sn': this.sn[key-1],
+        'model': this.listing.model,
+        
       }
       console.log(value)
       axios
         .get(
-          this.$URLs.backend + "/api/grpo/checkserial/getlines?sn=" + value.sn + "&brand="+ value.brand
+          this.$URLs.backend + "/api/grpo/checkserial/getlines?sn=" + value.sn + "&brand="+ value.brand + "&model=" + value.model + "&uid="+uid
         )
         .then((res) => {
             if (!this.errors.includes(res.data[0].sn)) {
@@ -764,9 +771,11 @@ export default {
     send() {
  
       const data = this.alldata();
+     
       this.sn.forEach((res,index)=>{
         this.recheckSn(index)
       })
+
        if(this.errors.length == 0){
         this.isProgress = true;
         this.creategrpo(data);

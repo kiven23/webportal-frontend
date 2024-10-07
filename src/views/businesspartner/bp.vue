@@ -11,35 +11,40 @@
           prepend-inner-icon="mdi-magnify"
           v-model="search"
         ></v-text-field>
-
+         <v-btn @click="searchH()" dense x-small> Search </v-btn>
         <template v-slot:extension>
           <v-tabs v-model="tabs" centered>
             <v-tab> BUSINESS PARTNER </v-tab>
           </v-tabs>
+          
         </template>
        
       </v-toolbar>
       <v-card-text>
         <v-row> 
           <v-col class="d-flex justify-start">
-            <v-btn @click="previous()" dense> PREVIOUS </v-btn>
+            <v-btn @click="previous()" dense x-small> PREVIOUS </v-btn>
           </v-col>
           <v-col class="d-flex justify-end">
-            <v-btn @click="nextline()" dense> NEXT </v-btn>
+            <v-btn @click="nextline()" dense x-small> NEXT </v-btn>
+            <v-btn @click="lastline()" dense x-small> LAST </v-btn>
           </v-col>
+             
         </v-row>
       </v-card-text>
   
       <v-card-text >
           <v-row> 
-         
-           <v-col class="d-flex justify-end">
-         <v-btn x-small @click="submit()" dense > SUBMIT ITEM </v-btn>
+            <v-col class="d-flex  " v-if="cardcode">
+              <v-chip color="success">{{cardcode}}</v-chip>
            </v-col>
-             </v-row> 
+           <v-col class="d-flex justify-end">
+            <v-btn x-small @click="submit()" dense > SUBMIT ITEM </v-btn>
+           </v-col>
+          </v-row> 
           <!-- <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn> -->
       </v-card-text>
-      {{ this.bp }}
+   
       <v-tabs-items v-model="tabs">
         <v-tab-item>
           <v-card flat>
@@ -53,6 +58,8 @@
                         :items="cardtypelist"
                         v-model="cardtype"
                         label="CARDTYPE"
+                        item-text="SeriesName"
+                        item-value="Series"
                         dense
                       ></v-select>
             
@@ -73,8 +80,35 @@
                         v-model="group"
                         dense
                       ></v-select>
-
+                   
+                       <v-menu
+                          ref="birthdate"
+                          v-model="birhtdate"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="birthday"
+                              label="Birthday date"
+                              prepend-icon="mdi-calendar"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="birthday"
+                            :active-picker.sync="activePicker"
+                            :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substring(0, 10)"
+                             min="1950-01-01"
+                            @change="save"
+                          ></v-date-picker>
+                        </v-menu>
                       <v-text-field dense label="NAME" v-model="fullname"></v-text-field>
+                      
                       <div class="text-overline mb-4">PAYMENT TERMS</div>
                       <v-select
                         :items="paymenttermslist"
@@ -143,6 +177,19 @@
         </v-tab-item>
       </v-tabs-items>
     </v-card>
+    <v-btn
+      color="blue"
+      fab
+      dark
+      small
+      fixed
+      bottom
+      right
+      class="mb-15"
+      @click="create()"
+    >
+  <v-icon>mdi-plus</v-icon>
+</v-btn>
   </v-container>
 </template>
 
@@ -164,6 +211,11 @@ export default {
   },
   data() {
     return {
+      activePicker: null,
+      date: null,
+      birthdate: false,
+      birthday: null,
+      cardcode: '',
       next_page_url: '',
       last_page_url: '',
       prev_page_url: '',
@@ -188,7 +240,6 @@ export default {
       account: '',
       branch: '',
       mobile: '',
-      birthday: '02/23/1996',
       bank:'',
 
  
@@ -242,18 +293,26 @@ export default {
       ],
     };
   },
-
+    watch: {
+      menu (val) {
+        val && setTimeout(() => (this.activePicker = 'YEAR'))
+      },
+    },
   computed: {},
   created() {},
 
   methods: {
+     save (date) {
+        this.$refs.menu.save(date)
+      },
     async basementUrl(item) {
+ 
       try {
           if(this.path){
             const res = await axios.get(this.route);
             return res.data;
           }else{
-            const res = await axios.get(`http://192.168.1.19:7771/api/inventory/businesspartner/getters?${item}`);
+            const res = await axios.get(`${this.$URLs.backend}/api/inventory/businesspartner/getters?${item}`);
             return res.data;
  
           }
@@ -270,39 +329,78 @@ export default {
     },
     async nextline(){
       
-       const data = await this.basementUrl('item=bp');
+       const data = await this.basementUrl('item=bp&search='+this.search);
        this.next_page_url = data.next_page_url
        this.prev_page_url = data.prev_page_url
        this.last_page_url = data.last_page_url
        this.path = data.path
-       this.route = this.next_page_url + '&item=bp'
+       this.route = this.next_page_url + '&item=bp&search='+this.search
        this.bp = data.data
-        // this.cardtype CardType
-        // this.series  Series
-        // this.group GroupCode
+       this.pluckdata()
+       
+    },
+    async lastline(){
+      
+       const data = await this.basementUrl('item=bp&search='+this.search);
+    
+       this.prev_page_url = data.prev_page_url
+       this.last_page_url = data.last_page_url
+       this.path = data.path
+       this.route = this.last_page_url + '&item=bp&search='+this.search
+       this.bp = data.data
+       this.pluckdata()
+       
+    },
+    async searchH(){
+       this.next_page_url = ''
+       this.prev_page_url = ''
+       this.last_page_url = ''
+       this.path = ''
+       this.route = ''
+       const data = await this.basementUrl('item=bp&search='+this.search);
+       this.next_page_url = await data.next_page_url
+      
+       this.prev_page_url = data.prev_page_url
+       this.last_page_url = data.last_page_url
+       this.path = data.path
+       this.route = this.next_page_url + '&item=bp&search='+this.search
+       this.bp = data.data
+   
+       this.pluckdata()
+       
+    },
+    pluckdata(){
+       this.cardcode = this.bp[0].CardCode
+       this.mobile =  this.bp[0].Cellular
+       this.cardtype = this.bp[0].CardType == 'C'? 'CUSTOMER':'VENDOR';
+       this.series = this.bp[0].Series
+       this.group = this.bp[0].GroupCode
+       this.fullname = this.bp[0].CardName
+       this.paymentterm = this.bp[0].GroupNum
+       this.pricelistdata = 'Price List 01'
+       this.salesemployee = this.bp[0].SlpCode
+       this.addressid = this.bp[0].CardName
         // this.fullname
-        // this.paymentterm
-        // this.pricelistdata
-        // this.salesemployee
-        // this.fullname
-        // this.streetpobox
-        // this.barangay
-        // this.city
-        // this.areacode
-        // this.bankname
-        // this.account
-        // this.branch
+       this.streetpobox = this.bp[0].Building	
+       this.barangay = this.bp[0].Block
+       this.city = this.bp[0].City
+       this.areacode = this.bp[0].ZipCode	
+       this.bankname = this.bp[0].HouseBank	
+       this.account =  this.bp[0].HousBnkAct	
+       this.branch = this.bp[0].HousBnkBrn	
         // this.mobile Cellular
-        // this.birthday
+       this.birthday = this.bp[0].U_Bday
+       console.log(this.bp[0])
     },
     async previous(){
-       const data = await this.basementUrl('item=bp');
+       const data = await this.basementUrl('item=bp&search='+this.search);
        this.next_page_url = data.next_page_url
        this.prev_page_url = data.prev_page_url
        this.last_page_url = data.last_page_url
        this.path = data.path
-       this.route = this.prev_page_url + '&item=bp'
+       this.route = this.prev_page_url + '&item=bp&search='+this.search
        this.bp = data.data
+       this.pluckdata()
     },
     getBankDetails(){
    
@@ -326,6 +424,7 @@ export default {
     async submit(){
        
       this.summary = {
+          cardcode: this.cardcode,
           cardtype: this.cardtype == 'CUSTOMER'? 'C': 'S',
           series: this.series,
           group: this.group,
@@ -349,11 +448,17 @@ export default {
       });
       
         if(this.summary){
-            await axios.post('http://192.168.1.19:7771/api/inventory/businesspartner/submit', this.summary).then((res)=>{
-                this.$swal("Sync!", "" + res.data.message + "", res.data.status);
+            await axios.post(this.$URLs.backend +'/api/inventory/businesspartner/submit', this.summary).then((res)=>{
+                this.$swal("Business Partner Sync!", "" + res.data.message + "", res.data.status);
                 loading.close()
   
-            })
+            }).catch((error) => {
+        
+              console.error("An error occurred:", error);
+              this.$swal("Error!", "Failed to sync data: " + error.message, "error");
+         
+        
+          });
 
      }
      
