@@ -88,6 +88,7 @@ import barcodeprint from "../views/inventory/barcodeprint.vue";
 //INVENTORY TRANSACTION
 import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
 import goodsreceipt from "../views/inventory/inventorytransaction/goodsreceipt";
+import inventorytransfer from "../views/inventory/inventorytransaction/inventorytransfer";
 //BUSINESS PARTNER
 import businesspartner from "../views/businesspartner/bp";
 //database configure
@@ -544,6 +545,15 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
+  {
+    path: "/sapb1/invt/transactions/inventorytransfer",
+    component: inventorytransfer,
+    name: "inventorytransfer",
+    meta: {
+      requiresAuth: true
+    }
+  },
+   
   //BUSINESS PARTNER
   {
     path: "/sapb1/businesspartner",

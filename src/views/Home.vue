@@ -3,7 +3,7 @@
     <v-container grid-list-md>
       <v-layout row wrap>
         <v-flex xs12>
-          <h3>Modules</h3>
+          <h3>New Modules</h3>
           <!-- <h2>This is the best home ever!</h2> -->
           <p> 
           </p>
@@ -21,7 +21,7 @@
           <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
         </template>
       </vs-button>
-       <vs-button
+     <vs-button
         style="background-color: white; min-width: 70px; color: black"
         to="/sapb1/barcode/printing"
         animation-type="scale"
@@ -32,7 +32,7 @@
           <strong style="margin-left: 10px">BARCODE PRINT &#9881;</strong>
           <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
         </template>
-      </vs-button>
+      </vs-button>  
        
       </v-layout>
          <v-layout row wrap>
@@ -43,7 +43,8 @@
           </p>
           
         </v-flex>
-        <vs-button
+        <vs-button 
+        :disabled="true"
         style="background-color: white; min-width: 70px; color: black"
         to="/sapb1/invt/transactions/goodsreceipt"
         animation-type="scale"
@@ -56,6 +57,7 @@
         </template>
       </vs-button>
        <vs-button
+       :disabled="false"
         style="background-color: white; min-width: 70px; color: black"
         to="/sapb1/invt/transactions/goodsissue"
         animation-type="scale"
@@ -68,8 +70,9 @@
         </template>
       </vs-button>
         <vs-button
+        :disabled="false"
         style="background-color: white; min-width: 70px; color: black"
-        to="/sapb1/barcode/printing"
+        to="/sapb1/invt/transactions/inventorytransfer"
         animation-type="scale"
         >
         <v-img src="/sap.png" style="width: 100px"> </v-img
@@ -90,6 +93,7 @@
           
         </v-flex>
         <vs-button
+        :disabled="true"
         style="background-color: white; min-width: 70px; color: black"
         to="/sapb1/businesspartner"
         animation-type="scale"

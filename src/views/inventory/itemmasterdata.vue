@@ -104,15 +104,17 @@
                   <v-list-item-title>Database</v-list-item-title>
                       <v-list-item-subtitle>
                       <v-container fluid style="display: flex; flex-direction: column; gap: 0; ">
-                       
+                     
+                     <div v-for="databaseList in db" :key="databaseList">
                       <v-checkbox
                         style="margin: -12px;"
                         v-model="databases"
-                        label="ADDESSA_NEWPROD"
+                        :label="databaseList.dbname"
                         dense
-                        value="ADDESSA_NEWPROD"
+                        :value="databaseList.dbname"
                       ></v-checkbox>
-                      <v-checkbox
+                    </div>
+                      <!-- <v-checkbox
                         v-model="databases"
                         style="margin: -12px;"
                         dense
@@ -161,6 +163,13 @@
                         label="EASYOWN"
                         value="EASYOWN"
                       ></v-checkbox>
+                      <v-checkbox
+                        v-model="databases"
+                        style="margin: -12px;"
+                        dense
+                        label="METROILOCOS"
+                        value="METROILOCOS"
+                      ></v-checkbox> -->
 
                     </v-container>
                     </v-list-item-subtitle>
@@ -643,6 +652,7 @@ export default {
   },
   data() {
     return {
+         db: [],
          loadingForTable: true,
          databases: [],
          chek: [],
@@ -957,7 +967,13 @@ export default {
           this.loadingForTable = false
       }).catch((error) => {
            this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
-  });
+      });
+       axios.get("http://192.168.1.19:7771/api/itemmasterdata/oitm/db").then((res)=>{
+          this.db = res.data
+         
+      }).catch((error) => {
+           this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
+      });
     },
     addItem() {
       this.identify = 0

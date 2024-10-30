@@ -302,6 +302,33 @@ export default {
   created() {},
 
   methods: {
+     create(){
+       this.cardcode = ''
+      this.next_page_url = ''
+      this.last_page_url = ''
+      this.prev_page_url = ''
+      this.path = ''
+ 
+      //MODELS
+      this.cardtype = ''
+      this.series = ''
+      this.search = ''
+      this.group = ''
+      this.fullname = ''
+      this.paymentterm = ''
+      this.pricelistdata = ''
+      this.salesemployee = ''
+      this.addressid = ''
+      this.streetpobox = ''
+      this.barangay = ''
+      this.city = '' 
+      this.areacode = ''
+      this.bankname = ''
+      this.account = ''
+      this.branch = ''
+      this.mobile = ''
+      this.bank = ''
+     },
      save (date) {
         this.$refs.menu.save(date)
       },
@@ -328,7 +355,9 @@ export default {
       }
     },
     async nextline(){
-      
+       const loading = this.$vs.loading({
+        progress1: 0,
+        });
        const data = await this.basementUrl('item=bp&search='+this.search);
        this.next_page_url = data.next_page_url
        this.prev_page_url = data.prev_page_url
@@ -336,11 +365,14 @@ export default {
        this.path = data.path
        this.route = this.next_page_url + '&item=bp&search='+this.search
        this.bp = data.data
+       loading.close()
        this.pluckdata()
        
     },
     async lastline(){
-      
+       const loading = this.$vs.loading({
+        progress1: 0,
+        });
        const data = await this.basementUrl('item=bp&search='+this.search);
     
        this.prev_page_url = data.prev_page_url
@@ -348,10 +380,14 @@ export default {
        this.path = data.path
        this.route = this.last_page_url + '&item=bp&search='+this.search
        this.bp = data.data
+       loading.close()
        this.pluckdata()
        
     },
     async searchH(){
+        const loading = this.$vs.loading({
+        progress1: 0,
+        });
        this.next_page_url = ''
        this.prev_page_url = ''
        this.last_page_url = ''
@@ -365,7 +401,7 @@ export default {
        this.path = data.path
        this.route = this.next_page_url + '&item=bp&search='+this.search
        this.bp = data.data
-   
+       loading.close()
        this.pluckdata()
        
     },
@@ -393,6 +429,9 @@ export default {
        console.log(this.bp[0])
     },
     async previous(){
+       const loading = this.$vs.loading({
+        progress1: 0,
+        });
        const data = await this.basementUrl('item=bp&search='+this.search);
        this.next_page_url = data.next_page_url
        this.prev_page_url = data.prev_page_url
@@ -400,6 +439,7 @@ export default {
        this.path = data.path
        this.route = this.prev_page_url + '&item=bp&search='+this.search
        this.bp = data.data
+       loading.close()
        this.pluckdata()
     },
     getBankDetails(){
@@ -445,7 +485,7 @@ export default {
       }
         const loading = this.$vs.loading({
         progress1: 0,
-      });
+        });
       
         if(this.summary){
             await axios.post(this.$URLs.backend +'/api/inventory/businesspartner/submit', this.summary).then((res)=>{
