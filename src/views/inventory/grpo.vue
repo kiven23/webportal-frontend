@@ -448,6 +448,7 @@ export default {
   },
   data() {
     return {
+      resubmit: false,
       intervalId: null,
       logsData: '',
       logsDialog: false,
@@ -779,12 +780,13 @@ export default {
           data,
         })
         .then((res) => {
+           
           console.log(res.data);
           this.refresh2();
           var text = JSON.stringify(res.data);
           this.$swal("Sync!", "" + res.data.message + "", res.data.status);
           this.Verifysync = false
-           
+          console.log(res.data.message+'-----'+ res.data.status)
         });
     },
     searchpo(po) {
@@ -925,10 +927,14 @@ export default {
     logsIinterVal(logid){
       this.intervalId = setInterval(() => {
            this.fetchLogs(logid); 
-    }, 1000);
+    }, 10000);
     },
     createAtion() {
-      this.generateRandomNumber()
+      if(this.resubmit == false){
+        // alert('generate ulit'+ this.resubmit)
+          this.generateRandomNumber()
+      }
+       
     
       const loading = this.$vs.loading({
         progress1: 0,
@@ -937,7 +943,7 @@ export default {
         if (this.progress <= 100) {
           loading.changeProgress(this.progress++);
         }
-      }, 40);
+      }, 1000);
       this.logsDialog =true
       const INFO = [];
       const itempo = this.items.filter(item => item !== '');
@@ -1009,21 +1015,34 @@ export default {
           data,
         })
         .then((res) => {
-          loading.close();
           clearInterval(interval);
           clearInterval(this.intervalId)
           this.logsDialog = false
           this.progress = 0;
           var text = JSON.stringify(res.data);
           this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
+          this.resubmit = false
           this.createdgrpo()
+          loading.close();
+          
           
        }).catch((error) => {
-            clearInterval(this.intervalId)
-            console.error("An error occurred:", error);
-            this.$swal("Error!", "Failed to sync data: " + error.message, "error");
-            loading.close();
-            clearInterval(interval);
+            if(error.message == 'Request failed with status code 500'){
+              this.resubmit = true
+              this.createAtion()
+              //alert('The System Resubmit Please Ok')
+              clearInterval(this.intervalId)
+              // console.error("An error occurred:", error);
+              // this.$swal("Error!", "Failed to sync data: " + error.message, "error");
+              loading.close();
+              clearInterval(interval);
+            }else{
+              clearInterval(interval);
+              clearInterval(this.intervalId)
+            }
+            
+          
+             
        });
     },
     refresh2() {

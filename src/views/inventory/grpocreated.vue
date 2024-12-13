@@ -238,7 +238,7 @@
               style="margin-top: 19px"
               @input="inforeset"
               :error-messages="errorvendor"
-              :disabled="true"
+              
             ></v-text-field>
           </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -284,7 +284,7 @@
             class="ml-2 mr-2"
             :error-messages="errorremarks"
             @input="inforeset"
-            :disabled="true"
+          
             
           ></v-textarea>
           <v-card-title
@@ -772,9 +772,9 @@ export default {
  
       const data = this.alldata();
      
-      this.sn.forEach((res,index)=>{
-        this.recheckSn(index)
-      })
+      // this.sn.forEach((res,index)=>{
+      //   this.recheckSn(index)
+      // })
 
        if(this.errors.length == 0){
         this.isProgress = true;

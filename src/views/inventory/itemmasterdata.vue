@@ -508,6 +508,7 @@
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
+
                  <v-col cols="12" sm="2">
                   <v-list-item-title>Inst. Subsidy Amt.</v-list-item-title>
                       <v-list-item-subtitle>
@@ -520,6 +521,21 @@
                            
                         ></v-text-field>
                         </v-list-item-subtitle>
+                 </v-col>
+                 <v-col cols="12" sm="2">
+                   <v-list-item-title>Sub Category Group</v-list-item-title>
+                      <v-list-item-subtitle>
+                           <v-autocomplete
+                            v-model="data.subcatgroup"
+                            :items="subcatgroup"
+                            item-text="CodeName"
+                            item-value="Name"
+                            dense
+                            filled
+                            label="Filled"
+                             
+                          ></v-autocomplete>
+                         </v-list-item-subtitle>
                  </v-col>
                   <v-col cols="12" sm="2">
                     <vs-button v-if="identify == 1" style="margin-left: 10px" @click="updateItem()">
@@ -674,6 +690,7 @@ export default {
         sortBrand: '',
        //FIELDS
        data: {
+          subcatgroup: '',
           oldmodels:  '',
           sortBrand: '',
           model: '',
@@ -718,6 +735,7 @@ export default {
             text: 'action',
             value: 'action',
           }],
+      subcatgroup: [],
       warrantyT: [],
       itemgroup: [],
       manufacturer: [],
@@ -964,6 +982,7 @@ export default {
           this.itemgroup = res.data.oitb
           this.warrantyT = res.data.warrantyt
           this.properties1 = res.data.oitg
+          this.subcatgroup = res.data.subcatgroup
           this.loadingForTable = false
       }).catch((error) => {
            this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
@@ -1065,6 +1084,7 @@ export default {
           type: row.U_cType,
           sizes: row.U_cSizes,
           instsubamp: row.U_SubsidyAmt,
+          subcatgroup: row.U_SubCatGroup
       }
       this.properties1 = 
       [{ItmsGrpNam: 'Items Property 1', value: row.QryGroup1 == 'Y'? 'checked':''},
