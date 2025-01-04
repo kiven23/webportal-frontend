@@ -8,21 +8,29 @@
             color="green"
             text-color="white"
             v-if="creation == 1 ? true : false"
+            style="margin:5px;"
           >
           <strong>FROM: {{frommwh}}</strong>
           </v-chip>
-         </v-col></v-card-title>
+         <v-icon  style="margin:5px;"
+          elevation="2"
+           
+          @click="dialogUDFButton()">mdi-share</v-icon> 
+         </v-col>
+         
+         </v-card-title>
        
        <v-card-text>
-        
+               
         <v-row> 
-          
+     
           <v-col class="d-flex justify-start">
-            <v-btn @click="previous()" dense> PREVIOUS </v-btn>
+              <v-icon @click="previous()">mdi-skip-previous</v-icon>  
           </v-col>
           <v-col class="d-flex justify-end">
-            <v-btn @click="nextline()" dense> NEXT </v-btn>
+          <v-icon @click="nextline()" >mdi-skip-next</v-icon> 
           </v-col>
+          
         </v-row>
         
       </v-card-text>
@@ -32,10 +40,10 @@
          <v-row> 
           
          <v-col class="d-flex justify-start">
-         <v-btn x-small @click="selectitem()" dense > SELECT ITEM </v-btn>
+        <v-icon @click="selectitem()">mdi-file-document-box</v-icon>  
          </v-col>
          <v-col class="d-flex justify-end">
-         <v-btn x-small @click="submit()" dense  :disabled="creation == 1 ? true : false " > SUBMIT ITEM </v-btn>
+         <v-icon @click="submit()" dense  :disabled="creation == 1 ? true : false ">mdi-content-save-all</v-icon> 
            
          </v-col>
          
@@ -47,7 +55,7 @@
      
       
       <v-card-actions>
-        {{goodsissuelist}}
+       
         <v-data-table
           dense
           :headers="headers"
@@ -110,6 +118,14 @@
               </template>
          </v-select>
       </template>
+      <template v-slot:item.serialbarcode="{item, index}">
+            <v-btn
+              v-if="sn[index] && creation == 0"
+              elevation="2"
+              small
+              @click="serialBarcodeDialog(index,item)"
+            > Serialized</v-btn>
+      </template>
          <template v-slot:item.towarehouse="{item, index}">
             <v-autocomplete
             chips
@@ -132,37 +148,40 @@
       
       <v-divider></v-divider>
        <v-row>
-        <v-col
-          cols="6"
-          md="3"
-          style="margin: 5px;"
-        >
-        <v-textarea
-          outlined
-          name="input-7-4"
-          label="Remarks"
-          :value="listgoodsissue.Comments"
-          v-model="remarksModel"
-        > </v-textarea> 
+  <!-- Remarks Section -->
+  <v-col
+    cols="4"
+    md="3"
+    style="margin: 2px;"
+  >
+    <v-textarea
+      outlined
+      name="remarks-input"
+      label="Remarks"
+      v-model="remarksModel"
+      :value="listgoodsissue.Comments"
+    ></v-textarea> 
+  </v-col>
        
-      </v-col>
-       
-       <v-col
-          cols="6"
-          md="3"
-          style="margin: 5px;"
-        >
-        <v-textarea
-          
-          outlined
-          name="input-7-4"
-          label="Journal Remarks"
-          v-model="JrnlMemo"
-          :value="listgoodsissue.JrnlMemo"
-        > </v-textarea> 
-       
-      </v-col>
-      </v-row>
+  <!-- Journal Remarks Section -->
+  <v-col
+    cols="4"
+    md="3"
+    style="margin: 2px;"
+  >
+    <v-textarea
+      outlined
+      name="journal-remarks-input"
+      label="Journal Remarks"
+      v-model="JrnlMemo"
+      :value="listgoodsissue.JrnlMemo"
+    ></v-textarea> 
+  </v-col>
+ 
+ 
+ 
+  </v-row>
+
     </v-card>
       
      <v-dialog
@@ -181,10 +200,10 @@
           dense
         >
         </v-text-field> 
-        <v-btn x-small @click="searchfunction()" dense> SEARCH </v-btn>
+       <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
         <br>
-        <v-btn  x-small @click="prev()" dense> PREV </v-btn>
-        <v-btn  x-small @click="next()" dense> NEXT </v-btn>
+        <v-icon @click="prev()" >mdi-skip-previous</v-icon>  
+        <v-icon @click="next()" >mdi-skip-next</v-icon>  
         </v-card-title>
         <v-data-table
           dense
@@ -293,7 +312,123 @@
     </v-card-actions>
   </v-card>
 </v-dialog>
+ <v-dialog
+      v-model="serialmanageDialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar
+          style="
+            background: linear-gradient(
+              180deg,
+              rgba(112, 43, 43, 0.05504208519345233) 2%,
+              rgba(31, 62, 126, 1) 17%
+            );
+            border-radius: 10px;
+          "
+        >
+          <v-btn icon @click="serialmanageDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-list three-line>
+          <v-spacer></v-spacer>
+       <div v-for="(serial,index) in serialMapModel[remapserialIndex]" :key="serial">  
+          <div >
+            <v-col cols="12">
+              <v-text-field
+                v-model="serialMapModel[remapserialIndex][index].sn"
+                clearable
+                dense
+                color="green"
+                @input="serializedFunction(remapserialIndex,index)"
+                :error-messages="errorSn[remapserialIndex+index-1]"
+              >
+              </v-text-field>
+            </v-col>
+          </div>
+       </div>
+        </v-list>
+        <v-divider></v-divider>
+      </v-card>
+    </v-dialog>
 
+     <v-dialog
+      v-model="dialogUDF"
+      persistent
+      max-width="600px"
+    >
+      
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">User Define Fields</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+             
+               
+              <v-col cols="12">
+                <v-text-field
+                  label="Name"
+                  required
+                  v-model="u_name"
+                ></v-text-field>
+              </v-col>
+           
+              <v-col
+                cols="12"
+                sm="6"
+              >
+                <v-autocomplete
+                  v-model="closereason"
+                  :items="closereasonItem"
+                  item-text="Descr"
+                  item-value="FldValue"
+                  label="Close Reason"
+               
+                ></v-autocomplete>
+              </v-col>
+              <v-col
+                cols="12"
+                sm="6"
+              >
+            
+                <v-autocomplete
+                  v-model="stocktransfertype"
+                  :items="stocktransfertypeItem"
+                  item-text="Descr"
+                  item-value="FldValue"
+                  label="Stock Transfer Type"
+                  
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+          </v-container>
+          <small>*indicates required field</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="dialogUDF = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="dialogUDF = false"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -318,6 +453,15 @@ export default {
   },
   data() {
     return {
+      closereasonItem: [],
+      closereason: '',
+      stocktransfertypeItem: [],
+      stocktransfertype: '',
+      u_name: '',
+      dialogUDF: false,
+      errorSn: [],
+      serialMapModel: [],
+      remapserialIndex: 0,
       JrnlMemo: '',
       frommwh: [],
       owhslist: [],
@@ -357,8 +501,8 @@ export default {
       remarksModel: [],
       listgoodsissue: {},
       closeserial: [],
-      
-
+      BarcodeSerial:'',
+      serialmanageDialog: false,
       breadcrums: [
         {
           text: "Dashboard",
@@ -400,7 +544,9 @@ export default {
          { text: "Quantity", value: "Quantity" },
          { text: "Whse", value: "whse" },
          { text: "Serial", value: "serial" },
+         { text: "SerialBarcode", value: "serialbarcode" },
          { text: "To Warehouse", value: "towarehouse" },
+       
       ]
       ,
          headers2: [
@@ -444,6 +590,33 @@ export default {
   created() {},
   
   methods: {
+   dialogUDFButton(){
+     this.dialogUDF = true
+    },
+   serialBarcodeDialog(index,item){
+     this.serialmanageDialog = true
+     this.remapserialIndex = index
+    
+   },
+   serializedFunction(index,serialIndex){
+     let serialArr = this.serialMapModel[index].map((value) => {
+      return value.sn
+     });
+  
+     let filteredArray = serialArr.filter(item => item); 
+     this.selectedSerial[index] = filteredArray;
+     if(this.sn[index].includes(this.serialMapModel[index][serialIndex].sn)){
+          console.log("Value exists in the array!");
+          this.errorSn[index+serialIndex-1] = ''
+     }else {
+         this.errorSn[index+serialIndex-1] = 'This serial does not exist - '+this.serialMapModel[index][serialIndex].sn
+      }
+
+     this.qtyModel[index] = filteredArray.length
+     this.getQty(index)
+     this.componentKey += 1;
+  
+   },
    async controller(data,i,docentry) {
     try {
         var baselink;
@@ -455,8 +628,10 @@ export default {
           baselink = this.prevtt
         }else if(i == 4){
           baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&search='+this.search;
-        } else if(i == 5){
+        }else if(i == 5){
           baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&docentry='+docentry;
+        }else if(i == 6){
+          baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
         } 
         const res = await axios.get(baselink);
         return res.data;
@@ -465,6 +640,7 @@ export default {
         throw error;  
     }
   },
+    
   Getactivemodals(i){
     return this.dialogs[i];
   },
@@ -502,7 +678,7 @@ export default {
          this.currentpage = data2.current_page
         this.topage = data2.to
         this.totalpage = data2.total
-    
+     if(this.activeModal == 4){
         this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
         await this.goodsissue.forEach((res,index)=>{
         this.qtyModel[index] = res.Quantity
@@ -512,12 +688,15 @@ export default {
         this.frommwh = this.listgoodsissue.Filler
         this.JrnlMemo = this.listgoodsissue.JrnlMemo
       })
+
+     }
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
 
  } ,
  async prev() {
+ 
     try {
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),3);
         this.oitm = data2.data
@@ -528,15 +707,18 @@ export default {
         this.currentpage = data2.current_page
         this.topage = data2.to
         this.totalpage = data2.total
-        this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
-        await this.goodsissue.forEach((res,index)=>{
-        this.qtyModel[index] = res.Quantity
-        this.warehouseModel[index] = res.WhsCode
-        this.glModel[index] = res.AcctCode
-        this.remarksModel = this.listgoodsissue.Comments
-        this.frommwh = this.listgoodsissue.Filler
-        this.JrnlMemo = this.listgoodsissue.JrnlMemo
-      })
+        if(this.activeModal == 4){
+            this.goodsissue = await this.controller('index',5,data2.data[0].DocEntry);
+                  await this.goodsissue.forEach((res,index)=>{
+                  this.qtyModel[index] = res.Quantity
+                  this.warehouseModel[index] = res.WhsCode
+                  this.glModel[index] = res.AcctCode
+                  this.remarksModel = this.listgoodsissue.Comments
+                  this.frommwh = this.listgoodsissue.Filler
+                  this.JrnlMemo = this.listgoodsissue.JrnlMemo
+                })
+        }
+       
      
     } catch (error) {
         console.error('Error in selectitem:', error);  
@@ -626,9 +808,11 @@ async getsn(item,i){
         const data = await this.controller(this.Getactivemodals(this.activeModal),1);
    
         this.sn[i] = [];
+        this.serialMapModel[i] = [];
         data.forEach((res) => {
         
-           this.sn[i].push(res.IntrSerial)
+           this.sn[i].push(res.IntrSerial);
+           this.serialMapModel[i].push({ sn: '' });
         });
     } catch (error) {
         console.error('Error in selectitem:', error);  
@@ -640,6 +824,7 @@ async getItemData2(docentry){
 
 
 },
+ 
   toggle (i) {
           
           if(this.selectall[i] == true){
@@ -654,6 +839,8 @@ async getItemData2(docentry){
     
   },
   async getQty(index){      
+      
+      console.log(this.selectedSerial[index]);
       this.qtyModel[index] =  this.selectedSerial[index].length
   },
   async getGL(){
@@ -663,6 +850,11 @@ async getItemData2(docentry){
   async getOwhs(){
       const whs = await this.controller(this.activeRouteBase, 1);
       return this.owhslist = whs
+  },
+  async getUDF(){
+      this.closereasonItem = await this.controller('udf', 6, 11);
+      this.stocktransfertypeItem = await this.controller('udf', 6, 31);
+      return "Fetch Done";
   },
   async getGoodsIssue(i){
      
@@ -699,7 +891,7 @@ async getItemData2(docentry){
      }
      
   },
-  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo){
+  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_CloseType){
      const arr = {
                     myserialnumber:  myserialnumber,
                     fromMWH:  warehouse,
@@ -708,7 +900,11 @@ async getItemData2(docentry){
                     toMWH: towarehouse,
                     Model:  Model,
                     Remarks: Remarks,
-                    JrnlMemo: JrnlMemo
+                    JrnlMemo: JrnlMemo,
+                    U_Name: U_Name,
+                    U_StockTransType: U_StockTransType,
+                    U_CloseType: U_CloseType
+
                   }
       return arr
   },
@@ -718,7 +914,7 @@ async getItemData2(docentry){
       });
       var data = []
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo))
+            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.closereason))
         });
         console.log(data)
         if(data){
@@ -793,10 +989,10 @@ async getItemData2(docentry){
   async mounted() {
     this.activeModal = await  5
     this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal)
-    
-    this.getOwhs()
-    
-  
+    await this.getOwhs()
+    await this.getUDF()
+    this.stocktransfertype = '-'
+    this.closereason = '-'
      
    
   },

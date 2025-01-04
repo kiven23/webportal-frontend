@@ -81,7 +81,7 @@
         </template>
       </vs-button>
         <vs-button
-        :disabled="true"
+        :disabled="false"
         style="background-color: white; min-width: 70px; color: black"
         to="/sapb1/invt/transactions/inventorytransfer"
         animation-type="scale"
