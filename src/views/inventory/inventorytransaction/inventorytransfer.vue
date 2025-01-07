@@ -3,33 +3,43 @@
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
       
-      <v-card-title class="text-h5 lighten-3">Inventory Transfer   <v-col class="d-flex justify-end">
-          <v-chip
-            color="green"
-            text-color="white"
-            v-if="creation == 1 ? true : false"
-            style="margin:5px;"
-          >
-          <strong>FROM: {{frommwh}}</strong>
-          </v-chip>
-         <v-icon  style="margin:5px;"
-          elevation="2"
-           
-          @click="dialogUDFButton()">mdi-share</v-icon> 
-         </v-col>
-         
-         </v-card-title>
+      <v-card-title class="text-h5 lighten-3">Inventory Transfer   
+  <v-col class="d-flex justify-end">
+    <v-chip
+      color="green"
+      text-color="white"
+      v-if="creation == 1 ? true : false"
+      style="margin:5px;"
+    >
+      <strong>FROM: {{frommwh}}</strong>
+    </v-chip>
+    <!-- Added UDF Name Label -->
+    <v-btn
+      color="primary"
+      style="margin:5px;"
+      elevation="2"
+      @click="dialogUDFButton()"
+    >
+      <v-icon left>mdi-share</v-icon>
+      UDF Name
+    </v-btn>
+  </v-col>
+</v-card-title>
+
        
        <v-card-text>
                
         <v-row> 
      
           <v-col class="d-flex justify-start">
-              <v-icon @click="previous()">mdi-skip-previous</v-icon>  
-          </v-col>
-          <v-col class="d-flex justify-end">
-          <v-icon @click="nextline()" >mdi-skip-next</v-icon> 
-          </v-col>
+  <v-icon @click="previous()" title="Previous">mdi-skip-previous</v-icon>
+  <span class="ml-2">Previous</span>
+</v-col>
+<v-col class="d-flex justify-end">
+  <v-icon @click="nextline()" title="Next">mdi-skip-next</v-icon>
+  <span class="ml-2">Next</span>
+</v-col>
+
           
         </v-row>
         
@@ -41,10 +51,11 @@
           
          <v-col class="d-flex justify-start">
         <v-icon @click="selectitem()">mdi-file-document-box</v-icon>  
+        <span class="ml-2">Select Items</span>
          </v-col>
          <v-col class="d-flex justify-end">
-         <v-icon @click="submit()" dense  :disabled="creation == 1 ? true : false ">mdi-content-save-all</v-icon> 
-           
+         <v-icon @click="submit()"    :disabled="creation == 1 ? true : false "   >mdi-content-save-all</v-icon> 
+          <span class="ml-2">Save</span>
          </v-col>
          
          </v-row> 
@@ -147,12 +158,12 @@
       </v-card-actions>
       
       <v-divider></v-divider>
-       <v-row>
+       <v-row >
   <!-- Remarks Section -->
   <v-col
-    cols="4"
-    md="3"
-    style="margin: 2px;"
+    cols="6"
+    
+    
   >
     <v-textarea
       outlined
@@ -165,9 +176,9 @@
        
   <!-- Journal Remarks Section -->
   <v-col
-    cols="4"
-    md="3"
-    style="margin: 2px;"
+    cols="6"
+    
+     
   >
     <v-textarea
       outlined
@@ -202,8 +213,9 @@
         </v-text-field> 
        <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
         <br>
-        <v-icon @click="prev()" >mdi-skip-previous</v-icon>  
-        <v-icon @click="next()" >mdi-skip-next</v-icon>  
+        <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> Previous
+<v-icon @click="next()" title="Next">mdi-skip-next</v-icon> Next
+
         </v-card-title>
         <v-data-table
           dense
@@ -260,8 +272,8 @@
         </v-text-field> 
         <v-btn x-small @click="searchfunction()" dense> SEARCH </v-btn>
         <br>
-        <v-btn  x-small @click="prev()" dense> PREV </v-btn>
-        <v-btn  x-small @click="next()" dense> NEXT </v-btn>
+        <v-btn  x-small @click="prev()" title="Previous" dense> PREV </v-btn>
+        <v-btn  x-small @click="next()" title="Next" dense> NEXT </v-btn>
         </v-card-title>
         <v-data-table
           dense
