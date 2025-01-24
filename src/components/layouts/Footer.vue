@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <v-footer app style="background-color: #1b4475; ">
+    <v-footer app style="background-color: rgb(0,0,195); ">
       <v-card class="flex" flat >
         <v-card-actions class="justify-center">
           &copy;&nbsp;{{ new Date().getFullYear() }} —

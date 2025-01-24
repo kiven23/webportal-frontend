@@ -1,6 +1,7 @@
 <template>
   <nav>
-    <v-app-bar app  dark clipped-left  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); border-radius: 10px;">
+    <!-- linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%) -->
+    <v-app-bar app  dark clipped-left  style="background: linear-gradient(0deg, rgba(0,0,195,1) 0%, rgba(37,63,182,1) 72%, rgba(255,255,255,1) 100%); border-radius: 10px;">
       <!-- <v-app-bar-nav-icon @click.stop="drawer"></v-app-bar-nav-icon> -->
       <v-btn icon @click.stop="drawer" v-if="!isMobile">
         <v-icon>{{ toggleDrawer ? "mdi-menu" : "mdi-menu-open" }}</v-icon>

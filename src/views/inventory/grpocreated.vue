@@ -617,7 +617,7 @@ export default {
 
     //END REPORTS
     focusNextEmptyField(i) {
-       this.recheckSn(i)
+       //this.recheckSn(i)
        const emtysnIndex = this.sn.findIndex(value => value === null || value === '') +1;
        this.$refs['textField' + emtysnIndex][0].focus();
        
@@ -736,9 +736,9 @@ export default {
       }, 20000);
     },
     verifydata() {
-      this.sn.forEach((res,index)=>{
-        this.recheckSn(index, this.listing.uniqueid)
-      })
+      // this.sn.forEach((res,index)=>{
+      //   this.recheckSn(index, this.listing.uniqueid)
+      // })
       this.Verifysync = true;
       const data = this.alldata();
       this.verifiedSerial = data;

@@ -33,11 +33,11 @@
      
           <v-col class="d-flex justify-start">
   <v-icon @click="previous()" title="Previous">mdi-skip-previous</v-icon>
-  <span class="ml-2">Previous</span>
+  <!-- <span class="ml-2">Previous</span> -->
 </v-col>
 <v-col class="d-flex justify-end">
   <v-icon @click="nextline()" title="Next">mdi-skip-next</v-icon>
-  <span class="ml-2">Next</span>
+  <!-- <span class="ml-2">Next</span> -->
 </v-col>
 
           
@@ -54,7 +54,7 @@
         <span class="ml-2">Select Items</span>
          </v-col>
          <v-col class="d-flex justify-end">
-         <v-icon @click="submit()"    :disabled="creation == 1 ? true : false "   >mdi-content-save-all</v-icon> 
+         <v-icon @click="dialogUDFButton()"    :disabled="creation == 1 ? true : false "   >mdi-content-save-all</v-icon> 
           <span class="ml-2">Save</span>
          </v-col>
          
@@ -99,7 +99,7 @@
         </template>
         <template v-slot:item.serial="{item, index}">
   
-           <v-btn x-small color="success" v-if="creation == 1" @click="viewSerial(item)">Serial</v-btn>
+           <v-btn x-small color="success" v-if="creation == 1" @click="viewSerial(item)" disabled="true">Serial</v-btn>
            <v-select
             v-model="selectedSerial[index]"
             :items="sn[index]"
@@ -152,7 +152,14 @@
             :disabled="creation == 1 ? true : false " 
            >{{index}}</v-autocomplete>
           </template>
-
+        <template v-slot:item.Action="{item, index}">
+            <v-btn
+              elevation="2"
+              small
+              @click="clearItemData(index)"
+            > Clear</v-btn>
+            {{index}}
+      </template>
         </v-data-table>
         
       </v-card-actions>
@@ -197,12 +204,15 @@
       
      <v-dialog
       v-model="getItem"
-      persistent
       max-width="900"
     >
       <v-card>
          <v-card-title >
           List of Items 
+          <v-col class="d-flex justify-end">
+              <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> 
+              <v-icon @click="next()" title="Next">mdi-skip-next</v-icon> 
+          </v-col>
            </v-card-title > 
          <v-card-title >   
         <v-text-field
@@ -213,10 +223,10 @@
         </v-text-field> 
        <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
         <br>
-        <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> Previous
-<v-icon @click="next()" title="Next">mdi-skip-next</v-icon> Next
+    
 
         </v-card-title>
+        
         <v-data-table
           dense
           :headers="headers2"
@@ -224,6 +234,8 @@
           item-key="ItemCode"
           hide-default-footer
           class="elevation-1"
+          v-model="selecteditem"
+          show-select
         >
         <template v-slot:item.Action="{ item,index }">
              <!-- <v-btn
@@ -272,8 +284,8 @@
         </v-text-field> 
         <v-btn x-small @click="searchfunction()" dense> SEARCH </v-btn>
         <br>
-        <v-btn  x-small @click="prev()" title="Previous" dense> PREV </v-btn>
-        <v-btn  x-small @click="next()" title="Next" dense> NEXT </v-btn>
+        <v-btn  x-small @click="prev()" dense> PREV </v-btn>
+        <v-btn  x-small @click="next()" dense> NEXT </v-btn>
         </v-card-title>
         <v-data-table
           dense
@@ -358,6 +370,9 @@
                 color="green"
                 @input="serializedFunction(remapserialIndex,index)"
                 :error-messages="errorSn[remapserialIndex+index-1]"
+                @keydown.tab.prevent="focusNextEmptyField(remapserialIndex)"
+                @focus="focusNextEmptyField(remapserialIndex)"
+                :ref="'textField' + index"
               >
               </v-text-field>
             </v-col>
@@ -434,7 +449,7 @@
           <v-btn
             color="blue darken-1"
             text
-            @click="dialogUDF = false"
+            @click="submit()"
           >
             Save
           </v-btn>
@@ -465,6 +480,7 @@ export default {
   },
   data() {
     return {
+      selecteditem: [],
       closereasonItem: [],
       closereason: '',
       stocktransfertypeItem: [],
@@ -558,6 +574,7 @@ export default {
          { text: "Serial", value: "serial" },
          { text: "SerialBarcode", value: "serialbarcode" },
          { text: "To Warehouse", value: "towarehouse" },
+         { text: "Action", value: "Action" }
        
       ]
       ,
@@ -571,12 +588,12 @@ export default {
          { text: "ItemName", value: "ItemName" },
          { text: "FrgnName", value: "FrgnName" },
          { text: "Stocks", value: "OnHand" },
-         { text: "SRP", value: "U_srp" },
-         { text: "Reg NC", value: "U_RegNC" },
-         { text: "Present NC", value: "U_PresentNC" },
-         { text: "Freebies", value: "U_Freebies" },
-         { text: "Sizes", value: "U_cSizes" },
-         { text: "Action", value: "Action" }
+         //{ text: "SRP", value: "U_srp" },
+         //{ text: "Reg NC", value: "U_RegNC" },
+         //{ text: "Present NC", value: "U_PresentNC" },
+         //{ text: "Freebies", value: "U_Freebies" },
+         //{ text: "Sizes", value: "U_cSizes" },
+         //{ text: "Action", value: "Action" }
 
       ],
       componentKey: 0,
@@ -594,6 +611,15 @@ export default {
 
         this.loader = null
       },
+
+    
+      selecteditem() {
+        //console.log(this.selecteditem);
+
+         this.goodsissue = this.selecteditem
+        
+      }
+ 
     },
   computed: {
      
@@ -602,6 +628,14 @@ export default {
   created() {},
   
   methods: {
+
+   focusNextEmptyField(i) {
+       
+       const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
+       this.$refs['textField' + emtysnIndex][0].focus();
+       
+      
+    },
    dialogUDFButton(){
      this.dialogUDF = true
     },
@@ -633,17 +667,17 @@ export default {
     try {
         var baselink;
         if(i == 1){
-          baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?' + this.activeRouteBase  
+          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?' + this.activeRouteBase  
         }else if(i == 2){
           baselink = this.nextt 
         }else if(i == 3){
           baselink = this.prevtt
         }else if(i == 4){
-          baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&search='+this.search;
+          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&search='+this.search;
         }else if(i == 5){
-          baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&docentry='+docentry;
+          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&docentry='+docentry;
         }else if(i == 6){
-          baselink = 'http://192.168.1.19:7771/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
+          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
         } 
         const res = await axios.get(baselink);
         return res.data;
@@ -755,23 +789,14 @@ export default {
    }
 
  },
- getItemData(data,i){
-  // this.goodsissue.push(data);
-   this.selectall.push(false);  
-   this.qtyModel.push(null)
-  //  if(this.checkbox[i] ==true){
-  //   //HOW TO REMOVE THE PUSHES ARRAY USING SPLICE BASE ON I INDEX
-  //      this.goodsissue.push(data);
-  //  }
-   if (this.checkbox[i] === true) {
-    
-           
-    this.goodsissue.push(data);
-  } else {
-      // Remove the item from goodsissue array based on index i
-      // First, find the index of the item in goodsissue array (if it was already added)
+ clearItemData(i){
+  //  this.selectall.push(false);  
+  //  this.qtyModel.push(null)
+  //  if (this.checkbox[i] === true) {
+  //   this.goodsissue.push(data);
+  // } else {
      this.goodsissue.splice(i, 1);
-  }
+  // }
  },
  async getwhs(itemcode, index){
  
@@ -930,7 +955,7 @@ async getItemData2(docentry){
         });
         console.log(data)
         if(data){
-            await axios.post('http://192.168.1.19:7771/api/inventory/transfer/submit', data).then((res)=>{
+            await axios.post(this.$URLs.backend+'/api/inventory/transfer/submit', data).then((res)=>{
                 this.$swal("Sync!", "" + res.data.message + "", res.data.status);
                 loading.close()
                 // if(res.data.status !== 'warning'){
@@ -998,6 +1023,7 @@ async getItemData2(docentry){
       
   }
   },
+  
   async mounted() {
     this.activeModal = await  5
     this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal)
