@@ -124,7 +124,7 @@
                 :color="item.status == 0? 'grey':'success'"
                 v-if="
                   checkerifexist(
-                    item.DocEntry + item.ItemCode + item.LineNum + formatNumber(item.OpenQty) ||
+                    item.mapid ||
                       item.LineStatus == 'C'
                   )
                 "
@@ -885,18 +885,19 @@ export default {
       //  this.$socket.emit("serialized", data);
     },
     handleDocEntryClick(data, i) {
+ 
       const whs = data.WhsCode.split("-");
       this.listing = {
         po: data.DocEntry,
-        quantity: this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty)),
+        quantity:  this.formatNumber(data.Quantity),
         linenum: data.LineNum,
         itemcode: data.ItemCode,
-        uniqueid: data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty),
+        uniqueid: data.mapid,
         whs: whs[0],
         model: data.Dscription,
         brand: data.FirmName,
       };
-
+       
       if (i == 1) {
         const autoserial = new Date();
         const month = (autoserial.getMonth() + 1).toString().padStart(2, "0");
@@ -923,6 +924,8 @@ export default {
         this.systemID = this.listing.uniqueid;
         this.serialmanageDialog = true;
       } else {
+         
+       
         axios
           .get(
             this.$URLs.backend +
@@ -930,7 +933,7 @@ export default {
               data.DocEntry +
               "-" +
               parseInt(
-                this.getqty(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
+                this.formatNumber(data.Quantity)
               ) +
               "-" +
               data.LineNum
@@ -938,12 +941,10 @@ export default {
           .then((res) => {
             //this.remarks = "";
             //this.vendorref = "";
-            console.log(
-              this.checkerifexist(data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty))
-            );
+          
             if (
               this.checkerifexist(
-                data.DocEntry + data.ItemCode + data.LineNum + this.formatNumber(data.OpenQty)
+                data.mapid
               ) == true
             ) {
               this.systemID = this.listing.uniqueid;

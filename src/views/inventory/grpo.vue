@@ -16,7 +16,7 @@
       </v-col>
     </v-row>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1  
+      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1.2.2
         </v-card-title>
    
       <v-card-text>
@@ -94,7 +94,9 @@
                 max="5"
                 @input="checkqty(item.Quantity,item.OpenQty,index)"
                 v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
+               
               />
+            
             </template>
             <template v-slot:item.Status="{ item }">
               {{ item.LineStatus == "C" ? "Closed" : "Open" }}
@@ -413,6 +415,28 @@
 </v-card-text>
       </v-card>
     </v-dialog>
+    <!-- Dialog -->
+    <v-dialog v-model="selectedDialogs" max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="text-h6">Item Details</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-data-table
+            :headers="selecteditemsheader"
+            :items="selectedItems"
+            dense
+            class="elevation-1"
+          ></v-data-table>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red" text @click="selectedDialogs = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -448,6 +472,13 @@ export default {
   },
   data() {
     return {
+      selectedDialogs: false,
+      selecteditemsheader: [ 
+        
+        { text: "Description", value: "Dscription" },
+        { text: "Quantity", value: "qty" },
+        { text: "PO-Quantity", value: "OpenQty" }],
+      selectedItems: [],
       resubmit: false,
       intervalId: null,
       logsData: '',

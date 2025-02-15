@@ -12,7 +12,7 @@
          
         <v-row justify="end">
           <v-col cols="12" sm="2">
-               
+             
                    <v-autocomplete
                       v-model="sortBrand"
                       :items="manufacturer"
@@ -76,7 +76,7 @@
       transition="dialog-bottom-transition"
     >
       <v-card >
-        <v-toolbar dense dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); "  v-if="identify != 0">
+        <v-toolbar dense dark  style="background: linear-gradient(0deg, rgba(0,0,195,1) 0%, rgba(37,63,182,1) 72%, rgba(255,255,255,1) 100%); border-radius: 10px; "  v-if="identify != 0">
           <v-btn icon dark @click="dialog = false" >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -84,7 +84,7 @@
            
            
         </v-toolbar>
-        <v-toolbar dense dark  style="background: linear-gradient(180deg, rgba(112,43,43,0.05504208519345233) 2%, rgba(31,62,126,1) 17%); "  v-if="identify == 0">
+        <v-toolbar dense dark  style="background: linear-gradient(0deg, rgba(0,0,195,1) 0%, rgba(37,63,182,1) 72%, rgba(255,255,255,1) 100%); border-radius: 10px;"  v-if="identify == 0">
           <v-btn icon dark @click="dialog = false" >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -105,7 +105,7 @@
                       <v-list-item-subtitle>
                       <v-container fluid style="display: flex; flex-direction: column; gap: 0; ">
                      
-                     <div v-for="databaseList in db" :key="databaseList">
+                     <div v-for="(databaseList,index) in db" :key="index">
                       <v-checkbox
                         style="margin: -12px;"
                         v-model="databases"
@@ -182,7 +182,7 @@
                           v-model="data.model"
                           dense
                            
-                          v-uppercase
+                          
                         ></v-text-field
                       ></v-list-item-subtitle>
                  </v-col>
@@ -659,15 +659,16 @@ export default {
           withHtaxt: {required},
           brand: {required},
           batchserial: {required},
-          warrantytemp: {required},
+         // warrantytemp: {required},
           preferredvendor: {required},
           purchaseuom: {required},
-          inventoryoum: {required},
+          inventoryoum: {required}
     }
     
   },
   data() {
     return {
+         newlink: '',
          db: [],
          loadingForTable: true,
          databases: [],
@@ -812,11 +813,12 @@ export default {
   },
    
    created() {
-    this.animateText();
+   // this.animateText();
+
   },
   methods: {
     updateItem(){
-       
+    
        this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
        this.progress(this.data.uniqueID)
        this.isLoading = true
@@ -841,9 +843,10 @@ export default {
                 ''+text+'',
                 ''+msg+'');
                 if(res.data.identify !== 1){
-                  this.refresh();
-                  this.getFields()
-                  this.onPageChange({ currentPage: this.currentPage, perPage: this.perPage });
+                 // console.log({ currentPage: this.currentPage, perPage: this.perPage })
+                 // this.refresh();
+                  //this.getFields()
+                  this.onPageCurrent({ currentPage: this.currentPage });
                   this.dialog = false;
                 } 
                
@@ -865,6 +868,7 @@ export default {
           this.rows = response.data.data.data;
           this.totalRows = response.data.data.total;
           this.currentPage = response.data.data.current_page;
+          console.log(this.currentPage)
           this.perPage = response.data.data.per_page;
           this.loadingForTable = false
         });
@@ -914,11 +918,19 @@ export default {
       
     },
     save(){
-      if(this.databases.length == 0){
-                this.$swal("No Database selected", "Please select database", "error");
+      console.log(this.data.itmgroup)
+         // Suriin kung walang napiling database
+        if (this.databases.length === 0) {
+        this.$swal('No Database selected', 'Please select database', 'error');
+        return;
+      }
 
-       }else{
-         this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
+      // Suriin ang kondisyon para sa subcatgroup at itmgroup
+      if (this.data.itmgroup !==  103 && this.data.subcatgroup.length === 0) {
+        this.$swal('UDF-Sub Category Group', 'Required', 'warning');
+        return;
+      }
+       this.data.uniqueID = Math.floor(Math.random() * 99999099) + 1;
        this.progress(this.data.uniqueID)
        this.isLoading = true
         
@@ -952,7 +964,7 @@ export default {
                 } 
                
           })
-       }
+       
        
     },
     progress(uniqueID){
@@ -984,6 +996,7 @@ export default {
           this.properties1 = res.data.oitg
           this.subcatgroup = res.data.subcatgroup
           this.loadingForTable = false
+          this.warrantyT.push({'TmpltName':''})
       }).catch((error) => {
            this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
       });
@@ -993,6 +1006,8 @@ export default {
       }).catch((error) => {
            this.$swal('Sap Database Error', 'Please Check Database Connection '+error, 'error')
       });
+
+     
     },
     addItem() {
       this.identify = 0
@@ -1027,6 +1042,7 @@ export default {
           type: '',
           sizes: '00.0',
           instsubamp: "00.0",
+          subcatgroup: ''
       }
       this.properties1 = []
       this.itemcode = ''
@@ -1109,17 +1125,34 @@ export default {
       console.log(`Button clicked for row with id ${id}`);
       // Handle button click here
     },
+     onPageCurrent(pageInfo) {
+      
+      // make a request to the server for the data
+      axios
+        .get(this.newlink)
+        .then((response) => {
+          console.log(response)
+          // this.rows = response.data.data.data;
+          // this.totalRows = response.data.data.total;
+          // this.currentPage = pageInfo.currentPage;
+          // this.perPage = pageInfo.currentPerPage;
+     
+        });
+    },
     onPageChange(pageInfo) {
+ 
       // make a request to the server for the data
       axios
         .get(
           "http://192.168.1.19:7771/api/itemmasterdata/oitm/index?page=" + pageInfo.currentPage + "&search=" +this.sortBrand + "&search2=" + this.searchTerm2 + "&brand=" + getName(this.sortBrand, this.manufacturer)
         )
         .then((response) => {
+          console.log(response.data.data)
           this.rows = response.data.data.data;
           this.totalRows = response.data.data.total;
-          this.currentPage = pageInfo.current_page;
-          this.perPage = pageInfo.per_page;
+          this.currentPage = pageInfo.currentPage;
+          this.perPage = pageInfo.currentPerPage;
+          this.newlink = response.data.data.path+'?page='+ response.data.data.current_page+ "&search=" +this.sortBrand + "&search2=" + this.searchTerm2 + "&brand=" + getName(this.sortBrand, this.manufacturer);
         });
     },
        onlyNumber($event) {

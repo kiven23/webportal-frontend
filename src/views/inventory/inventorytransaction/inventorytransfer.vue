@@ -158,7 +158,7 @@
               small
               @click="clearItemData(index)"
             > Clear</v-btn>
-            {{index}}
+           
       </template>
         </v-data-table>
         
@@ -209,16 +209,17 @@
       <v-card>
          <v-card-title >
           List of Items 
-          <v-col class="d-flex justify-end">
+          <!-- <v-col class="d-flex justify-end">
               <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> 
               <v-icon @click="next()" title="Next">mdi-skip-next</v-icon> 
-          </v-col>
+          </v-col> -->
            </v-card-title > 
          <v-card-title >   
         <v-text-field
           v-model="search"
-          label="Search (Item Name)"
+          label="Search (SERIAL)"
           dense
+          clearable
         >
         </v-text-field> 
        <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
@@ -231,13 +232,13 @@
           dense
           :headers="headers2"
           :items="oitm"
-          item-key="ItemCode"
+          item-key="id"
           hide-default-footer
           class="elevation-1"
           v-model="selecteditem"
           show-select
         >
-        <template v-slot:item.Action="{ item,index }">
+       <!-- <template v-slot:item.Action="{ item,index }"> -->
              <!-- <v-btn
               class="ma-2"
               x-small
@@ -246,14 +247,16 @@
               >
               Select
              </v-btn> -->
-             <v-checkbox
+             <!-- <v-checkbox
                 v-model="checkbox[index]"
                  @click="getItemData(item,index)  "
-              ></v-checkbox>
-          </template>
+              ></v-checkbox> -->
+
+             
+          <!-- </template> -->
         </v-data-table>
         <v-card-actions>
-             <strong> Page: {{this.currentpage}} To: {{this.topage}} Total: {{this.totalpage}}</strong>
+             <!-- <strong> Page: {{this.currentpage}} To: {{this.topage}} Total: {{this.totalpage}}</strong> -->
           <v-spacer></v-spacer>
           <v-btn
             color="green darken-1"
@@ -369,12 +372,14 @@
                 dense
                 color="green"
                 @input="serializedFunction(remapserialIndex,index)"
-                :error-messages="errorSn[remapserialIndex+index-1]"
+                :error-messages="(errorSn[remapserialIndex][index]) + (errorSnExist[remapserialIndex][index])"
+                
                 @keydown.tab.prevent="focusNextEmptyField(remapserialIndex)"
                 @focus="focusNextEmptyField(remapserialIndex)"
                 :ref="'textField' + index"
               >
               </v-text-field>
+  
             </v-col>
           </div>
        </div>
@@ -480,6 +485,7 @@ export default {
   },
   data() {
     return {
+      loads: null,
       selecteditem: [],
       closereasonItem: [],
       closereason: '',
@@ -488,6 +494,7 @@ export default {
       u_name: '',
       dialogUDF: false,
       errorSn: [],
+      errorSnExist: [],
       serialMapModel: [],
       remapserialIndex: 0,
       JrnlMemo: '',
@@ -531,6 +538,7 @@ export default {
       closeserial: [],
       BarcodeSerial:'',
       serialmanageDialog: false,
+      uniqueArray: [],
       breadcrums: [
         {
           text: "Dashboard",
@@ -540,12 +548,12 @@ export default {
         {
           text: "Transactions",
           disabled: true,
-          href: "/sapb1/invt/transactions/goodsissue",
+          href: "/sapb1/invt/transactions/inventorytransfer",
         },
         {
-          text: "Goods Issue",
+          text: "Invetory Transfer",
           disabled: true,
-          href: "/sapb1/invt/transactions/goodsissue",
+          href: "/sapb1/invt/transactions/inventorytransfer",
         },
       ],
       warehouseHeader:[
@@ -587,7 +595,7 @@ export default {
          },
          { text: "ItemName", value: "ItemName" },
          { text: "FrgnName", value: "FrgnName" },
-         { text: "Stocks", value: "OnHand" },
+         { text: "Warehouse", value: "WhsCode" },
          //{ text: "SRP", value: "U_srp" },
          //{ text: "Reg NC", value: "U_RegNC" },
          //{ text: "Present NC", value: "U_PresentNC" },
@@ -614,10 +622,12 @@ export default {
 
     
       selecteditem() {
-        //console.log(this.selecteditem);
-
+         console.log(this.selecteditem);
+         this.selecteditem.forEach((value,index)=>{
+              this.getWarehouse(value,index)
+         })
          this.goodsissue = this.selecteditem
-        
+         
       }
  
     },
@@ -633,7 +643,7 @@ export default {
        
        const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
        this.$refs['textField' + emtysnIndex][0].focus();
-       
+      
       
     },
    dialogUDFButton(){
@@ -645,18 +655,46 @@ export default {
     
    },
    serializedFunction(index,serialIndex){
+     
      let serialArr = this.serialMapModel[index].map((value) => {
       return value.sn
      });
-  
+ 
+      
      let filteredArray = serialArr.filter(item => item); 
      this.selectedSerial[index] = filteredArray;
+     var info;
+
+     serialArr.forEach((value, i) => {
+           if(i !== serialIndex){
+             if(value){
+              if(value == this.serialMapModel[index][serialIndex].sn){
+                 info = 'Already Exist'
+               //  this.errorSn[serialIndex-1] = info
+              }
+             }
+              
+           }
+     })
+     if(info){
+          this.errorSnExist[index][serialIndex] = info
+     }
+     
+ 
      if(this.sn[index].includes(this.serialMapModel[index][serialIndex].sn)){
-          console.log("Value exists in the array!");
-          this.errorSn[index+serialIndex-1] = ''
+          this.errorSn[index][serialIndex] = ''
      }else {
-         this.errorSn[index+serialIndex-1] = 'This serial does not exist - '+this.serialMapModel[index][serialIndex].sn
+         if(this.serialMapModel[index][serialIndex].sn){
+              this.errorSn[index][serialIndex] = 'This serial does not exist - '+this.serialMapModel[index][serialIndex].sn
+         }else{
+              this.errorSn[index][serialIndex] = ''
+              this.errorSnExist[index][serialIndex] = ''
+         }
       }
+       
+     
+     
+     
 
      this.qtyModel[index] = filteredArray.length
      this.getQty(index)
@@ -714,6 +752,9 @@ export default {
   async next() {
    
     try {
+      this.loads = this.$vs.loading({
+        progress1: 0,
+      });
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),2);
         this.oitm = data2.data
         this.oitw = data2.data
@@ -736,14 +777,18 @@ export default {
       })
 
      }
+     this.loads.close();
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
 
  } ,
  async prev() {
- 
+      this.loads = this.$vs.loading({
+        progress1: 0,
+      });
     try {
+      
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),3);
         this.oitm = data2.data
         this.oitw = data2.data
@@ -766,18 +811,20 @@ export default {
         }
        
      
+     
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
+   this.loads.close();
  },
  async searchfunction() {
-    
+ 
     this.activeRouteBase = this.activeRouteBase +  '&search=' +this.search
   
     try {
         this.activevalue = 4
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),4);
-        this.oitm = data2.data
+        this.oitm = data2
         this.oitw = data2.data
         this.nextt = data2.next_page_url + this.activeRouteBase 
         this.prevtt = data2.prev_page_url +  this.activeRouteBase 
@@ -799,7 +846,7 @@ export default {
   // }
  },
  async getwhs(itemcode, index){
- 
+    
     this.selectedIndex = index;
     this.activewhsfields = index
     this.search = ''
@@ -829,33 +876,38 @@ export default {
         console.error('Error in selectitem:', error);  
    }
  },
- async getWarehouse(data){
-  
+ async getWarehouse(data,index){
+ 
   await this.$set(this.warehouseModel, this.activewhsfields, data.WhsCode);
-  this.warehouseModel[this.activewhsfields] = await data.WhsCode
-  await this.getsn(data, this.selectedIndex);
+  this.warehouseModel[index] = await data.WhsCode
+  await this.getsn(data, index);
   this.componentKey += await 1;
   this.warehouseDialog = false
  },
 async getsn(item,i){
     this.activeModal = 2
-    this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ this.warehouseModel[i]
+    this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ item.WhsCode
     this.serialDialog = true
    try {
         const data = await this.controller(this.Getactivemodals(this.activeModal),1);
    
         this.sn[i] = [];
         this.serialMapModel[i] = [];
+        this.errorSnExist[i] = [];
+        this.errorSn[i] = []
         data.forEach((res) => {
         
            this.sn[i].push(res.IntrSerial);
            this.serialMapModel[i].push({ sn: '' });
+           this.errorSnExist[i].push('');
+           this.errorSn[i].push('');
         });
+        this.activeModal = 0
     } catch (error) {
         console.error('Error in selectitem:', error);  
     }
  
-
+    
   },
 async getItemData2(docentry){
 
@@ -877,7 +929,7 @@ async getItemData2(docentry){
   },
   async getQty(index){      
       
-      console.log(this.selectedSerial[index]);
+      
       this.qtyModel[index] =  this.selectedSerial[index].length
   },
   async getGL(){
@@ -946,7 +998,7 @@ async getItemData2(docentry){
       return arr
   },
  async submit(){
-    const loading = this.$vs.loading({
+      const loading = this.$vs.loading({
         progress1: 0,
       });
       var data = []
@@ -956,7 +1008,8 @@ async getItemData2(docentry){
         console.log(data)
         if(data){
             await axios.post(this.$URLs.backend+'/api/inventory/transfer/submit', data).then((res)=>{
-                this.$swal("Sync!", "" + res.data.message + "", res.data.status);
+                var text = JSON.stringify(res.data);
+                this.$swal("Sync!", "" + text + "");
                 loading.close()
                 // if(res.data.status !== 'warning'){
                 //     this.refresh()
