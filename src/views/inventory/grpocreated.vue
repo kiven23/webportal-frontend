@@ -19,7 +19,7 @@
     <v-card color="white lighten-2">
     
         <v-card-text> 
-          <v-text-field
+          <!-- <v-text-field
               v-model="vendorref"
               label="Vendor Ref No"
               dense
@@ -36,7 +36,7 @@
              :error-messages="errorremarks"
             @input="inforeset"
             
-          ></v-textarea>
+          ></v-textarea> -->
             </v-card-text>
          
        
@@ -130,16 +130,16 @@
                 "
                 @click="handleDocEntryClick(item)"
                 class="mr-2"
-                :disabled="item.status == 0?vendorref?false:true:false "
+                
               >  
-            
+             <!-- :disabled="item.status == 0?vendorref?false:true:false " -->
                 <!-- :disabled="checkerifexist(item.DocEntry + item.ItemCode + item.LineNum) == true" -->
                 <!-- v-if="item.LineStatus !== 'O'" -->
                 <strong> {{item.status == 0? 'SERIALIZED':'VIEWPRINT'}}   </strong>
                 <!-- {{checkerifexist(item.DocEntry + item.ItemCode + item.LineNum)}} -->
               </v-btn>
               <v-btn
-                :disabled="item.status == 0?vendorref?false:true:false  "
+                
                 x-small
                 color="orange"
                 v-if="item.status == 0"
@@ -148,7 +148,7 @@
                 <strong> AUTO SN </strong>
               </v-btn>
               <v-btn
-                :disabled="item.status == 0?vendorref?false:true:false "
+                
                 :loading="reportsloading"
                 x-small
                 icon

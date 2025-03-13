@@ -13,7 +13,7 @@
     >
       <strong>FROM: {{frommwh}}</strong>
     </v-chip>
-    <!-- Added UDF Name Label -->
+    <!-- Added UDF Name Label
     <v-btn
       color="primary"
       style="margin:5px;"
@@ -22,10 +22,10 @@
     >
       <v-icon left>mdi-share</v-icon>
       UDF Name
-    </v-btn>
+    </v-btn> -->
   </v-col>
 </v-card-title>
-
+ <div ref="htmlContent" v-html="reportHtml"></div>
        
        <v-card-text>
                
@@ -53,10 +53,18 @@
         <v-icon @click="selectitem()">mdi-file-document-box</v-icon>  
         <span class="ml-2">Select Items</span>
          </v-col>
-         <v-col class="d-flex justify-end">
-         <v-icon @click="dialogUDFButton()"    :disabled="creation == 1 ? true : false "   >mdi-content-save-all</v-icon> 
-          <span class="ml-2">Save</span>
-         </v-col>
+          
+       <v-col class="d-flex justify-end align-center">
+  <span class="ml-5">
+    <v-icon @click="print()" color="green" >mdi-printer</v-icon>
+  </span>
+  <span class="ml-4">
+    <v-btn @click="dialogUDFButton()" :disabled="creation == 1"><v-icon>mdi-content-save-all</v-icon></v-btn>
+    
+  </span>
+</v-col>
+
+
          
          </v-row> 
           <!-- <v-btn x-small @click="searchfunction(1)" dense  > ALL </v-btn> -->
@@ -66,12 +74,12 @@
      
       
       <v-card-actions>
-       
+ 
         <v-data-table
           dense
           :headers="headers"
           :items="goodsissue"
-          item-key="ItemCode"
+          item-key="id"
           hide-default-footer
           class="elevation-1"
           :key="componentKey"
@@ -107,6 +115,7 @@
             multiple
             :key="componentKey"
             @change="getQty(index)"
+            @input="getQty(index)"
             v-if="sn[index] && creation == 0"
           >
           
@@ -129,14 +138,14 @@
               </template>
          </v-select>
       </template>
-      <template v-slot:item.serialbarcode="{item, index}">
+      <!-- <template v-slot:item.serialbarcode="{item, index}">
             <v-btn
               v-if="sn[index] && creation == 0"
               elevation="2"
               small
               @click="serialBarcodeDialog(index,item)"
             > Serialized</v-btn>
-      </template>
+      </template> -->
          <template v-slot:item.towarehouse="{item, index}">
             <v-autocomplete
             chips
@@ -205,10 +214,10 @@
      <v-dialog
       v-model="getItem"
       max-width="900"
-    >
+    > 
       <v-card>
          <v-card-title >
-          List of Items 
+          SERIAL TRANSFER 
           <!-- <v-col class="d-flex justify-end">
               <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> 
               <v-icon @click="next()" title="Next">mdi-skip-next</v-icon> 
@@ -217,9 +226,10 @@
          <v-card-title >   
         <v-text-field
           v-model="search"
-          label="Search (SERIAL)"
+          label="SERIAL"
           dense
-          clearable
+           
+          @input="searchfunction()"
         >
         </v-text-field> 
        <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
@@ -227,34 +237,35 @@
     
 
         </v-card-title>
+      <v-skeleton-loader
         
+        type="table-heading,  table-tfoot"
+        :loading="loadingListItems"
+      > 
+     
         <v-data-table
           dense
           :headers="headers2"
-          :items="oitm"
+          :items="searchDataItems"
           item-key="id"
           hide-default-footer
           class="elevation-1"
           v-model="selecteditem"
           show-select
         >
-       <!-- <template v-slot:item.Action="{ item,index }"> -->
-             <!-- <v-btn
-              class="ma-2"
-              x-small
-              color="success"
-              @click="getItemData(item)  "
-              >
-              Select
-             </v-btn> -->
-             <!-- <v-checkbox
-                v-model="checkbox[index]"
-                 @click="getItemData(item,index)  "
-              ></v-checkbox> -->
-
+         
+    <template v-slot:item.qty="{ item }"> 
              
-          <!-- </template> -->
+        <span style="color:green; font-size: 15px;">  {{countQty(item.id)}} </span> 
+             
+    </template>  
+     <template v-slot:item.count="{ item }"> 
+             
+        <span style="color:red; font-size: 18px;">  {{countQty(item.id).length}} </span> 
+             
+    </template>  
         </v-data-table>
+      </v-skeleton-loader>
         <v-card-actions>
              <!-- <strong> Page: {{this.currentpage}} To: {{this.topage}} Total: {{this.totalpage}}</strong> -->
           <v-spacer></v-spacer>
@@ -304,7 +315,7 @@
               color="blue-grey"
               @click="getWarehouse(item)  "
               >
-              Select
+              Select SN
              </v-btn>
           </template>
         </v-data-table>
@@ -363,7 +374,7 @@
         </v-toolbar>
         <v-list three-line>
           <v-spacer></v-spacer>
-       <div v-for="(serial,index) in serialMapModel[remapserialIndex]" :key="serial">  
+       <div v-for="(serial,index) in serialMapModel[remapserialIndex]" :key="index">  
           <div >
             <v-col cols="12">
               <v-text-field
@@ -466,7 +477,7 @@
 
 <script>
  
- 
+import html2canvas from "html2canvas";
 import { validationMixin } from "vuelidate";
 import {
   required,
@@ -485,6 +496,12 @@ export default {
   },
   data() {
     return {
+      reportHtml: '',
+      remapsn: {} ,
+      searchremap: [],
+      searchDataItems: [],
+      autoselectedItemsData:[],
+      loadingListItems: false,
       loads: null,
       selecteditem: [],
       closereasonItem: [],
@@ -580,7 +597,7 @@ export default {
          { text: "Quantity", value: "Quantity" },
          { text: "Whse", value: "whse" },
          { text: "Serial", value: "serial" },
-         { text: "SerialBarcode", value: "serialbarcode" },
+        //  { text: "SerialBarcode", value: "serialbarcode" },
          { text: "To Warehouse", value: "towarehouse" },
          { text: "Action", value: "Action" }
        
@@ -596,6 +613,8 @@ export default {
          { text: "ItemName", value: "ItemName" },
          { text: "FrgnName", value: "FrgnName" },
          { text: "Warehouse", value: "WhsCode" },
+         { text: "Serial Qty", value: "qty"},
+         { text: "Serial Count", value: "count"}
          //{ text: "SRP", value: "U_srp" },
          //{ text: "Reg NC", value: "U_RegNC" },
          //{ text: "Present NC", value: "U_PresentNC" },
@@ -622,23 +641,62 @@ export default {
 
     
       selecteditem() {
-         console.log(this.selecteditem);
+        
          this.selecteditem.forEach((value,index)=>{
               this.getWarehouse(value,index)
          })
          this.goodsissue = this.selecteditem
+       
          
-      }
+       }
  
     },
   computed: {
-     
+      countQty() {
+        return (id) => {
+                var sn = []
+                this.searchremap.forEach((res,value)=>{
+                      if(res.index == id){
+                          sn.push(res.sn)
+                       }
+                })
+                return sn
+           
+        };
+      }
   },
 
   created() {},
   
   methods: {
+   print(){
+    
+      this.reportsloading = true
+      const docentry = this.oitm[0].DocEntry
+       const docnum = this.oitm[0].DocNum
+      axios
+          .get(
+            this.$URLs.backend +
+              "/api/inventory/transfer/reports/print?DocEntry=" + docentry+"&DocNum="+docnum,
 
+          )
+          .then((res) => {
+             this.reportHtml = res.data;
+             //console.log(res)
+            //  this.reportsdata = window.URL.createObjectURL(new Blob([res.data],  { type: 'application/pdf' }));
+        
+            //  const link = document.createElement('a');
+            // link.href =  this.reportsdata ;
+            // link.target = '_blank';
+            // link.setAttribute('download', 'receivingreports.pdf');
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            // this.reportsloading = false
+                 
+          });
+
+   },
    focusNextEmptyField(i) {
        
        const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
@@ -647,7 +705,11 @@ export default {
       
     },
    dialogUDFButton(){
-     this.dialogUDF = true
+    
+    this.u_name = ''
+    this.stocktransfertype = '-'
+    this.closereason = '-'
+    this.dialogUDF = true
     },
    serialBarcodeDialog(index,item){
      this.serialmanageDialog = true
@@ -718,6 +780,7 @@ export default {
           baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
         } 
         const res = await axios.get(baselink);
+         
         return res.data;
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -730,7 +793,7 @@ export default {
   },
   async selectitem() {
     
-    this.refresh() 
+   // this.refresh() 
     this.creation = 0
     this.activevalue = 0
     this.getItem = true; 
@@ -817,20 +880,40 @@ export default {
    }
    this.loads.close();
  },
- async searchfunction() {
  
+ async searchfunction() {
+     
     this.activeRouteBase = this.activeRouteBase +  '&search=' +this.search
-  
+    this.loadingListItems = true
     try {
         this.activevalue = 4
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),4);
-        this.oitm = data2
+        this.oitm = await data2
+        // if (this.oitm.length !== 8554){
+            if (!Array.isArray(this.searchDataItems)) {
+              this.searchDataItems = [];
+              }
+            const existingItems = new Set(this.searchDataItems.map(item => item.id)); // Palitan ang 'id' ng unique identifier mo
+            const newItems = this.oitm.filter(item => !existingItems.has(item.id));
+
+            this.searchDataItems.push(...newItems);
+            
+            this.searchDataItems.forEach((value, index) => {
+                const isDuplicate = this.searchremap.some(item => item.sn === this.search);
+                if (!isDuplicate) {
+                    this.searchremap.push({ index: this.oitm[0].id, sn: this.search });
+                }
+            });
+        // }
+         
         this.oitw = data2.data
         this.nextt = data2.next_page_url + this.activeRouteBase 
         this.prevtt = data2.prev_page_url +  this.activeRouteBase 
         this.currentpage = data2.current_page
         this.topage = data2.to
         this.totalpage = data2.total
+        this.loadingListItems = false
+        this.search = ""
     } catch (error) {
         console.error('Error in selectitem:', error);  
    }
@@ -884,7 +967,32 @@ export default {
   this.componentKey += await 1;
   this.warehouseDialog = false
  },
+remapsnu(id){
+   this.searchremap.forEach((value,e)=>{
+      if (id == value.index) {
+        if (!this.remapsn[id]) {
+            this.remapsn[id] = [];
+        }
+
+        // I-check muna kung naka-store na ang value.sn bago i-push
+        if (!this.remapsn[id].includes(value.sn)) {
+            this.remapsn[id].push(value.sn);
+        }
+    }
+    })
+  
+},
 async getsn(item,i){
+  
+    this.goodsissue.forEach((value,ids)=>{
+        this.remapsnu(value.id)
+    })
+    //console.log(this.remapsn)
+    this.selectedSerial[i]=this.remapsn[item.id]
+    let count = this.remapsn[item.id] ? this.remapsn[item.id].length : 0;
+    this.qtyModel[i] = count
+    //console.log(this.searchremap)
+    
     this.activeModal = 2
     this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ item.WhsCode
     this.serialDialog = true
@@ -1011,9 +1119,9 @@ async getItemData2(docentry){
                 var text = JSON.stringify(res.data);
                 this.$swal("Sync!", "" + text + "");
                 loading.close()
-                // if(res.data.status !== 'warning'){
-                //     this.refresh()
-                // }
+                if(res.data.status !== 'warning'){
+                    this.refresh()
+                }
                
             })
 
@@ -1073,6 +1181,11 @@ async getItemData2(docentry){
       this.warehouseModel=[]
       this.qtyModel=[]
       this.listgoodsissue={}
+      this.remapsn = {}
+      this.searchremap = []
+      this.searchDataItems = []
+      this.selecteditem = []
+
       
   }
   },

@@ -92,7 +92,7 @@
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <!-- :disabled="allError"   -->
-            <v-btn  dark :disabled="allError"  text @click="save()"> Save </v-btn>
+            <v-btn  dark :disabled="allError || saveValue ==1"  text @click="save()"> Save </v-btn>
           </v-toolbar-items>
         </v-toolbar>
         <v-list three-line subheader style="background: #E9F0F6">
@@ -522,6 +522,7 @@
                         ></v-text-field>
                         </v-list-item-subtitle>
                  </v-col>
+                
                  <v-col cols="12" sm="2">
                    <v-list-item-title>Sub Category Group</v-list-item-title>
                       <v-list-item-subtitle>
@@ -529,12 +530,14 @@
                             v-model="data.subcatgroup"
                             :items="subcatgroup"
                             item-text="CodeName"
-                            item-value="Name"
+                            item-value="CodeName"
                             dense
                             filled
                             label="Filled"
+                            return-object
                              
                           ></v-autocomplete>
+                         
                          </v-list-item-subtitle>
                  </v-col>
                   <v-col cols="12" sm="2">
@@ -668,6 +671,7 @@ export default {
   },
   data() {
     return {
+         saveValue: 0,
          newlink: '',
          db: [],
          loadingForTable: true,
@@ -939,6 +943,7 @@ export default {
           prop: this.checkboxStatus,
           database: this.databases
        }
+       this.saveValue = 1
        axios.post("http://192.168.1.19:7771/api/itemmasterdata/oitm/create", {
           all
        }).then((res)=>{
@@ -956,6 +961,7 @@ export default {
                 this.$swal('Sync!',
                 ''+text+'',
                 ''+msg+'');
+                this.saveValue = 0
                 if(res.data.identify !== 1){
                   
                   this.refresh();

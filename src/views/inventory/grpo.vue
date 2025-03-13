@@ -16,11 +16,11 @@
       </v-col>
     </v-row>
     <v-card color="white lighten-2">
-      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1.2.2
+      <v-card-title class="text-h5 lighten-3"> SyncMaster Pro V1.2.4
         </v-card-title>
    
       <v-card-text>
-        Ultimate SAP GRPO & Barcode Integration {{ creator }}
+        Ultimate SAP GRPO & Barcode Integration  
           
       </v-card-text>
       
@@ -68,14 +68,16 @@
         <v-skeleton-loader
           :loading="loadingPosList"
           type="table-heading, list-item-two-line, image, table-tfoot"
-        >
+        > 
           <v-data-table
             dense
             :headers="headers"
             :items="podata"
-            item-key="DocEntry"
-          >
-            <template v-slot:item.Selection="{ item }" v-if="creator">
+            item-key="LineNum"
+            show-select
+            v-model="selected"
+          > 
+            <!-- <template v-slot:item.Selection="{ item }" v-if="creator">
               <v-checkbox
                 v-model="selected"
                 :value="item.LineNum"
@@ -85,12 +87,12 @@
                 :disabled="item.LineStatus == 'C'"
                 dense
               ></v-checkbox>
-            </template>
+            </template> -->
             <template v-slot:item.Quantity="{ item,index }">
               <vs-input
                
                 type="number"
-                v-model="items[index]"
+                v-model="items[item.LineNum]"
                 max="5"
                 @input="checkqty(item.Quantity,item.OpenQty,index)"
                 v-if="getqty(item.DocEntry + item.ItemCode + item.LineNum) == 0"
@@ -960,122 +962,357 @@ export default {
            this.fetchLogs(logid); 
     }, 10000);
     },
-    createAtion() {
-      if(this.resubmit == false){
-        // alert('generate ulit'+ this.resubmit)
-          this.generateRandomNumber()
-      }
+    // createAtion() {
+    //   if(this.resubmit == false){
+    //     // alert('generate ulit'+ this.resubmit)
+    //       this.generateRandomNumber()
+    //   }
        
+    
+    //   const loading = this.$vs.loading({
+    //     progress1: 0,
+    //   });
+    //   const interval = setInterval(() => {
+    //     if (this.progress <= 100) {
+    //       loading.changeProgress(this.progress++);
+    //     }
+    //   }, 1000);
+    //   this.logsDialog =true
+    //   const INFO = [];
+    //   const itempo = this.items.filter(item => item !== '');
+    //   console.log(itempo)
+    //   this.podata.forEach((data, index) => {
+    //     this.selected.forEach((selected, index) => {
+    //       if (selected == data.LineNum) {
+    //         console.log(itempo[index])
+    //         INFO.push({
+    //               DocEntry: data.DocEntry,
+    //               LineNum: data.LineNum,
+    //               TargetType: data.TargetType,
+    //               TrgetEntry: data.TrgetEntry,
+    //               BaseRef: data.BaseRef,
+    //               BaseType: data.BaseType,
+    //               BaseEntry: data.BaseEntry,
+    //               BaseLine: data.BaseLine,
+    //               LineStatus: data.LineStatus,
+    //               ItemCode: data.ItemCode,
+    //               Dscription: data.Dscription,
+    //               qty: itempo[index]?itempo[index]:data.OpenQty,
+    //               ShipDate: data.ShipDate,
+    //               OpenQty: data.OpenQty,
+    //               Price: data.Price,
+    //               Currency: data.Currency,
+    //               Rate: data.Rate,
+    //               DiscPrcnt: data.DiscPrcnt,
+    //               LineTotal: data.LineTotal,
+    //               TotalFrgn: data.TotalFrgn,
+    //               OpenSum: data.OpenSum,
+    //               OpenSumFC: data.OpenSumFC,
+    //               VendorNum: data.VendorNum,
+    //               SerialNum: data.SerialNum,
+    //               WhsCode: data.WhsCode,
+    //               SlpCode: data.SlpCode,
+    //               Commission: data.Commission,
+    //               TreeType: data.TreeType,
+    //               AcctCode: data.AcctCode,
+    //               TaxStatus: data.TaxStatus,
+    //               GrossBuyPr: data.GrossBuyPr,
+    //               PriceBefDi: data.PriceBefDi,
+    //               DocDate: data.DocDate,
+    //               Flags: data.Flags,
+    //               OpenCreQty: data.OpenCreQty,
+    //               UseBaseUn: data.UseBaseUn,
+    //               SubCatNum: data.SubCatNum,
+    //               BaseCard: data.BaseCard,
+    //               TotalSumSy: data.TotalSumSy,
+    //               OpenSumSys: data.OpenSumSys,
+    //               InvntSttus: data.InvntSttus,
+    //               OcrCode: data.OcrCode,
+    //               Project: data.Project,
+    //               CodeBars: data.CodeBars,
+    //               VatPrcnt: data.VatPrcnt,
+    //               VatGroup: data.VatGroup,
+    //               PriceAfVAT: data.PriceAfVAT,
+    //               Height1: data.Height1,
+    //               FirmName: data.FirmName
+    //           });
+    //       }
+    //     });
+    //   });
+    //   this.logsIinterVal(this.randomID)
+    //   var systemID2 = btoa(JSON.stringify(INFO));
+    //   var data = { hash: INFO, line: this.selected, logsID: this.randomID };
+    //   console.log(data)
+    //   axios
+    //     .post(this.$URLs.backend + "/api/inventory/grpo/createpo", {
+    //       data,
+    //     })
+    //     .then((res) => {
+    //       clearInterval(interval);
+    //       clearInterval(this.intervalId)
+    //       this.logsDialog = false
+    //       this.progress = 0;
+    //       var text = JSON.stringify(res.data);
+    //       this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
+    //       this.resubmit = false
+    //       this.createdgrpo()
+    //       loading.close();
+          
+          
+    //    }).catch((error) => {
+    //         if(error.message == 'Request failed with status code 500'){
+    //           this.resubmit = true
+    //           this.createAtion()
+    //           //alert('The System Resubmit Please Ok')
+    //           clearInterval(this.intervalId)
+    //           // console.error("An error occurred:", error);
+    //           // this.$swal("Error!", "Failed to sync data: " + error.message, "error");
+    //           loading.close();
+    //           clearInterval(interval);
+    //         }else{
+    //           clearInterval(interval);
+    //           clearInterval(this.intervalId)
+    //         }
+            
+          
+             
+    //    });
+    // },
+    createAtion() {
+  if (!this.resubmit) {
+    this.generateRandomNumber();
+  }
+   
+  
+  const INFO = [];
+  const itempo = this.items.filter((item) => item !== '');
+  const mini = [];
+  this.selected.forEach((data, index)=>{
+            mini.push({
+            DocEntry: data.DocEntry,
+            ItemCode: data.ItemCode,
+            qty: this.items[data.LineNum]?this.items[data.LineNum]: data.OpenQty,
+            WhsCode: data.WhsCode,
+            Dscription: data.Dscription,
+            OpenQty: data.OpenQty})
+            INFO.push({
+              DocEntry: data.DocEntry,
+              LineNum: data.LineNum,
+              TargetType: data.TargetType,
+              TrgetEntry: data.TrgetEntry,
+              BaseRef: data.BaseRef,
+              BaseType: data.BaseType,
+              BaseEntry: data.BaseEntry,
+              BaseLine: data.BaseLine,
+              LineStatus: data.LineStatus,
+              ItemCode: data.ItemCode,
+              Dscription: data.Dscription,
+              qty: this.items[data.LineNum]?this.items[data.LineNum]: data.OpenQty,
+              ShipDate: data.ShipDate,
+              OpenQty: data.OpenQty,
+              Price: data.Price,
+              Currency: data.Currency,
+              Rate: data.Rate,
+              DiscPrcnt: data.DiscPrcnt,
+              LineTotal: data.LineTotal,
+              TotalFrgn: data.TotalFrgn,
+              OpenSum: data.OpenSum,
+              OpenSumFC: data.OpenSumFC,
+              VendorNum: data.VendorNum,
+              SerialNum: data.SerialNum,
+              WhsCode: data.WhsCode,
+              SlpCode: data.SlpCode,
+              Commission: data.Commission,
+              TreeType: data.TreeType,
+              AcctCode: data.AcctCode,
+              TaxStatus: data.TaxStatus,
+              GrossBuyPr: data.GrossBuyPr,
+              PriceBefDi: data.PriceBefDi,
+              DocDate: data.DocDate,
+              Flags: data.Flags,
+              OpenCreQty: data.OpenCreQty,
+              UseBaseUn: data.UseBaseUn,
+              SubCatNum: data.SubCatNum,
+              BaseCard: data.BaseCard,
+              TotalSumSy: data.TotalSumSy,
+              OpenSumSys: data.OpenSumSys,
+              InvntSttus: data.InvntSttus,
+              OcrCode: data.OcrCode,
+              Project: data.Project,
+              CodeBars: data.CodeBars,
+              VatPrcnt: data.VatPrcnt,
+              VatGroup: data.VatGroup,
+              PriceAfVAT: data.PriceAfVAT,
+              Height1: data.Height1,
+              FirmName: data.FirmName,
+              Comments: data.Comments
+            });
+             
+  })
+   
+      // this.podata.forEach((data, index) => {
+      //   this.selected.forEach((selected, index) => {
+      //     if (selected == data.LineNum) {
+      //       mini.push({
+      //       DocEntry: data.DocEntry,
+      //       ItemCode: data.ItemCode,
+      //       qty: itempo[index] ? itempo[index] : data.OpenQty,
+      //       WhsCode: data.WhsCode,
+      //       Dscription: data.Dscription,
+      //       OpenQty: data.OpenQty})
+            
+      //       INFO.push({
+      //         DocEntry: data.DocEntry,
+      //         LineNum: data.LineNum,
+      //         TargetType: data.TargetType,
+      //         TrgetEntry: data.TrgetEntry,
+      //         BaseRef: data.BaseRef,
+      //         BaseType: data.BaseType,
+      //         BaseEntry: data.BaseEntry,
+      //         BaseLine: data.BaseLine,
+      //         LineStatus: data.LineStatus,
+      //         ItemCode: data.ItemCode,
+      //         Dscription: data.Dscription,
+      //         qty: itempo[index] ? itempo[index] : data.OpenQty,
+      //         ShipDate: data.ShipDate,
+      //         OpenQty: data.OpenQty,
+      //         Price: data.Price,
+      //         Currency: data.Currency,
+      //         Rate: data.Rate,
+      //         DiscPrcnt: data.DiscPrcnt,
+      //         LineTotal: data.LineTotal,
+      //         TotalFrgn: data.TotalFrgn,
+      //         OpenSum: data.OpenSum,
+      //         OpenSumFC: data.OpenSumFC,
+      //         VendorNum: data.VendorNum,
+      //         SerialNum: data.SerialNum,
+      //         WhsCode: data.WhsCode,
+      //         SlpCode: data.SlpCode,
+      //         Commission: data.Commission,
+      //         TreeType: data.TreeType,
+      //         AcctCode: data.AcctCode,
+      //         TaxStatus: data.TaxStatus,
+      //         GrossBuyPr: data.GrossBuyPr,
+      //         PriceBefDi: data.PriceBefDi,
+      //         DocDate: data.DocDate,
+      //         Flags: data.Flags,
+      //         OpenCreQty: data.OpenCreQty,
+      //         UseBaseUn: data.UseBaseUn,
+      //         SubCatNum: data.SubCatNum,
+      //         BaseCard: data.BaseCard,
+      //         TotalSumSy: data.TotalSumSy,
+      //         OpenSumSys: data.OpenSumSys,
+      //         InvntSttus: data.InvntSttus,
+      //         OcrCode: data.OcrCode,
+      //         Project: data.Project,
+      //         CodeBars: data.CodeBars,
+      //         VatPrcnt: data.VatPrcnt,
+      //         VatGroup: data.VatGroup,
+      //         PriceAfVAT: data.PriceAfVAT,
+      //         Height1: data.Height1,
+      //         FirmName: data.FirmName,
+      //         Comments: data.Comments
+      //       });
+      //     }
+      //   });
+      // });
+   
+  const parsedMini = mini;
+  console.log(parsedMini)
+  let tableRows = "";  
+  parsedMini.forEach(item => {
+    tableRows += `
+      <tr>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.DocEntry}</td>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.ItemCode}</td>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.qty}</td>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.WhsCode}</td>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.Dscription}</td>
+        <td style="padding: 1px; border: 1px solid #ccc;">${item.OpenQty}</td>
+      </tr>
+    `;
+  });
+ 
+  
+  this.$swal({
+    title: "Confirm GRPO Creation",
+      
+      html: `
+      <table style="width: 100%; border-collapse: collapse; margin: 5px 0; border: 1px solid #ddd;">
+      <thead>
+        <strong>Once submitted, this action cannot be retrieved or undone. Are you sure you want to proceed?</strong><br>
+        <tr style="background-color: #f2f2f2;">
+          <th style="padding: 5px; text-align: left;">Doc#</th>
+          <th style="padding: 5px; text-align: left;">Item</th>
+          <th style="padding: 5px; text-align: left;">Qty</th>
+          <th style="padding: 5px; text-align: left;">Whs</th>
+           
+          <th style="padding: 5px; text-align: left;">Dsc</th>
+          <th style="padding: 5px; text-align: left;">OPenty</th>
+          
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+  `,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, proceed",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
     
       const loading = this.$vs.loading({
         progress1: 0,
       });
+
       const interval = setInterval(() => {
         if (this.progress <= 100) {
           loading.changeProgress(this.progress++);
         }
       }, 1000);
-      this.logsDialog =true
-      const INFO = [];
-      const itempo = this.items.filter(item => item !== '');
-      console.log(itempo)
-      this.podata.forEach((data, index) => {
-        this.selected.forEach((selected, index) => {
-          if (selected == data.LineNum) {
-            console.log(itempo[index])
-            INFO.push({
-                  DocEntry: data.DocEntry,
-                  LineNum: data.LineNum,
-                  TargetType: data.TargetType,
-                  TrgetEntry: data.TrgetEntry,
-                  BaseRef: data.BaseRef,
-                  BaseType: data.BaseType,
-                  BaseEntry: data.BaseEntry,
-                  BaseLine: data.BaseLine,
-                  LineStatus: data.LineStatus,
-                  ItemCode: data.ItemCode,
-                  Dscription: data.Dscription,
-                  qty: itempo[index]?itempo[index]:data.OpenQty,
-                  ShipDate: data.ShipDate,
-                  OpenQty: data.OpenQty,
-                  Price: data.Price,
-                  Currency: data.Currency,
-                  Rate: data.Rate,
-                  DiscPrcnt: data.DiscPrcnt,
-                  LineTotal: data.LineTotal,
-                  TotalFrgn: data.TotalFrgn,
-                  OpenSum: data.OpenSum,
-                  OpenSumFC: data.OpenSumFC,
-                  VendorNum: data.VendorNum,
-                  SerialNum: data.SerialNum,
-                  WhsCode: data.WhsCode,
-                  SlpCode: data.SlpCode,
-                  Commission: data.Commission,
-                  TreeType: data.TreeType,
-                  AcctCode: data.AcctCode,
-                  TaxStatus: data.TaxStatus,
-                  GrossBuyPr: data.GrossBuyPr,
-                  PriceBefDi: data.PriceBefDi,
-                  DocDate: data.DocDate,
-                  Flags: data.Flags,
-                  OpenCreQty: data.OpenCreQty,
-                  UseBaseUn: data.UseBaseUn,
-                  SubCatNum: data.SubCatNum,
-                  BaseCard: data.BaseCard,
-                  TotalSumSy: data.TotalSumSy,
-                  OpenSumSys: data.OpenSumSys,
-                  InvntSttus: data.InvntSttus,
-                  OcrCode: data.OcrCode,
-                  Project: data.Project,
-                  CodeBars: data.CodeBars,
-                  VatPrcnt: data.VatPrcnt,
-                  VatGroup: data.VatGroup,
-                  PriceAfVAT: data.PriceAfVAT,
-                  Height1: data.Height1,
-                  FirmName: data.FirmName
-              });
-          }
-        });
-      });
-      this.logsIinterVal(this.randomID)
+
+      this.logsDialog = true;
+       
+
+      this.logsIinterVal(this.randomID);
       var systemID2 = btoa(JSON.stringify(INFO));
       var data = { hash: systemID2, line: this.selected, logsID: this.randomID };
-      console.log(data)
+
       axios
-        .post(this.$URLs.backend + "/api/inventory/grpo/createpo", {
-          data,
-        })
+        .post(this.$URLs.backend + "/api/inventory/grpo/createpo", { data })
         .then((res) => {
           clearInterval(interval);
-          clearInterval(this.intervalId)
-          this.logsDialog = false
+          clearInterval(this.intervalId);
+          this.logsDialog = false;
           this.progress = 0;
-          var text = JSON.stringify(res.data);
-          this.$swal("Grpo Creation", "" + res.data.message + "", res.data.status);
-          this.resubmit = false
-          this.createdgrpo()
+          this.$swal("GRPO Creation", res.data.message, res.data.status);
+          this.resubmit = false;
+          this.createdgrpo();
           loading.close();
-          
-          
-       }).catch((error) => {
-            if(error.message == 'Request failed with status code 500'){
-              this.resubmit = true
-              this.createAtion()
-              //alert('The System Resubmit Please Ok')
-              clearInterval(this.intervalId)
-              // console.error("An error occurred:", error);
-              // this.$swal("Error!", "Failed to sync data: " + error.message, "error");
-              loading.close();
-              clearInterval(interval);
-            }else{
-              clearInterval(interval);
-              clearInterval(this.intervalId)
-            }
-            
-          
-             
-       });
-    },
+        })
+        .catch((error) => {
+          if (error.message == "Request failed with status code 500") {
+            this.resubmit = true;
+            this.createAtion();
+            clearInterval(this.intervalId);
+            loading.close();
+            clearInterval(interval);
+          } else {
+            clearInterval(interval);
+            clearInterval(this.intervalId);
+          }
+        });
+    } else {
+      // Cancelled by user
+      this.$swal("Cancelled", "GRPO creation was cancelled.", "info");
+    }
+  });
+},
+
+
     refresh2() {
       this.listing = {};
       this.systemID = "";
