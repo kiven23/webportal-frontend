@@ -25,7 +25,7 @@
     </v-btn> -->
   </v-col>
 </v-card-title>
- <div ref="htmlContent" v-html="reportHtml"></div>
+ <div v-if="reportHtml" ref="htmlContent" v-html="reportHtml" style="width: 8.5in;   padding: 0.5in;  box-sizing: border-box;    background-color: white;   " ></div>
        
        <v-card-text>
                
@@ -55,7 +55,8 @@
          </v-col>
           
        <v-col class="d-flex justify-end align-center">
-  <span class="ml-5">
+        
+  <span class="ml-5" v-if="oitm">
     <v-icon @click="print()" color="green" >mdi-printer</v-icon>
   </span>
   <span class="ml-4">
@@ -451,7 +452,7 @@
               </v-col>
             </v-row>
           </v-container>
-          <small>*indicates required field</small>
+          <small v-if="stocktransfertype == '-' || closereason == '-' || u_name == ''" style="color: red;"><strong>*indicates required field</strong></small>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -466,6 +467,7 @@
             color="blue darken-1"
             text
             @click="submit()"
+            :disabled="stocktransfertype == '-' || closereason == '-' || u_name == ''"
           >
             Save
           </v-btn>
@@ -476,7 +478,7 @@
 </template>
 
 <script>
- 
+import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { validationMixin } from "vuelidate";
 import {
@@ -669,34 +671,79 @@ export default {
   created() {},
   
   methods: {
-   print(){
-    
-      this.reportsloading = true
-      const docentry = this.oitm[0].DocEntry
-       const docnum = this.oitm[0].DocNum
-      axios
-          .get(
-            this.$URLs.backend +
-              "/api/inventory/transfer/reports/print?DocEntry=" + docentry+"&DocNum="+docnum,
+   async convertToImage() {
+       const element = this.$refs.htmlContent;
+        if (!element) return;
 
-          )
-          .then((res) => {
-             this.reportHtml = res.data;
-             //console.log(res)
-            //  this.reportsdata = window.URL.createObjectURL(new Blob([res.data],  { type: 'application/pdf' }));
-        
-            //  const link = document.createElement('a');
-            // link.href =  this.reportsdata ;
-            // link.target = '_blank';
-            // link.setAttribute('download', 'receivingreports.pdf');
-            // document.body.appendChild(link);
-            // link.click();
-            // document.body.removeChild(link);
-            // this.reportsloading = false
-                 
+        try {
+          const pdf = new jsPDF("p", "mm", "a4");
+
+           await html2canvas(element, {
+            scale: 2, // High quality
+            useCORS: true, // Fix cross-origin issues if needed
+          }).then((canvas) => {
+              pdf.html(element, {
+                callback: function (pdf) {
+                  pdf.save("inventory-report.pdf"); // Save and download PDF
+                },
+                x: 10,
+                y: 10,
+                width: 190, // Fit content within A4 width
+                windowWidth: element.scrollWidth, // Ensure full width rendering
+              });
+            
           });
+      } catch (error) {
+        console.error("Error converting to image:", error);
+      }
+       
+     
+    },
+   
+  async print() {
+  try {
+      this.loads = this.$vs.loading({
+        progress1: 0,
+      });
 
-   },
+    const docentry = this.oitm[0].DocEntry;
+    const docnum = this.oitm[0].DocNum;
+
+    const res = await axios.get(
+      this.$URLs.backend +
+        "/api/inventory/transfer/reports/print?DocEntry=" +
+        docentry +
+        "&DocNum=" +
+        docnum
+    ,{ responseType: 'blob'}).then((response)=>{
+   const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+const link = document.createElement('a');
+link.href = url;
+link.setAttribute('download', 'Reports-Inventory-transfer.pdf');
+document.body.appendChild(link);
+link.click();
+this.loads.close();
+    });
+
+    // this.reportHtml = res.data;
+    
+    // // Wait for Vue to render the new HTML content
+    //  await this.$nextTick();
+    //  await this.convertToImage();
+    //  this.reportHtml =  ""
+    //  this.loads.close();
+
+       
+ 
+  } catch (error) {
+      this.loads.close();
+
+    console.error("Error fetching report:", error);
+  } finally {
+    this.reportsloading = false;
+  }
+}
+,
    focusNextEmptyField(i) {
        
        const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
