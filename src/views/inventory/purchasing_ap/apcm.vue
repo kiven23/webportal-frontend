@@ -3,7 +3,7 @@
     <v-breadcrumbs :items="breadcrums"></v-breadcrumbs>
     <v-card color="white lighten-2">
       
-      <v-card-title class="text-h5 lighten-3">Inventory Transfer   
+      <v-card-title class="text-h5 lighten-3">AP Credit Memo   
   <v-col class="d-flex justify-end">
     <v-chip
       color="green"
@@ -218,13 +218,12 @@
     > 
       <v-card>
          <v-card-title >
-          SERIAL TRANSFER 
-          <!-- <v-col class="d-flex justify-end">
-              <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> 
-              <v-icon @click="next()" title="Next">mdi-skip-next</v-icon> 
-          </v-col> -->
+          BARCODE ITEMS
+          
            </v-card-title > 
+          
          <v-card-title >   
+           
         <v-text-field
           v-model="search"
           label="SERIAL"
@@ -565,15 +564,11 @@ export default {
           href: "/",
         },
         {
-          text: "Transactions",
+          text: "AP Credit Memo",
           disabled: true,
-          href: "/sapb1/invt/transactions/inventorytransfer",
+          href: "/sapb1/invt/purchasing/ap/creditmemo",
         },
-        {
-          text: "Invetory Transfer",
-          disabled: true,
-          href: "/sapb1/invt/transactions/inventorytransfer",
-        },
+       
       ],
       warehouseHeader:[
          {
@@ -600,7 +595,7 @@ export default {
          { text: "Whse", value: "whse" },
          { text: "Serial", value: "serial" },
         //  { text: "SerialBarcode", value: "serialbarcode" },
-         { text: "To Warehouse", value: "towarehouse" },
+        //  { text: "To Warehouse", value: "towarehouse" },
          { text: "Action", value: "Action" }
        
       ]
@@ -814,17 +809,19 @@ this.loads.close();
     try {
         var baselink;
         if(i == 1){
-          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?' + this.activeRouteBase  
+          baselink = this.$URLs.backend+'/api/inventory/purchasing/apcreditmemo/getters?' + this.activeRouteBase  
         }else if(i == 2){
           baselink = this.nextt 
         }else if(i == 3){
           baselink = this.prevtt
         }else if(i == 4){
-          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&search='+this.search;
+          baselink = this.$URLs.backend+'/api/inventory/purchasing/apcreditmemo/getters?get=' + data +'&search='+this.search;
         }else if(i == 5){
-          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&docentry='+docentry;
+          baselink = this.$URLs.backend+'/api/inventory/purchasing/apcreditmemo/getters?get=' + data +'&docentry='+docentry;
         }else if(i == 6){
-          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
+          baselink = this.$URLs.backend+'/api/inventory/purchasing/apcreditmemo/getters?get=' + data +'&id='+docentry;
+        }else if(i == 7){
+          baselink = this.$URLs.backend+'/api/inventory/purchasing/apcreditmemo/getters?get=' + data;
         } 
         const res = await axios.get(baselink);
          

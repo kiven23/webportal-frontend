@@ -89,6 +89,13 @@ import barcodeprint from "../views/inventory/barcodeprint.vue";
 import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
 import goodsreceipt from "../views/inventory/inventorytransaction/goodsreceipt";
 import inventorytransfer from "../views/inventory/inventorytransaction/inventorytransfer";
+//PURCHASING AP TRANSACTION
+//AP-CREADIT-MEMO
+import apcm from "../views/inventory/purchasing_ap/apcm";
+//AP-INVOICE
+import apinvoice from "../views/inventory/purchasing_ap/apinvoice";
+
+
 //BUSINESS PARTNER
 import businesspartner from "../views/businesspartner/bp";
 //database configure
@@ -553,7 +560,23 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
-   
+  //PURCHASING AP
+  {
+    path: "/sapb1/invt/purchasing/ap/creditmemo",
+    component: apcm,
+    name: "AP Creding Memo",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/sapb1/invt/purchasing/ap/apinvoice",
+    component: apinvoice,
+    name: "AP - Invoice",
+    meta: {
+      requiresAuth: true
+    }
+  },
   //BUSINESS PARTNER
   {
     path: "/sapb1/businesspartner",

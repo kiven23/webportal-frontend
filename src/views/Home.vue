@@ -46,6 +46,43 @@
         </template>
       </vs-button> 
       </v-layout>
+       <v-layout row wrap>
+        <v-flex xs12>
+          <h3>Purchasing AP</h3>
+ 
+          <p> 
+          </p>
+          
+        </v-flex>
+        
+    
+        <vs-button
+        :disabled="false"
+        style="background-color: white; min-width: 70px; color: black"
+        to="/sapb1/invt/purchasing/ap/creditmemo"
+        animation-type="scale"
+        >
+        <v-img src="/sap.png" style="width: 100px"> </v-img
+        ><strong>APCM</strong>
+        <template #animate>
+          <strong style="margin-left: 10px">AP Credit Memo &#9881;</strong>
+          <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
+        </template>
+      </vs-button>
+      <vs-button
+        :disabled="false"
+        style="background-color: white; min-width: 70px; color: black"
+        to="/sapb1/invt/purchasing/ap/apinvoice"
+        animation-type="scale"
+        >
+        <v-img src="/sap.png" style="width: 100px"> </v-img
+        ><strong>AP-Invoice</strong>
+        <template #animate>
+          <strong style="margin-left: 10px">AP Invoice&#9881;</strong>
+          <v-img src="/sap.png" style="width: 70px; height: 70px"></v-img>
+        </template>
+      </vs-button>
+      </v-layout >
          <v-layout row wrap>
         <v-flex xs12>
           <h3>Inventory Transactions</h3>
