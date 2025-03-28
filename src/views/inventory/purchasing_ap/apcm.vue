@@ -221,7 +221,18 @@
           BARCODE ITEMS
           
            </v-card-title > 
+          <v-card-title >
+             <v-autocomplete
+                            v-model="vendor"
+                            :items="vendorData"
+                            item-text="CardName"
+                            item-value="CardCode"
+                            dense
+                            filled
+                            label="VENDOR"
+               ></v-autocomplete>
           
+           </v-card-title > 
          <v-card-title >   
            
         <v-text-field
@@ -497,6 +508,9 @@ export default {
   },
   data() {
     return {
+      vendorData:[],
+      vendor: '',
+
       reportHtml: '',
       remapsn: {} ,
       searchremap: [],
@@ -595,7 +609,7 @@ export default {
          { text: "Whse", value: "whse" },
          { text: "Serial", value: "serial" },
         //  { text: "SerialBarcode", value: "serialbarcode" },
-        //  { text: "To Warehouse", value: "towarehouse" },
+         { text: "To Warehouse", value: "towarehouse" },
          { text: "Action", value: "Action" }
        
       ]
@@ -1093,8 +1107,11 @@ async getItemData2(docentry){
       return this.owhslist = whs
   },
   async getUDF(){
-      this.closereasonItem = await this.controller('udf', 6, 11);
       this.stocktransfertypeItem = await this.controller('udf', 6, 31);
+      return "Fetch Done";
+  },
+  async getVENDOR(){
+      this.vendorData = await this.controller('vendor', 7);
       return "Fetch Done";
   },
   async getGoodsIssue(i){
@@ -1132,19 +1149,23 @@ async getItemData2(docentry){
      }
      
   },
-  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_CloseType){
+  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_CloseType,vendor){
      const arr = {
-                    myserialnumber:  myserialnumber,
-                    fromMWH:  warehouse,
-                    MyItemCode: MyItemCode,
+                    CardCode: vendor,
                     Quantity:  Quantity,
                     toMWH: towarehouse,
                     Model:  Model,
-                    Remarks: Remarks,
                     JrnlMemo: JrnlMemo,
-                    U_Name: U_Name,
+                    Comments: Remarks,
                     U_StockTransType: U_StockTransType,
-                    U_CloseType: U_CloseType
+                    U_CloseType: U_CloseType,
+                    Lines: [{
+                          "ItemCode": MyItemCode,
+                          "Quantity": Quantity,
+                          "WarehouseCode": warehouse,
+                          "SerialNumbers": myserialnumber
+                         }
+                    ]
 
                   }
       return arr
@@ -1155,11 +1176,11 @@ async getItemData2(docentry){
       });
       var data = []
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.closereason))
+            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.closereason, this.vendor))
         });
         console.log(data)
         if(data){
-            await axios.post(this.$URLs.backend+'/api/inventory/transfer/submit', data).then((res)=>{
+            await axios.post(this.$URLs.backend+'/api/inventory/apcm/submit', data).then((res)=>{
                 var text = JSON.stringify(res.data);
                 this.$swal("Sync!", "" + text + "");
                 loading.close()
@@ -1239,6 +1260,7 @@ async getItemData2(docentry){
     this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal)
     await this.getOwhs()
     await this.getUDF()
+    await this.getVENDOR()
     this.stocktransfertype = '-'
     this.closereason = '-'
      
