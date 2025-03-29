@@ -222,16 +222,26 @@
           
            </v-card-title > 
           <v-card-title >
+            <v-text-field
+              v-model="fromvendor"
+              label="FROM"
+              dense
+              disabled
+             
+             
+        > 
+            </v-text-field>
+           </v-card-title >
+           <v-card-title >
              <v-autocomplete
-                            v-model="vendor"
-                            :items="vendorData"
-                            item-text="CardName"
-                            item-value="CardCode"
-                            dense
-                            filled
-                            label="VENDOR"
+                  v-model="tovendor"
+                  :items="vendorData"
+                  item-text="CardName"
+                  item-value="CardCode"
+                  dense
+                  filled
+                  label="TO VENDOR"
                ></v-autocomplete>
-          
            </v-card-title > 
          <v-card-title >   
            
@@ -438,11 +448,11 @@
                 sm="6"
               >
                 <v-autocomplete
-                  v-model="closereason"
-                  :items="closereasonItem"
+                  v-model="transactioncat"
+                  :items="transactioncatItem"
                   item-text="Descr"
                   item-value="FldValue"
-                  label="Close Reason"
+                  label="Transaction Categories"
                
                 ></v-autocomplete>
               </v-col>
@@ -509,7 +519,8 @@ export default {
   data() {
     return {
       vendorData:[],
-      vendor: '',
+      tovendor: '',
+      fromvendor: '',
 
       reportHtml: '',
       remapsn: {} ,
@@ -519,8 +530,8 @@ export default {
       loadingListItems: false,
       loads: null,
       selecteditem: [],
-      closereasonItem: [],
-      closereason: '',
+      transactioncatItem: [],
+      transactioncat: '',
       stocktransfertypeItem: [],
       stocktransfertype: '',
       u_name: '',
@@ -1108,10 +1119,15 @@ async getItemData2(docentry){
   },
   async getUDF(){
       this.stocktransfertypeItem = await this.controller('udf', 6, 31);
+      this.transactioncatItem = await this.controller('udf', 6, 16);
       return "Fetch Done";
   },
   async getVENDOR(){
       this.vendorData = await this.controller('vendor', 7);
+      return "Fetch Done";
+  },
+  async getSourceCompany(){
+      this.fromvendor = await this.controller('companies', 7);
       return "Fetch Done";
   },
   async getGoodsIssue(i){
@@ -1149,16 +1165,24 @@ async getItemData2(docentry){
      }
      
   },
-  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_CloseType,vendor){
+  getVendorName(data){
+     const vendor = this.vendorData.find(res => res.CardCode === data);
+        if (vendor) {
+          return vendor.CardName;
+        }
+        return null;
+  },
+  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_TranCat,tovendor,fromvendor){
      const arr = {
-                    CardCode: vendor,
-                    Quantity:  Quantity,
+                    CardCode: tovendor,
+                    toVendorName: this.getVendorName(tovendor),
+                    fromVendorName: fromvendor,
                     toMWH: towarehouse,
                     Model:  Model,
                     JrnlMemo: JrnlMemo,
                     Comments: Remarks,
                     U_StockTransType: U_StockTransType,
-                    U_CloseType: U_CloseType,
+                    U_TranCat: U_TranCat,
                     Lines: [{
                           "ItemCode": MyItemCode,
                           "Quantity": Quantity,
@@ -1176,7 +1200,7 @@ async getItemData2(docentry){
       });
       var data = []
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.closereason, this.vendor))
+            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.transactioncat, this.tovendor, this.fromvendor))
         });
         console.log(data)
         if(data){
@@ -1261,6 +1285,7 @@ async getItemData2(docentry){
     await this.getOwhs()
     await this.getUDF()
     await this.getVENDOR()
+    await this.getSourceCompany()
     this.stocktransfertype = '-'
     this.closereason = '-'
      
