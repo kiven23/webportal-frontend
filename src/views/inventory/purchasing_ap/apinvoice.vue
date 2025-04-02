@@ -182,13 +182,7 @@
     
     
   >
-    <v-textarea
-      outlined
-      name="remarks-input"
-      label="Remarks"
-      v-model="remarksModel"
-      :value="listgoodsissue.Comments"
-    ></v-textarea> 
+  
   </v-col>
        
   <!-- Journal Remarks Section -->
@@ -233,7 +227,7 @@
         <v-data-table
           dense
           :headers="headers2"
-          :items="searchDataItems"
+          :items="createdAPCMhistory"
           item-key="id"
           hide-default-footer
           class="elevation-1"
@@ -246,6 +240,15 @@
         <span style="color:green; font-size: 15px;">  {{countQty(item.id)}} </span> 
              
     </template>  
+  <template v-slot:item.action="{ item }"> 
+     <v-btn
+            color="green darken-1"
+            text
+            @click="acceptSerial(item)"
+          >
+            Accept
+          </v-btn>
+            </template>  
      <template v-slot:item.count="{ item }"> 
              
         <span style="color:red; font-size: 18px;">  {{countQty(item.id).length}} </span> 
@@ -460,6 +463,49 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="Verifysync" persistent>
+      <v-card>
+        <v-card-title class="text-h8"> Review Breakdown </v-card-title>
+        <v-card-text> 
+          DocNumber: {{previewitems.docnumber}} <br>
+          Origin: {{previewitems.source_vendor}}  - <br>Received: {{previewitems.to_vendor}}
+        </v-card-text>
+        <v-card-text>
+              <v-data-table
+                :headers="previewhead"
+                :items="previewitems.lines"
+                class="elevation-1"
+                dense
+              >
+                <template v-slot:item.SerialNumbers="{ item }">
+                  <span>{{ item.SerialNumbers.join(", ") }}</span>
+                </template>
+    </v-data-table>
+        </v-card-text>
+        <v-card-text>
+             <v-textarea
+                outlined
+                name="remarks-input"
+                label="Remarks"
+                v-model="remarksModel"
+              ></v-textarea> 
+        </v-card-text>
+        <v-card-text>
+          You cannot edit the document once it is submitted successfully.
+        </v-card-text>
+        <v-card-actions>
+           
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="Verifysync = false">
+            Close
+          </v-btn>
+          <v-btn color="green darken-1" :disabled="previewhead.status == 0" text @click="send">
+            Sync & Closed
+          </v-btn>
+        </v-card-actions>
+         
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -484,6 +530,15 @@ export default {
   },
   data() {
     return {
+       previewhead: [
+        { text: "Item Code", value: "ItemCode" },
+        { text: "WT Liable", value: "WTLiable" },
+        { text: "Quantity", value: "Quantity" },
+        { text: "Warehouse", value: "WarehouseCode" },
+        { text: "Serial Numbers", value: "SerialNumbers" },
+      ],
+      Verifysync: false,
+      previewitems: [],
       vendorData:[],
       tovendor: '',
       fromvendor: '',
@@ -530,7 +585,7 @@ export default {
       prevpages: '',
       lastpages: '',
       checkbox: [],
-
+      createdAPCMhistory: [],
       dialogs: ['items','itembywarehouse','availablesn','gl','inventorytransferlist','whslist'],
       activeRouteBase: '',
       oitm: [],
@@ -563,15 +618,15 @@ export default {
       ],
       warehouseHeader:[
          {
-          text: "WhsCode",
+          text: "From",
           align: "start",
           sortable: false,
-          value: "WhsCode",
+          value: "source_vendor",
          },
-         { text: "ItemCode", value: "ItemCode" },
-         { text: "Stocks", value: "OnHand" },
-         { text: "IsCommited", value: "IsCommited" },
-         { text: "OnOrder", value: "OnOrder" },
+         { text: "To", value: "to_vendor" },
+         { text: "ItemCode", value: "lines.ItemCode" },
+         { text: "Quantity", value: "lines.Quantity" },
+         { text: "Warehouse", value: "lines.WarehouseCode" },
          { text: "Action", value: "Action" },
       ],
       headers: [
@@ -591,18 +646,16 @@ export default {
        
       ]
       ,
-         headers2: [
-         {
-          text: "Item No.",
+         headers2: [   {
+          text: "From",
           align: "start",
           sortable: false,
-          value: "ItemCode",
+          value: "source_vendor",
          },
-         { text: "ItemName", value: "ItemName" },
-         { text: "FrgnName", value: "FrgnName" },
-         { text: "Warehouse", value: "WhsCode" },
-         { text: "Serial Qty", value: "qty"},
-         { text: "Serial Count", value: "count"}
+         { text: "To", value: "to_vendor" },
+         { text: "Vendor", value: "CardCode" },
+         { text: "DocNum", value: "docnumber"},
+         { text: "Action", value: "action" },
          //{ text: "SRP", value: "U_srp" },
          //{ text: "Reg NC", value: "U_RegNC" },
          //{ text: "Present NC", value: "U_PresentNC" },
@@ -657,6 +710,31 @@ export default {
   created() {},
   
   methods: {
+   async send(){
+       const loading = this.$vs.loading({
+        progress1: 0,
+      });
+        var data = {
+          items: this.previewitems,
+          comments:  this.remarksModel
+        }
+        if(this.previewitems){
+            await axios.post(this.$URLs.backend+'/api/inventory/apinvoice/submit', data).then((res)=>{
+                var text = JSON.stringify(res.data);
+                this.$swal("Sync!", "" + text + "");
+                loading.close()
+                if(res.data.status !== 'warning'){
+                    this.refresh()
+                }
+            })
+
+     }
+   },
+   acceptSerial(data){
+     console.log(data)
+     this.Verifysync = true
+     this.previewitems = data 
+   },
    async convertToImage() {
        const element = this.$refs.htmlContent;
         if (!element) return;
