@@ -1123,11 +1123,15 @@ async getItemData2(docentry){
       return "Fetch Done";
   },
   async getVENDOR(){
+     
       this.vendorData = await this.controller('vendor', 7);
+       
       return "Fetch Done";
   },
   async getSourceCompany(){
+   
       this.fromvendor = await this.controller('companies', 7);
+  
       return "Fetch Done";
   },
   async getGoodsIssue(i){
@@ -1172,26 +1176,18 @@ async getItemData2(docentry){
         }
         return null;
   },
-  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model, Remarks, JrnlMemo,U_Name,U_StockTransType,U_TranCat,tovendor,fromvendor){
+  arrange(myserialnumber,warehouse, MyItemCode, Quantity, towarehouse,Model){
      const arr = {
-                    CardCode: tovendor,
-                    toVendorName: this.getVendorName(tovendor),
-                    fromVendorName: fromvendor,
-                    toMWH: towarehouse,
-                    Model:  Model,
-                    JrnlMemo: JrnlMemo,
-                    Comments: Remarks,
-                    U_StockTransType: U_StockTransType,
-                    U_TranCat: U_TranCat,
-                    Lines: [{
                           "ItemCode": MyItemCode,
                           "Quantity": Quantity,
                           "WarehouseCode": warehouse,
-                          "SerialNumbers": myserialnumber
+                          "SerialNumbers": myserialnumber,
+                          "Model": Model,
+                          "toMWH": towarehouse
                          }
-                    ]
+                    
 
-                  }
+                  
       return arr
   },
  async submit(){
@@ -1200,11 +1196,19 @@ async getItemData2(docentry){
       });
       var data = []
       await  this.goodsissue.forEach((value,index) => {
-            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName,this.remarksModel,this.JrnlMemo, this.u_name,this.stocktransfertype,this.transactioncat, this.tovendor, this.fromvendor))
+            data.push(this.arrange( this.selectedSerial[index], this.warehouseModel[index],value.ItemCode, this.qtyModel[index],this.whsModel[index],value.ItemName, this.u_name))
         });
-        console.log(data)
-        if(data){
-            await axios.post(this.$URLs.backend+'/api/inventory/apcm/submit', data).then((res)=>{
+        const final =  {CardCode: this.tovendor,
+                  toVendorName: this.getVendorName(this.tovendor),
+                  fromVendorName: this.fromvendor,
+                  JrnlMemo: this.JrnlMemo,
+                  Comments: this.remarksModel,
+                  U_StockTransType: this.stocktransfertype,
+                  U_TranCat: this.transactioncat,
+                  Lines: data}
+        
+        if(final){
+            await axios.post(this.$URLs.backend+'/api/inventory/apcm/submit', final).then((res)=>{
                 var text = JSON.stringify(res.data);
                 this.$swal("Sync!", "" + text + "");
                 loading.close()
@@ -1280,12 +1284,16 @@ async getItemData2(docentry){
   },
   
   async mounted() {
+    const loading = this.$vs.loading({
+     progress1: 0,
+    });
     this.activeModal = await  5
     this.activeRouteBase = await '&get='+this.Getactivemodals(this.activeModal)
     await this.getOwhs()
     await this.getUDF()
     await this.getVENDOR()
     await this.getSourceCompany()
+    await loading.close();
     this.stocktransfertype = '-'
     this.closereason = '-'
      

@@ -186,7 +186,7 @@
   </v-col>
        
   <!-- Journal Remarks Section -->
-  <v-col
+  <!-- <v-col
     cols="6"
     
      
@@ -198,7 +198,7 @@
       v-model="JrnlMemo"
       :value="listgoodsissue.JrnlMemo"
     ></v-textarea> 
-  </v-col>
+  </v-col> -->
  
  
  
@@ -769,10 +769,13 @@ export default {
       this.loads = this.$vs.loading({
         progress1: 0,
       });
-
+     console.log(this.oitm)
+        alert()
+        
     const docentry = this.oitm[0].DocEntry;
     const docnum = this.oitm[0].DocNum;
-
+     
+ 
     const res = await axios.get(
       this.$URLs.backend +
         "/api/inventory/transfer/reports/print?DocEntry=" +
@@ -918,10 +921,11 @@ this.loads.close();
         progress1: 0,
       });
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),2);
+       
         this.oitm = data2.data
         this.oitw = data2.data
         this.listgoodsissue = await data2.data[0]
-        console.log(this.listgoodsissue)
+     
         this.nextt = data2.next_page_url + this.activeRouteBase
         this.prevtt = data2.prev_page_url + this.activeRouteBase
          this.currentpage = data2.current_page
