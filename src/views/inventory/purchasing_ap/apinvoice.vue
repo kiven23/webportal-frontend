@@ -778,7 +778,7 @@ export default {
  
     const res = await axios.get(
       this.$URLs.backend +
-        "/api/inventory/transfer/reports/print?DocEntry=" +
+        "/api/inventory/apinvoice/reports/print?DocEntry=" +
         docentry +
         "&DocNum=" +
         docnum
