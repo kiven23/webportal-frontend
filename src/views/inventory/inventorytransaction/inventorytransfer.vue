@@ -50,8 +50,15 @@
          <v-row> 
           
          <v-col class="d-flex justify-start">
-        <v-icon @click="selectitem()">mdi-file-document-box</v-icon>  
-        <span class="ml-2">Select Items</span>
+         <v-btn 
+            color="primary"
+            class="rounded-xl px-4 py-2"
+            @click="selectitem"
+            elevation="2"
+          >
+            <v-icon left>mdi-file-document-box</v-icon>
+            <span class="text-body-2 font-weight-medium">Select Items</span>
+          </v-btn>
          </v-col>
           
        <v-col class="d-flex justify-end align-center">
@@ -75,15 +82,19 @@
      
       
       <v-card-actions>
- 
+     
         <v-data-table
           dense
           :headers="headers"
           :items="goodsissue"
           item-key="id"
           hide-default-footer
-          class="elevation-1"
+          class="elevation-1  no-spacing"
           :key="componentKey"
+          :items-per-page="-1"
+          style="min-height: 0px;"
+          fixed-header
+          height="400"
         >
         <template v-slot:item.Quantity="{item, index}">
           <v-text-field
@@ -188,6 +199,7 @@
       label="Remarks"
       v-model="remarksModel"
       :value="listgoodsissue.Comments"
+      maxlength="254"
     ></v-textarea> 
   </v-col>
        
@@ -203,6 +215,7 @@
       label="Journal Remarks"
       v-model="JrnlMemo"
       :value="listgoodsissue.JrnlMemo"
+      maxlength="48"
     ></v-textarea> 
   </v-col>
  
@@ -217,27 +230,49 @@
       max-width="900"
     > 
       <v-card>
-         <v-card-title >
+        <v-card-actions>
+             <!-- <strong> Page: {{this.currentpage}} To: {{this.topage}} Total: {{this.totalpage}}</strong> -->
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="getItem = false"
+          >
+            Done
+          </v-btn>
+        </v-card-actions>
+         <!-- <v-card-title >
           SERIAL TRANSFER 
-          <!-- <v-col class="d-flex justify-end">
+          <v-col class="d-flex justify-end">
               <v-icon @click="prev()" title="Previous">mdi-skip-previous</v-icon> 
               <v-icon @click="next()" title="Next">mdi-skip-next</v-icon> 
-          </v-col> -->
-           </v-card-title > 
+          </v-col>
+           </v-card-title >  -->
          <v-card-title >   
-        <v-text-field
+         
+        <!-- <v-text-field
           v-model="search"
           label="SERIAL"
           dense
-           
+          
           @input="searchfunction()"
         >
-        </v-text-field> 
-       <v-icon @click="searchfunction()">mdi-file-find</v-icon>  
+        </v-text-field>  -->
+       <!-- <v-icon @click="searchfunction()">mdi-file-find</v-icon>   -->
+       <v-icon @click="searchfunction()" style="font-size: 36px;">mdi-file-find</v-icon>
+
         <br>
     
 
         </v-card-title>
+          <v-card-title >  
+       
+          <!-- <a style="font-size: 7px;"> {{ errormessage}} " Not Found " </a>  -->
+           
+            </v-card-title >  
+            <v-card-title>
+              Total Barcoded Serial:   <strong>{{qtytotals.length}}</strong>
+            </v-card-title> 
       <v-skeleton-loader
         
         type="table-heading,  table-tfoot"
@@ -250,11 +285,16 @@
           :items="searchDataItems"
           item-key="id"
           hide-default-footer
-          class="elevation-1"
+          class="elevation-1 no-spacing"
           v-model="selecteditem"
           show-select
+          :items-per-page="-1"
+          style="min-height: 0px;"
+       
+          height="400"
+           
         >
-         
+
     <template v-slot:item.qty="{ item }"> 
              
         <span style="color:green; font-size: 15px;">  {{countQty(item.id)}} </span> 
@@ -263,6 +303,13 @@
      <template v-slot:item.count="{ item }"> 
              
         <span style="color:red; font-size: 18px;">  {{countQty(item.id).length}} </span> 
+             
+    </template>  
+     <template v-slot:item.actions="{ item}"> 
+             
+        <v-btn icon small color="red" @click="removeItem(item.id)">
+  <v-icon>mdi-delete</v-icon>
+</v-btn>
              
     </template>  
         </v-data-table>
@@ -275,12 +322,80 @@
             text
             @click="getItem = false"
           >
-            Close
+            Done
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+<v-dialog
+      v-model="serialmanageDialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar
+          style="
+            background: linear-gradient(
+              180deg,
+              rgba(112, 43, 43, 0.05504208519345233) 2%,
+              rgba(31, 62, 126, 1) 17%
+            );
+            border-radius: 10px;
+          "
+        >
+          <v-btn icon @click="serialmanageDialog = false">
+            <v-icon>mdi-close</v-icon>
+            
+          </v-btn>
+            
+            <v-text-field
+                    v-model="itemtotransfer"
+                    dense
+                    color="green"
+                    label="SetQty"
+                    @change="setQty"
+                    style="margin-top: 15px;"
+                        >
+                        </v-text-field>
+          <v-spacer></v-spacer>
+       
+            <v-progress-linear
+            v-model="count"
+            color="blue-grey"
+            height="25"
+          >
+            <template v-slot:default="{ value }">
+              <strong>{{ Math.ceil(value) }}%</strong>
+            </template>
+          </v-progress-linear>
+           <v-btn icon @click="searchserials()">
+            <v-icon>mdi-content-save-all</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-list three-line  :key="serialcomponent_key"> 
+          <v-spacer></v-spacer>
+          
+                <div v-for="(index) in parseInt(qty)" :key="index">  
+                    <div >
+                      <v-col cols="12">
+                        <v-text-field
+                          v-model="serials[index]"
+                          dense
+                          color="green"
+                          :error-messages="errorSN[index]"
+                          @input="errorSerial(index)"
+                          @change="AutoSearchserials(index)"
+                        >
+                        </v-text-field>
+                        <a>{{iteminfos[index]}}</a>
+                      </v-col>
+                    </div>
+                 </div>
+        </v-list>
+        <v-divider></v-divider>
+      </v-card>
+    </v-dialog>
     <v-dialog
       v-model="warehouseDialog"
       persistent
@@ -351,54 +466,7 @@
     </v-card-actions>
   </v-card>
 </v-dialog>
- <v-dialog
-      v-model="serialmanageDialog"
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-    >
-      <v-card>
-        <v-toolbar
-          style="
-            background: linear-gradient(
-              180deg,
-              rgba(112, 43, 43, 0.05504208519345233) 2%,
-              rgba(31, 62, 126, 1) 17%
-            );
-            border-radius: 10px;
-          "
-        >
-          <v-btn icon @click="serialmanageDialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-        <v-list three-line>
-          <v-spacer></v-spacer>
-       <div v-for="(serial,index) in serialMapModel[remapserialIndex]" :key="index">  
-          <div >
-            <v-col cols="12">
-              <v-text-field
-                v-model="serialMapModel[remapserialIndex][index].sn"
-                clearable
-                dense
-                color="green"
-                @input="serializedFunction(remapserialIndex,index)"
-                :error-messages="(errorSn[remapserialIndex][index]) + (errorSnExist[remapserialIndex][index])"
-                
-                @keydown.tab.prevent="focusNextEmptyField(remapserialIndex)"
-                @focus="focusNextEmptyField(remapserialIndex)"
-                :ref="'textField' + index"
-              >
-              </v-text-field>
   
-            </v-col>
-          </div>
-       </div>
-        </v-list>
-        <v-divider></v-divider>
-      </v-card>
-    </v-dialog>
 
      <v-dialog
       v-model="dialogUDF"
@@ -498,6 +566,16 @@ export default {
   },
   data() {
     return {
+      serialcomponent_key: -1,
+      iteminfos: [],
+      myarr: [],
+      count: 0,
+      errorSN: [],
+      qty: 50,
+      itemtotransfer: 50,
+      serials: [],
+      counting: 0,
+      qtytotals: [],
       reportHtml: '',
       remapsn: {} ,
       searchremap: [],
@@ -540,7 +618,7 @@ export default {
       prevpages: '',
       lastpages: '',
       checkbox: [],
-
+      errormessage: [],
       dialogs: ['items','itembywarehouse','availablesn','gl','inventorytransferlist','whslist'],
       activeRouteBase: '',
       oitm: [],
@@ -606,17 +684,19 @@ export default {
       ]
       ,
          headers2: [
+           { text: "Serial Qty", value: "qty"},
+         { text: "Serial Count", value: "count"},
          {
           text: "Item No.",
           align: "start",
-          sortable: false,
+       
           value: "ItemCode",
          },
          { text: "ItemName", value: "ItemName" },
-         { text: "FrgnName", value: "FrgnName" },
-         { text: "Warehouse", value: "WhsCode" },
-         { text: "Serial Qty", value: "qty"},
-         { text: "Serial Count", value: "count"}
+         { text: "actions", value: "actions" },
+        //  { text: "FrgnName", value: "FrgnName" },
+        //  { text: "Warehouse", value: "WhsCode" },
+         
          //{ text: "SRP", value: "U_srp" },
          //{ text: "Reg NC", value: "U_RegNC" },
          //{ text: "Present NC", value: "U_PresentNC" },
@@ -660,17 +740,57 @@ export default {
                 this.searchremap.forEach((res,value)=>{
                       if(res.index == id){
                           sn.push(res.sn)
+                           
                        }
                 })
+                 
                 return sn
            
         };
-      }
+      } ,
+     
+       
+
   },
 
   created() {},
   
   methods: {
+   errorSerial(i){
+    function check(value, serialArray) {
+    // Ensure both value and serialArray elements are in the same format (string)
+    const valueString = String(value); // Convert the value to a string (if not already)
+    return serialArray.includes(valueString); // Check if the value exists in the array
+     }
+
+     //this.errorSN[i] = ''
+     if(check(this.serials[i],this.myarr[0])){
+          this.errorSN[i] = 'Duplicate entries are not allowed.'
+     }else{
+      this.errorSN[i] = ''
+     }
+     this.iteminfos[i] = []
+ 
+        
+   },
+   removeItem(i){
+ 
+      let v = this.searchremap.findIndex(item => item.index === i);
+      
+      if (v !== -1) {
+        this.searchremap.splice(v, 1);
+      }else{
+         let v = this.searchDataItems.findIndex(item => item.id === i);
+        this.searchDataItems.splice(v, 1);
+      }
+        var snqty = [];
+        this.searchremap.forEach((value,index)=>{
+           
+            snqty.push(value.sn)
+        })
+        this.qtytotals = snqty;
+  
+   },
    async convertToImage() {
        const element = this.$refs.htmlContent;
         if (!element) return;
@@ -705,7 +825,7 @@ export default {
       this.loads = this.$vs.loading({
         progress1: 0,
       });
-
+    console.log( this.oitm)
     const docentry = this.oitm[0].DocEntry;
     const docnum = this.oitm[0].DocNum;
 
@@ -810,7 +930,8 @@ this.loads.close();
      this.componentKey += 1;
   
    },
-   async controller(data,i,docentry) {
+   async controller(data,i,docentry,index) {
+    
     try {
         var baselink;
         if(i == 1){
@@ -820,16 +941,26 @@ this.loads.close();
         }else if(i == 3){
           baselink = this.prevtt
         }else if(i == 4){
-          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&search='+this.search;
+          baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&search='+btoa(docentry);
         }else if(i == 5){
           baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&docentry='+docentry;
         }else if(i == 6){
           baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
         } 
         const res = await axios.get(baselink);
-         
+        if(res.data == 1){
+                  
+       
+            this.errorSN[index+1] = "NotFound"
+            this.errormessage.push(docentry)
+            
+        }
+        this.iteminfos[index+1] = res.data[0].ItemCode
+
+        console.log( res.data[0].ItemCode)
         return res.data;
     } catch (error) {
+        
         console.error('Error fetching data:', error);
         throw error;  
     }
@@ -865,11 +996,14 @@ this.loads.close();
       this.loads = this.$vs.loading({
         progress1: 0,
       });
+        console.log(1)
         const data2 = await this.controller(this.Getactivemodals(this.activeModal),2);
-        this.oitm = data2.data
-        this.oitw = data2.data
+        console.log(data2)
+        this.oitm = await data2.data
+        this.oitw = await data2.data
+     
         this.listgoodsissue = await data2.data[0]
-        console.log(this.listgoodsissue)
+       
         this.nextt = data2.next_page_url + this.activeRouteBase
         this.prevtt = data2.prev_page_url + this.activeRouteBase
          this.currentpage = data2.current_page
@@ -927,32 +1061,51 @@ this.loads.close();
    }
    this.loads.close();
  },
- 
- async searchfunction() {
-     
-    this.activeRouteBase = this.activeRouteBase +  '&search=' +this.search
+ setQty(){
+    this.qty =  this.itemtotransfer
+ },
+ async getSerials(data,i){
+
+    
+    
+    this.activeRouteBase = this.activeRouteBase +  '&search=' +data
     this.loadingListItems = true
     try {
         this.activevalue = 4
-        const data2 = await this.controller(this.Getactivemodals(this.activeModal),4);
+        const data2 = await this.controller(this.Getactivemodals(this.activeModal),4, data, i);
         this.oitm = await data2
+ 
         // if (this.oitm.length !== 8554){
             if (!Array.isArray(this.searchDataItems)) {
               this.searchDataItems = [];
               }
+                this.oitm[0] = {
+            ...this.oitm[0],
+            count: this.counting = this.counting +1
+          };
             const existingItems = new Set(this.searchDataItems.map(item => item.id)); // Palitan ang 'id' ng unique identifier mo
             const newItems = this.oitm.filter(item => !existingItems.has(item.id));
-
+             
             this.searchDataItems.push(...newItems);
+            this.searchDataItems.sort((a, b) => b.count - a.count); // Descending
             
             this.searchDataItems.forEach((value, index) => {
-                const isDuplicate = this.searchremap.some(item => item.sn === this.search);
+              if (data && data.trim() !== "") {
+                const isDuplicate = this.searchremap.some(item => item.sn === data);
                 if (!isDuplicate) {
-                    this.searchremap.push({ index: this.oitm[0].id, sn: this.search });
+                    
+                    this.searchremap.push({ index: this.oitm[0].id, sn: data});
                 }
-            });
+              }
+             });
+            console.log(this.searchremap)
         // }
-         
+        var snqty = [];
+        this.searchremap.forEach((value,index)=>{
+           
+            snqty.push(value.sn)
+        })
+        this.qtytotals = snqty;
         this.oitw = data2.data
         this.nextt = data2.next_page_url + this.activeRouteBase 
         this.prevtt = data2.prev_page_url +  this.activeRouteBase 
@@ -960,11 +1113,79 @@ this.loads.close();
         this.topage = data2.to
         this.totalpage = data2.total
         this.loadingListItems = false
-        this.search = ""
+        //this.search = ""
     } catch (error) {
         console.error('Error in selectitem:', error);  
+        this.loadingListItems = false
    }
 
+ },
+searchfunction() {
+     this.serialmanageDialog = true
+     
+ },
+ async searchserials(){
+      const loading = this.$vs.loading({
+        progress1: 0,
+      });
+       this.count = 0
+       this.errormessage = []
+      const serials = this.serials.filter(item => item);
+      const c = 100/serials.length ;
+   
+      
+      
+      for (const [index, res] of serials.entries()) {
+         
+        await this.getSerials(res, index);
+        this.count = await this.count+c
+      }
+       
+       console.log(this.errormessage.length)
+       if(this.errormessage.length == 0){
+           this.serialmanageDialog = false;
+            loading.close();
+      }else{
+        loading.close();
+      }
+ },
+  async AutoSearchserials(i){
+ 
+      // this.errormessage = []
+      // const serials = this.serials[i]
+    
+      // await this.getSerials(serials, i-1);
+      //  const loading = this.$vs.loading({
+      //   progress1: 0,
+      // });
+ 
+    
+      this.errormessage = []
+      var serials = this.serials.filter(item => item);
+      this. myarr = []
+      this.myarr.push(serials)
+      
+   
+      var serials2 = this.serials.filter(item => item);
+      
+      for (const [index, res] of serials2.entries()) {
+       
+             
+                
+               const data2 = await this.controller(this.Getactivemodals(this.activeModal),4, res, index);
+               
+ 
+      }
+      this.serialcomponent_key+=1
+     //loading.close();
+      //  console.log(this.errormessage.length)
+      //  if(this.errormessage.length == 0){
+      //      this.serialmanageDialog = false;
+      //       loading.close();
+      // }else{
+      //   loading.close();
+      // }
+      
  },
  clearItemData(i){
   //  this.selectall.push(false);  
@@ -976,7 +1197,7 @@ this.loads.close();
   // }
  },
  async getwhs(itemcode, index){
-    
+ 
     this.selectedIndex = index;
     this.activewhsfields = index
     this.search = ''
@@ -1097,7 +1318,26 @@ async getItemData2(docentry){
   },
   async getUDF(){
       this.closereasonItem = await this.controller('udf', 6, 11);
-      this.stocktransfertypeItem = await this.controller('udf', 6, 31);
+      this.closereasonItem = [
+        {FldValue: 'RECO', Descr: 'RECOMPUTED'},
+         {FldValue: 'REPO', Descr: 'REPOSSESS'},
+          {FldValue: 'CANC', Descr: 'CANCELLED'},
+           {FldValue: 'WRNG', Descr: 'WRONG ENTRY'},
+            {FldValue: 'UNDP', Descr: 'UNAPPLIED ARDP'},
+             {FldValue: 'APCS', Descr: 'APPLIED CASH SALES'},
+              {FldValue: 'REFN', Descr: 'REFUND'},
+               {FldValue: 'WERR', Descr: 'WAREHOUSING ERROR'},
+               {FldValue: 'LEGL', Descr: 'LEGAL'},
+               {FldValue: 'REST', Descr: 'RESTRUCTURED'},
+               {FldValue: 'WRTE', Descr: 'WRITE-OFF'},
+               {FldValue: '-', Descr: '-'},
+      ]
+     // this.stocktransfertypeItem = await this.controller('udf', 6, 31);
+      this.stocktransfertypeItem = [{ FldValue: '-' ,Descr: '-'},
+        { FldValue: 'Third-Party' ,Descr: 'Third-Party Logistics'},
+        { FldValue: 'In-house' ,Descr: 'In-house Logistics'},
+        { FldValue: 'Picked up' ,Descr: 'Picked up'}
+      ]
       return "Fetch Done";
   },
   async getGoodsIssue(i){
@@ -1106,7 +1346,7 @@ async getItemData2(docentry){
       
       const data = await this.controller(this.activeRouteBase, 1);
       this.listgoodsissue = data.data[0]
-      
+      this.oitm = data.data
       this.nextt = data.next_page_url +  this.activeRouteBase
       this.prevtt = data.prev_page_url +  this.activeRouteBase
       this.lastpages = data.last_page_urld
@@ -1162,15 +1402,21 @@ async getItemData2(docentry){
         });
         console.log(data)
         if(data){
-            await axios.post(this.$URLs.backend+'/api/inventory/transfer/submit', data).then((res)=>{
-                var text = JSON.stringify(res.data);
-                this.$swal("Sync!", "" + text + "");
-                loading.close()
-                if(res.data.status !== 'warning'){
-                    this.refresh()
+             try {
+                const res = await axios.post(this.$URLs.backend + '/api/inventory/transfer/submit', data);
+                const text = JSON.stringify(res.data);
+                this.$swal("Sync!", text);
+                console.log('Response:', res);
+               if(res.data.status !== "error"){
+                   this.refresh();
                 }
-               
-            })
+
+            } catch (error) {
+                console.error('Error during sync:', error);
+                this.$swal("Error", error.message || "Something went wrong.");
+            } finally {
+                loading.close();
+            }
 
      }
   },
@@ -1232,6 +1478,15 @@ async getItemData2(docentry){
       this.searchremap = []
       this.searchDataItems = []
       this.selecteditem = []
+      this.remarksModel = []
+      this.JrnlMemo = []
+      this.count = 0
+      this.errorSN= []
+      this.qty= 50
+      this.itemtotransfer= 50
+      this.serials= []
+      this.counting=0
+      this.qtytotals= []
 
       
   }
@@ -1252,4 +1507,16 @@ async getItemData2(docentry){
  
 
 <style>
+</style>
+<style>
+.no-spacing {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-data-table > .v-data-table__wrapper .v-data-table__mobile-row{
+  min-height: 0px;
+}
+
+
 </style>

@@ -52,11 +52,18 @@
         >
         </v-text-field>
          <v-card-text>
-      Recent PO's:<br>
-      <a @click="historyclick(ponumber)" v-for="(ponumber, index) in history" :key="index">
-        {{ ponumber }}
-        <span v-if="index < history.length - 1">, </span>
-      </a>
+      <!-- Recent PO's:<br>
+          <a @click="historyclick(ponumber)" v-for="(ponumber, index) in history" :key="index">
+            {{ ponumber }}
+            <span v-if="index < history.length - 1">, </span>
+          </a>
+          <br> -->
+    <strong >  Unserialize PO's:</strong><br>
+         
+          <a @click="historyclick(ponumber.docentry,1)" v-for="(ponumber, index) in unserializedpo" :key="index">
+        <strong  style="color: red">    {{ ponumber.docentry }}</strong>
+            <span v-if="index < history.length - 1">, </span>
+          </a>
     </v-card-text>
     
         <div class="d-flex justify-end">
@@ -64,7 +71,7 @@
             class="ma-2"
             color="teal"
             text-color="white"
-            @click="searchpo()"
+            @click="searchpo(0)"
           >
             <v-avatar left>
               <v-icon>mdi-search-web</v-icon>
@@ -453,6 +460,7 @@ export default {
   },
   data() {
     return {
+      identifier: 0,
       alert: false,
       errors: [],
       mapid: '',
@@ -460,6 +468,7 @@ export default {
       reportsloading: false,
       companies: '',
       history: [],
+      unserializedpo: [],
       q: '',
       countserial: '',
       verifiedSerial: [],
@@ -584,8 +593,9 @@ export default {
     back(){
       this.$router.push('/sapb1/grpo/po/'+this.mapid);
     },
-    historyclick(po){
+    historyclick(po,c){
       this.searchPO = po
+      this.identifier = c
       this.searchpo()
     },
     //REPORTS
@@ -703,7 +713,7 @@ export default {
 
       this.searchpo(data);
     },
-  async  viewpo(status) {
+    async  viewpo(status) {
       //this.loadingPos = true;
       //this.pos = true;
       await  axios
@@ -719,6 +729,23 @@ export default {
             console.log(value.DocEntry)
           }
       })
+    },
+      async  viewunserialpos() {
+      //this.loadingPos = true;
+      //this.pos = true;
+      await  axios
+        .get(this.$URLs.backend + "/api/grpo/unserialized")
+        .then((res) => {
+         this.unserializedpo = res.data;
+         // this.loadingPos = false;
+        });
+  
+      // await this.allpos.forEach((value,index)=>{
+      //      if (!this.history.includes(this.history)) {
+      //       this.history.push(value.DocEntry)
+      //       console.log(value.DocEntry)
+      //     }
+      // })
     },
     progress(uniqueID) {
       console.log(uniqueID);
@@ -832,6 +859,9 @@ export default {
     },
     searchpo(po) {
       this.$socket.emit("history", this.companies);
+      if(po == 0){
+        this.identifier = 0
+      }
       var data = po;
       if (!po) {
         data = this.searchPO;
@@ -839,9 +869,15 @@ export default {
       this.loadingPosList = true;
       // this.searchPO = po
       this.loading = true;
+      var link;
+      if(this.identifier == 1 ){
+          link = this.$URLs.backend + "/api/inventory/grpo/createdgrpos?status="+this.status+"&check="+1
+      }else{
+          link = this.$URLs.backend + "/api/inventory/grpo/createdgrpos?status="+this.status+"&check="+0
+      }
 
       axios
-        .post(this.$URLs.backend + "/api/inventory/grpo/createdgrpos?status="+this.status, {
+        .post(link, {
           data,
         })
         .then((res) => {
@@ -1044,7 +1080,7 @@ export default {
   mounted() {
 
     this.mapid = this.$route.params.mapid;
-    
+    this.viewunserialpos()
     if(this.mapid){
        
       this.status = 'C'
