@@ -41,7 +41,7 @@ import customer_digitized from "../views/credit_collection/customer_digitized/di
 import installment_due from "../views/credit_collection/installment_due_of_customer/installment.vue" 
 import aging_reconciliation from "../views/credit_collection/aging_reconciliation/reconciliation.vue" 
 import dunning_letters from "../views/credit_collection/dunning_letters/dunning.vue";
-
+import creditinvestigate from "../views/credit_collection/credit_investigation/credit_inv_index.vue"
 //Validation Portal
 import validation_template from "../views/validation_portal/template/template.vue"
 import validation_good_receipt_serial_model from "../views/validation_portal/good_receipt_model_serial_model/good_receipt_model_serial_model.vue"
@@ -89,6 +89,7 @@ import barcodeprint from "../views/inventory/barcodeprint.vue";
 import goodsissue from "../views/inventory/inventorytransaction/goodsissue";
 import goodsreceipt from "../views/inventory/inventorytransaction/goodsreceipt";
 import inventorytransfer from "../views/inventory/inventorytransaction/inventorytransfer";
+ 
 //PURCHASING AP TRANSACTION
 //AP-CREADIT-MEMO
 import apcm from "../views/inventory/purchasing_ap/apcm";
@@ -103,7 +104,7 @@ import databaseconfigure from "../views/settings/database/configure.vue";
 //Motorpool 
 //TOLLWAYS MONITORING
 import monitoring from "../views/motorpool/tollway/monitoring.vue";
- 
+
 
 
 const viewRoutes = [
@@ -342,6 +343,14 @@ const viewRoutes = [
     }
   },
   {
+    path: "/ccs/credit/investigation/smarttools",
+    component: creditinvestigate,
+    name: "Credit_Investigation",
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: "/validation-portal/template",
     component: validation_template,
     name: "validation_template",
@@ -365,6 +374,7 @@ const viewRoutes = [
       requiresAuth: true
     }
   },
+  
   {
     path: "/raffle",
     component: raffle,

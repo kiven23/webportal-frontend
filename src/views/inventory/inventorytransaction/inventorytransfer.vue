@@ -373,12 +373,13 @@
             <v-icon>mdi-content-save-all</v-icon>
           </v-btn>
         </v-toolbar>
-        <v-list three-line  :key="serialcomponent_key"> 
+        <v-list three-line   > 
           <v-spacer></v-spacer>
           
                 <div v-for="(index) in parseInt(qty)" :key="index">  
                     <div >
                       <v-col cols="12">
+                          <a v-if="iteminfos" >{{iteminfos[index]}}</a> 
                         <v-text-field
                           v-model="serials[index]"
                           dense
@@ -386,9 +387,13 @@
                           :error-messages="errorSN[index]"
                           @input="errorSerial(index)"
                           @change="AutoSearchserials(index)"
+                          @focus="focusNextEmptyField()"
+                          clearable
+                          :ref="'textField' + index"
+                          @keydown.tab.prevent="focusNextEmptyField(index)"
                         >
                         </v-text-field>
-                        <a>{{iteminfos[index]}}</a>
+                       
                       </v-col>
                     </div>
                  </div>
@@ -712,6 +717,11 @@ export default {
     };
   },
   watch: {
+      // serialcomponent_key(){
+      //   this.focusNextEmptyField()
+
+      // },
+     
       loader () {
         const l = this.loader
         this[l] = !this[l]
@@ -724,9 +734,18 @@ export default {
     
       selecteditem() {
         
-         this.selecteditem.forEach((value,index)=>{
-              this.getWarehouse(value,index)
+        //  this.selecteditem.forEach((value,index)=>{
+        //      this.getWarehouse(value,index)
+         
+             
+        //  })
+           this.selecteditem.forEach((value,index)=>{
+             this.getWarehouse(  value,this.countQty(value.id),index)
+             
+            // this.selectedSerial[index] =  this.countQty(value.id)
          })
+       
+          
          this.goodsissue = this.selecteditem
        
          
@@ -767,9 +786,10 @@ export default {
      if(check(this.serials[i],this.myarr[0])){
           this.errorSN[i] = 'Duplicate entries are not allowed.'
      }else{
+      
       this.errorSN[i] = ''
      }
-     this.iteminfos[i] = []
+     this.iteminfos[i] = ''
  
         
    },
@@ -864,10 +884,17 @@ this.loads.close();
   }
 }
 ,
-   focusNextEmptyField(i) {
-       
-       const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
-       this.$refs['textField' + emtysnIndex][0].focus();
+   focusNextEmptyField() {
+        const qty = this.itemtotransfer;
+        console.log(qty)
+        var emtysnIndex = []
+        for (let i = 1; i <= qty; i++) {
+          emtysnIndex.push(this.serials[i])
+        }
+        console.log(emtysnIndex)
+       const indexof = emtysnIndex.findIndex(item => item === undefined || item === null)+1 
+     // const emtysnIndex = this.serialMapModel[i].findIndex(value => value.sn === null || value.sn === "");
+      this.$refs['textField' + indexof][0].focus();
       
       
     },
@@ -947,17 +974,25 @@ this.loads.close();
         }else if(i == 6){
           baselink = this.$URLs.backend+'/api/inventory/transfer/getters?get=' + data +'&id='+docentry;
         } 
-        const res = await axios.get(baselink);
+     
+        const res = await axios.get(baselink) 
+        
         if(res.data == 1){
                   
        
             this.errorSN[index+1] = "NotFound"
             this.errormessage.push(docentry)
             
+        } 
+        if(i == 4){
+           this.iteminfos[index+1] = res.data[0].ItemCode+' / '+res.data[0].WhsCode+' / '+res.data[0].ItemName 
+            this.focusNextEmptyField()
         }
-        this.iteminfos[index+1] = res.data[0].ItemCode
+ 
+        
+        
+        
 
-        console.log( res.data[0].ItemCode)
         return res.data;
     } catch (error) {
         
@@ -991,7 +1026,7 @@ this.loads.close();
    }
   },
   async next() {
-   
+ 
     try {
       this.loads = this.$vs.loading({
         progress1: 0,
@@ -1124,6 +1159,7 @@ searchfunction() {
      this.serialmanageDialog = true
      
  },
+  
  async searchserials(){
       const loading = this.$vs.loading({
         progress1: 0,
@@ -1166,17 +1202,18 @@ searchfunction() {
       this.myarr.push(serials)
       
    
-      var serials2 = this.serials.filter(item => item);
-      
-      for (const [index, res] of serials2.entries()) {
+      var serials2 = this.serials[i]
+      console.log(serials2)
+      // for (const [index, res] of serials2.entries()) {
        
              
                 
-               const data2 = await this.controller(this.Getactivemodals(this.activeModal),4, res, index);
-               
+             await this.controller(this.Getactivemodals(this.activeModal),4, serials2, i-1);
+              
  
-      }
-      this.serialcomponent_key+=1
+      // }
+       this.serialcomponent_key+=1
+      //this.focusNextEmptyField()
      //loading.close();
       //  console.log(this.errormessage.length)
       //  if(this.errormessage.length == 0){
@@ -1227,11 +1264,12 @@ searchfunction() {
         console.error('Error in selectitem:', error);  
    }
  },
- async getWarehouse(data,index){
+ async getWarehouse(data,sndata,index){
  
   await this.$set(this.warehouseModel, this.activewhsfields, data.WhsCode);
   this.warehouseModel[index] = await data.WhsCode
-  await this.getsn(data, index);
+  await this.getsn(data,sndata, index);
+   
   this.componentKey += await 1;
   this.warehouseDialog = false
  },
@@ -1250,7 +1288,7 @@ remapsnu(id){
     })
   
 },
-async getsn(item,i){
+async getsn(item,sndata,i){
   
     this.goodsissue.forEach((value,ids)=>{
         this.remapsnu(value.id)
@@ -1260,28 +1298,40 @@ async getsn(item,i){
     let count = this.remapsn[item.id] ? this.remapsn[item.id].length : 0;
     this.qtyModel[i] = count
     //console.log(this.searchremap)
-    
-    this.activeModal = 2
-    this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ item.WhsCode
-    this.serialDialog = true
-   try {
-        const data = await this.controller(this.Getactivemodals(this.activeModal),1);
-   
-        this.sn[i] = [];
+     this.sn[i] = [];
         this.serialMapModel[i] = [];
         this.errorSnExist[i] = [];
         this.errorSn[i] = []
-        data.forEach((res) => {
+        sndata.forEach((res) => {
         
-           this.sn[i].push(res.IntrSerial);
+           this.sn[i].push(res);
            this.serialMapModel[i].push({ sn: '' });
            this.errorSnExist[i].push('');
            this.errorSn[i].push('');
         });
-        this.activeModal = 0
-    } catch (error) {
-        console.error('Error in selectitem:', error);  
-    }
+  //   this.activeModal = 2
+  //   this.activeRouteBase = '&status=0&get='+this.Getactivemodals(this.activeModal)+'&itemcode='+item.ItemCode+'&warehouse='+ item.WhsCode
+  //   this.serialDialog = true
+  //  try {
+  //       const data = await this.controller(this.Getactivemodals(this.activeModal),1);
+   
+  //       this.sn[i] = [];
+  //       this.serialMapModel[i] = [];
+  //       this.errorSnExist[i] = [];
+  //       this.errorSn[i] = []
+  //       data.forEach((res) => {
+        
+  //          this.sn[i].push(res.IntrSerial);
+  //          this.serialMapModel[i].push({ sn: '' });
+  //          this.errorSnExist[i].push('');
+  //          this.errorSn[i].push('');
+  //       });
+      
+         
+  //       this.activeModal = 0
+  //   } catch (error) {
+  //       console.error('Error in selectitem:', error);  
+  //   }
  
     
   },
@@ -1420,22 +1470,29 @@ async getItemData2(docentry){
 
      }
   },
-  nextline(){
-   
+  async nextline(){
+   const load = this.$vs.loading({
+        progress1: 0,
+      });
    this.activeModal = 4
    this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal,1)
-   this.getGoodsIssue(1)
+   await this.getGoodsIssue(1)
    console.log(this.activeRouteBase)
    this.creation = 1;
    this.page += 1;
+   await load.close();
   },
-  previous(){
+  async previous(){
+     const load = this.$vs.loading({
+        progress1: 0,
+      });
    this.activeModal = 4
    this.activeRouteBase = '&get='+this.Getactivemodals(this.activeModal,1)
-   this.getGoodsIssue(2)
+   await this.getGoodsIssue(2)
     
    this.creation = 1
    this.page -= 1;
+   await load.close();
   },
   async viewSerial(i){
     this.activeModal = 2
